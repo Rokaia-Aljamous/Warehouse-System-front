@@ -1,8 +1,10 @@
 import 'package:customer_app/features/auth/views/profile_view.dart';
 import 'package:flutter/material.dart';
 
+import '../../../controllers/returns_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
+import '../models/return_model.dart';
 
 import '../../home/views/home_view.dart';
 import '../../home/widgets/app_bottom_nav.dart';
@@ -24,16 +26,20 @@ class MyReturnsView extends StatefulWidget {
 class _MyReturnsViewState extends State<MyReturnsView>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final _controller = ReturnsController();
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _controller.loadReturns();
+    _controller.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -51,18 +57,14 @@ class _MyReturnsViewState extends State<MyReturnsView>
             case 0:
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const HomeView(),
-                ),
+                MaterialPageRoute(builder: (_) => const HomeView()),
               );
               break;
 
             case 1:
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const MyOrdersView(),
-                ),
+                MaterialPageRoute(builder: (_) => const MyOrdersView()),
               );
               break;
 
@@ -72,72 +74,92 @@ class _MyReturnsViewState extends State<MyReturnsView>
             case 3:
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const ProfileView(),
-                ),
+                MaterialPageRoute(builder: (_) => const ProfileView()),
               );
               break;
           }
         },
       ),
 
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-
-          SliverToBoxAdapter(
-            child: AppHeader(
-              title: 'My Returns',
-              showBack: true,
-              showNotification: true,
-              onNotificationTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsView())),
-              extraBottomPadding: 25,
-            ),
-          ),
-
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _ReturnsTabBarDelegate(
-              TabBar(
-                controller: _tabController,
-
-                indicatorColor: Colors.white,
-                indicatorWeight: 2,
-                indicatorSize: TabBarIndicatorSize.label,
-
-                labelColor: Colors.white,
-                unselectedLabelColor: const Color(0xFFB8C7E0),
-
-                dividerColor: Colors.transparent,
-
-                labelStyle: AppTextStyles.fieldLabel.copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
+      body: RefreshIndicator(
+        onRefresh: _controller.loadReturns,
+        child: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            SliverToBoxAdapter(
+              child: AppHeader(
+                title: 'My Returns',
+                showBack: true,
+                showNotification: true,
+                onNotificationTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const NotificationsView()),
                 ),
-
-                unselectedLabelStyle:
-                    AppTextStyles.fieldLabel.copyWith(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14,
-                ),
-
-                tabs: const [
-                  Tab(text: 'Pending'),
-                  Tab(text: 'In Progress'),
-                  Tab(text: 'Archived'),
-                ],
+                extraBottomPadding: 25,
               ),
             ),
-          ),
-        ],
 
-        body: TabBarView(
-          controller: _tabController,
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _ReturnsTabBarDelegate(
+                TabBar(
+                  controller: _tabController,
 
-          children: const [
-            PendingReturnsScreen(),
-            InProgressReturnsScreen(),
-            ArchivedReturnsScreen(),
+                  indicatorColor: Colors.white,
+                  indicatorWeight: 2,
+                  indicatorSize: TabBarIndicatorSize.label,
+
+                  labelColor: Colors.white,
+                  unselectedLabelColor: const Color(0xFFB8C7E0),
+
+                  dividerColor: Colors.transparent,
+
+                  labelStyle: AppTextStyles.fieldLabel.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+
+                  unselectedLabelStyle: AppTextStyles.fieldLabel.copyWith(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                  ),
+
+                  tabs: const [
+                    Tab(text: 'Pending'),
+                    Tab(text: 'In Progress'),
+                    Tab(text: 'Archived'),
+                  ],
+                ),
+              ),
+            ),
           ],
+
+          body: _controller.isLoading && _controller.returns.isEmpty
+              ? const Center(child: CircularProgressIndicator())
+              : _controller.errorMessage != null && _controller.returns.isEmpty
+              ? Center(
+                  child: Text(
+                    _controller.errorMessage!,
+                    style: AppTextStyles.bodySmall,
+                  ),
+                )
+              : TabBarView(
+                  controller: _tabController,
+                  children: [
+                    PendingReturnsScreen(
+                      returns: _controller.byCategory(ReturnUiCategory.pending),
+                    ),
+                    InProgressReturnsScreen(
+                      returns: _controller.byCategory(
+                        ReturnUiCategory.inProgress,
+                      ),
+                    ),
+                    ArchivedReturnsScreen(
+                      returns: _controller.byCategory(
+                        ReturnUiCategory.archived,
+                      ),
+                    ),
+                  ],
+                ),
         ),
       ),
     );
@@ -158,14 +180,9 @@ class _ReturnsTabBarDelegate extends SliverPersistentHeaderDelegate {
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.primary,
-        borderRadius: BorderRadius.only(
-          bottomRight: Radius.circular(30),
-        ),
+        borderRadius: BorderRadius.only(bottomRight: Radius.circular(30)),
       ),
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: tabBar,
-      ),
+      child: Align(alignment: Alignment.topCenter, child: tabBar),
     );
   }
 

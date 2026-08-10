@@ -1,4 +1,5 @@
 import 'package:customer_app/features/auth/views/change_password_view.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:customer_app/features/auth/views/profile_view.dart';
 import 'package:customer_app/features/home/views/filter_dialog.dart';
 import 'package:customer_app/features/home/views/my_cart_view.dart';
@@ -97,7 +98,20 @@ class _HomeViewState extends State<HomeView> {
           _HomeHeader(
             title: "Warehouse Hub",
             showFilter: true,
-            onFilterTap: () => showFilterDialog(context),
+            onFilterTap: () async {
+              final result = await showFilterDialog(
+                context,
+                governorates: _homeController.availableGovernorates,
+                currentGovernorate: _homeController.governorateFilter,
+                currentType: _homeController.typeFilter,
+              );
+              if (result != null) {
+                _homeController.applyFilters(
+                  governorate: result['governorate'],
+                  type: result['type'],
+                );
+              }
+            },
             onSearchChanged: _homeController.search,
           ),
           const SizedBox(height: 20),
@@ -263,8 +277,16 @@ class _HomeDrawer extends StatelessWidget {
             ),
             _DrawerItem(
               icon: Icons.language_outlined,
-              label: 'English',
-              onTap: () => Navigator.pop(context),
+              label: context.locale.languageCode == 'ar'
+                  ? 'drawer.language'.tr()
+                  : 'English',
+              onTap: () async {
+                final newLocale = context.locale.languageCode == 'en'
+                    ? const Locale('ar')
+                    : const Locale('en');
+                await context.setLocale(newLocale);
+                if (context.mounted) Navigator.pop(context);
+              },
             ),
             const Divider(height: 32, indent: 24, endIndent: 24),
             _DrawerItem(

@@ -75,10 +75,7 @@ class ReturnProcessView extends StatelessWidget {
           Text(
             'Please show this barcode to the store representative to process your return',
             textAlign: TextAlign.center,
-            style: AppTextStyles.bodySmall.copyWith(
-              fontSize: 13,
-              height: 1.4,
-            ),
+            style: AppTextStyles.bodySmall.copyWith(fontSize: 13, height: 1.4),
           ),
           const SizedBox(height: AppSizes.xl),
 
@@ -99,8 +96,7 @@ class ReturnProcessView extends StatelessWidget {
               ],
             ),
             child: const Center(
-              child: Icon(Icons.qr_code_2,
-                  size: 160, color: AppColors.primary),
+              child: Icon(Icons.qr_code_2, size: 160, color: AppColors.primary),
             ),
           ),
           const SizedBox(height: AppSizes.xl),
@@ -119,14 +115,19 @@ class ReturnProcessView extends StatelessWidget {
               foregroundColor: Colors.white,
               minimumSize: const Size(double.infinity, 52),
               shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(AppSizes.buttonBorderRadius),
+                borderRadius: BorderRadius.circular(
+                  AppSizes.buttonBorderRadius,
+                ),
               ),
               elevation: 0,
             ),
-            child: const Text('Confirm Return',
-                style: TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.w600)),
+            child: const Text(
+              'Confirm Return',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
           const SizedBox(height: AppSizes.sm),
 
@@ -138,13 +139,18 @@ class ReturnProcessView extends StatelessWidget {
               minimumSize: const Size(double.infinity, 52),
               side: const BorderSide(color: AppColors.primary, width: 1.5),
               shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(AppSizes.buttonBorderRadius),
+                borderRadius: BorderRadius.circular(
+                  AppSizes.buttonBorderRadius,
+                ),
               ),
             ),
-            child: const Text('Not now',
-                style: TextStyle(
-                    color: AppColors.primary, fontWeight: FontWeight.w600)),
+            child: const Text(
+              'Not now',
+              style: TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),

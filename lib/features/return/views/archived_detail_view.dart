@@ -1,37 +1,79 @@
 import 'package:customer_app/features/orders/widgets/app_header_in.dart';
-import 'package:customer_app/features/orders/widgets/order_status_badge.dart';
 import 'package:flutter/material.dart';
+import '../../../controllers/returns_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_text_styles.dart';
+import '../models/return_model.dart';
 import 'package:customer_app/features/home/views/notifications_view.dart';
 
-/// Archived / Received return order detail screen.
-///
-/// Matches Figma screen "تفاصيل طلب مرتجع مستلم":
-///   AppHeader (orderNumber)
-///   Order Status banner — RECEIVED (same pattern as My Orders detail screens)
-///   Warehouse card — "Clothing Warehouse"
-///   RETURNED ITEMS section label
-///   Item cards (Classic Jeans $660.00, Leather Belt $450.00)
-///   RETURN REASON section label
-///   Reason card — "Size doesn't fit correctly"
-///   money refund — "$1100.00"  (green text for amount)
-class ArchivedDetailView extends StatelessWidget {
-  final String orderNumber;
+/// Archived return order detail screen — يجيب المرتجع الحقيقي حسب [returnId].
+/// بيستخدم لحالات: return_to_stock / damaged (تمت الموافقة والاسترجاع فعلياً)
+/// و rejected / cancelled (اتلغى أو انرفض).
+class ArchivedDetailView extends StatefulWidget {
+  final int returnId;
 
-  const ArchivedDetailView({super.key, required this.orderNumber});
+  const ArchivedDetailView({super.key, required this.returnId});
 
-  // Section label style used for RETURNED ITEMS / RETURN REASON headers.
-  static final TextStyle _sectionLabelStyle =
-      AppTextStyles.sectionLabel.copyWith(
-    fontSize: 14,
-    letterSpacing: 0.5,
-    color: AppColors.textSecondary,
-  );
+  @override
+  State<ArchivedDetailView> createState() => _ArchivedDetailViewState();
+}
+
+class _ArchivedDetailViewState extends State<ArchivedDetailView> {
+  final _controller = ReturnsController();
+  bool _isLoading = true;
+  String? _errorMessage;
+  ReturnModel? _returnData;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final data = await _controller.fetchReturnDetails(widget.returnId);
+    if (!mounted) return;
+    setState(() {
+      _returnData = data;
+      _isLoading = false;
+      if (data == null) _errorMessage = 'تعذر تحميل تفاصيل المرتجع';
+    });
+  }
+
+  static final TextStyle _sectionLabelStyle = AppTextStyles.sectionLabel
+      .copyWith(
+        fontSize: 14,
+        letterSpacing: 0.5,
+        color: AppColors.textSecondary,
+      );
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        backgroundColor: AppColors.cardBg,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_returnData == null) {
+      return Scaffold(
+        backgroundColor: AppColors.cardBg,
+        body: Center(
+          child: Text(
+            _errorMessage ?? 'حدث خطأ',
+            style: AppTextStyles.bodySmall,
+          ),
+        ),
+      );
+    }
+
+    final data = _returnData!;
+    // rejected/cancelled = لم يُقبل المرتجع فعلياً (بدون استرجاع مبلغ).
+    // return_to_stock/damaged = تم استلام المرتجع فعلياً (استرجاع مبلغ).
+    final isNegative = data.status == 'rejected' || data.status == 'cancelled';
+
     return Scaffold(
       backgroundColor: AppColors.cardBg,
       body: SingleChildScrollView(
@@ -39,37 +81,51 @@ class ArchivedDetailView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppHeader(
-              title: orderNumber,
+              title: 'Return #${data.id}',
               showBack: true,
               showNotification: true,
-              onNotificationTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsView())),
+              onNotificationTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NotificationsView()),
+              ),
               borderRadius: const BorderRadius.only(
                 bottomRight: Radius.circular(30),
               ),
               extraBottomPadding: 25,
             ),
 
-            // ── Order Status banner (RECEIVED) — same Container+Row+Icon+Text
-            // pattern as the My Orders detail screens. Reuses [OrderStatus]
-            // and the project's status color palette.
+            // ── Order Status banner ─────────────────────────────────────
             Container(
               width: double.infinity,
               margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
               decoration: BoxDecoration(
-                color: AppColors.statusApprovedTxt.withValues(alpha: 0.15),
+                color:
+                    (isNegative
+                            ? AppColors.statusCancelledTxt
+                            : AppColors.statusApprovedTxt)
+                        .withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.border),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.check_circle_outline,
-                      color: AppColors.statusApprovedTxt, size: 24),
+                  Icon(
+                    isNegative
+                        ? Icons.cancel_outlined
+                        : Icons.check_circle_outline,
+                    color: isNegative
+                        ? AppColors.statusCancelledTxt
+                        : AppColors.statusApprovedTxt,
+                    size: 24,
+                  ),
                   const SizedBox(width: 12),
                   Text(
-                    'RECEIVED',
+                    data.status.replaceAll('_', ' ').toUpperCase(),
                     style: AppTextStyles.fieldLabel.copyWith(
-                      color: AppColors.statusApprovedTxt,
+                      color: isNegative
+                          ? AppColors.statusCancelledTxt
+                          : AppColors.statusApprovedTxt,
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
                       letterSpacing: 1.1,
@@ -81,14 +137,19 @@ class ArchivedDetailView extends StatelessWidget {
 
             Padding(
               padding: const EdgeInsets.symmetric(
-                  horizontal: AppSizes.pagePaddingH),
+                horizontal: AppSizes.pagePaddingH,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: AppSizes.lg),
 
                   // ── Warehouse card ─────────────────────────────────────
-                  const _ArchivedWarehouseCard(),
+                  _ArchivedWarehouseCard(
+                    name: data.warehouseName.isNotEmpty
+                        ? data.warehouseName
+                        : 'Warehouse #${data.warehouseId}',
+                  ),
 
                   const SizedBox(height: AppSizes.lg),
 
@@ -96,32 +157,31 @@ class ArchivedDetailView extends StatelessWidget {
                   Text('RETURNED ITEMS', style: _sectionLabelStyle),
                   const SizedBox(height: AppSizes.md),
 
-                  const _ArchivedItemCard(
-                    name: 'Classic Jeans',
-                    imagePath: 'assets/images/jeans.png',
-                    quantity: 1,
-                    price: 660.00,
-                  ),
-                  const _ArchivedItemCard(
-                    name: 'Leather Belt',
-                    imagePath: 'assets/images/belt.png',
-                    quantity: 1,
-                    price: 450.00,
-                  ),
+                  if (data.items.isEmpty)
+                    Text('لا توجد عناصر', style: AppTextStyles.bodySmall)
+                  else
+                    ...data.items.map(
+                      (item) => _ArchivedItemCard(
+                        name: item.productName,
+                        quantity: item.quantity,
+                        price: item.subtotal,
+                      ),
+                    ),
 
                   const SizedBox(height: AppSizes.lg),
 
                   // ── RETURN REASON section ──────────────────────────────
                   Text('RETURN REASON', style: _sectionLabelStyle),
                   const SizedBox(height: AppSizes.md),
-                  const _ArchivedReasonCard(
-                    reason: 'Size doesn\'t fit correctly',
-                  ),
+                  _ArchivedReasonCard(reason: data.returnReason),
 
                   const SizedBox(height: AppSizes.lg),
 
-                  // ── money refund card ──────────────────────────────────
-                  const _MoneyRefundCard(amount: 1100.00),
+                  // ── money refund / no-refund card ──────────────────────
+                  _MoneyRefundCard(
+                    amount: data.dueAmount,
+                    isNegative: isNegative,
+                  ),
 
                   const SizedBox(height: AppSizes.xl),
                 ],
@@ -136,7 +196,8 @@ class ArchivedDetailView extends StatelessWidget {
 
 /// Warehouse name card. Cream background, navy border, 12px radius.
 class _ArchivedWarehouseCard extends StatelessWidget {
-  const _ArchivedWarehouseCard();
+  final String name;
+  const _ArchivedWarehouseCard({required this.name});
 
   @override
   Widget build(BuildContext context) {
@@ -150,11 +211,14 @@ class _ArchivedWarehouseCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.store_outlined,
-              color: AppColors.iconColor, size: 20),
+          const Icon(
+            Icons.store_outlined,
+            color: AppColors.iconColor,
+            size: 20,
+          ),
           const SizedBox(width: AppSizes.sm),
           Text(
-            'Clothing Warehouse',
+            name,
             style: AppTextStyles.fieldLabel.copyWith(
               fontSize: 16,
               color: AppColors.textPrimary,
@@ -166,16 +230,14 @@ class _ArchivedWarehouseCard extends StatelessWidget {
   }
 }
 
-/// Single archived item card — image left, name/qty/price right.
+/// Single archived item card — name/qty/price (بدون صورة حقيقية).
 class _ArchivedItemCard extends StatelessWidget {
   final String name;
-  final String imagePath;
   final int quantity;
   final double price;
 
   const _ArchivedItemCard({
     required this.name,
-    required this.imagePath,
     required this.quantity,
     required this.price,
   });
@@ -201,20 +263,17 @@ class _ArchivedItemCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.asset(
-              imagePath,
-              width: 64,
-              height: 64,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 64,
-                height: 64,
-                color: AppColors.border,
-                child: const Icon(Icons.image_outlined,
-                    color: AppColors.textHint, size: 28),
-              ),
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: AppColors.border,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.inventory_2_outlined,
+              color: AppColors.textHint,
+              size: 28,
             ),
           ),
           const SizedBox(width: AppSizes.md),
@@ -225,12 +284,14 @@ class _ArchivedItemCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      name,
-                      style: AppTextStyles.fieldLabel.copyWith(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.textPrimary,
+                    Expanded(
+                      child: Text(
+                        name,
+                        style: AppTextStyles.fieldLabel.copyWith(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
                     ),
                     Text(
@@ -273,7 +334,7 @@ class _ArchivedReasonCard extends StatelessWidget {
         border: Border.all(color: AppColors.border, width: 1),
       ),
       child: Text(
-        reason,
+        reason.isNotEmpty ? reason : '—',
         style: AppTextStyles.fieldLabel.copyWith(
           fontSize: 14,
           color: AppColors.textPrimary,
@@ -283,35 +344,41 @@ class _ArchivedReasonCard extends StatelessWidget {
   }
 }
 
-/// "money refund" card — label left, big amount right (green text per Figma).
+/// "money refund" card — أخضر لو تم الاسترجاع فعلياً، أحمر لو انرفض/انلغى.
 class _MoneyRefundCard extends StatelessWidget {
   final double amount;
-  const _MoneyRefundCard({required this.amount});
+  final bool isNegative;
+  const _MoneyRefundCard({required this.amount, required this.isNegative});
 
   @override
   Widget build(BuildContext context) {
+    final color = isNegative
+        ? AppColors.statusCancelledTxt
+        : AppColors.statusApprovedTxt;
+    final bg = isNegative
+        ? AppColors.statusCancelledBg
+        : AppColors.statusApprovedBg;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSizes.md),
       decoration: BoxDecoration(
-        color: AppColors.statusApprovedBg,
+        color: bg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.statusApprovedTxt),
+        border: Border.all(color: color),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'money refund',
-            style: AppTextStyles.fieldLabel.copyWith(
-              color: AppColors.statusApprovedTxt,
-            ),
+            isNegative ? 'return not processed' : 'money refund',
+            style: AppTextStyles.fieldLabel.copyWith(color: color),
           ),
           Text(
             '\$${amount.toStringAsFixed(2)}',
             style: AppTextStyles.screenTitle.copyWith(
               fontSize: 20,
-              color: AppColors.statusApprovedTxt,
+              color: color,
             ),
           ),
         ],

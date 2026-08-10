@@ -3,29 +3,14 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_text_styles.dart';
+import '../models/return_model.dart';
 import 'return_detail_view.dart';
 
-/// "My Returns → Pending" tab.
-///
-/// UI matches Figma screen "مرتجعاتي قيد الانتظار":
-///  - 3 return cards (Return #03, #04, #02)
-///  - All "Under Review" status badge (red)
-///  - All "Medicine Warehouse"
-///  - All "May 14, 2024"
-///  - Footer "End of pending list"
-///
-/// The existing `OrderCard` widget only supports fixed labels ("Pending",
-/// "Shipping", ...) so we build the list item inline to match the Figma
-/// "Under Review" badge text exactly. Card shape (asymmetric bottom-right
-/// corner) and spacing match the rest of the app.
+/// "My Returns → Pending" tab. مرتبط الآن بمرتجعات حقيقية من الباك اند.
 class PendingReturnsScreen extends StatelessWidget {
-  const PendingReturnsScreen({super.key});
+  final List<ReturnModel> returns;
 
-  static const List<_PendingReturnData> _items = [
-    _PendingReturnData(returnNumber: 'Return #03', orderNumber: 'Order #03'),
-    _PendingReturnData(returnNumber: 'Return #04', orderNumber: 'Order #04'),
-    _PendingReturnData(returnNumber: 'Return #02', orderNumber: 'Order #02'),
-  ];
+  const PendingReturnsScreen({super.key, required this.returns});
 
   @override
   Widget build(BuildContext context) {
@@ -36,22 +21,18 @@ class PendingReturnsScreen extends StatelessWidget {
         AppSizes.pagePaddingH,
         AppSizes.xl,
       ),
-      itemCount: _items.length + 1, // +1 for footer
+      itemCount: returns.length + 1, // +1 for footer
       itemBuilder: (context, index) {
-        if (index == _items.length) {
+        if (index == returns.length) {
           return const _EndOfListIndicator(text: 'End of pending list');
         }
-        final item = _items[index];
+        final item = returns[index];
         return _PendingReturnCard(
           data: item,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => ReturnDetailView(
-                returnNumber: item.returnNumber,
-                orderNumber: item.orderNumber,
-                status: ReturnDetailStatus.pending,
-              ),
+              builder: (_) => ReturnDetailView(returnId: item.id),
             ),
           ),
         );
@@ -62,7 +43,7 @@ class PendingReturnsScreen extends StatelessWidget {
 
 /// Single pending return card.
 class _PendingReturnCard extends StatelessWidget {
-  final _PendingReturnData data;
+  final ReturnModel data;
   final VoidCallback onTap;
 
   const _PendingReturnCard({required this.data, required this.onTap});
@@ -78,6 +59,9 @@ class _PendingReturnCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final date =
+        '${data.createdAt.year}-${data.createdAt.month.toString().padLeft(2, '0')}-${data.createdAt.day.toString().padLeft(2, '0')}';
+
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: AppSizes.md),
@@ -109,7 +93,7 @@ class _PendingReturnCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      data.returnNumber,
+                      'Return #${data.id}',
                       style: AppTextStyles.screenTitle.copyWith(fontSize: 18),
                     ),
                     const _UnderReviewBadge(),
@@ -119,11 +103,18 @@ class _PendingReturnCard extends StatelessWidget {
                 // Warehouse name with icon
                 Row(
                   children: [
-                    const Icon(Icons.store_outlined,
-                        size: 16, color: AppColors.iconColor),
+                    const Icon(
+                      Icons.store_outlined,
+                      size: 16,
+                      color: AppColors.iconColor,
+                    ),
                     const SizedBox(width: 4),
-                    Text('Medicine Warehouse',
-                        style: AppTextStyles.bodySmall),
+                    Text(
+                      data.warehouseName.isNotEmpty
+                          ? data.warehouseName
+                          : 'Warehouse #${data.warehouseId}',
+                      style: AppTextStyles.bodySmall,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -131,7 +122,7 @@ class _PendingReturnCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('May 14, 2024', style: AppTextStyles.bodySmall),
+                    Text(date, style: AppTextStyles.bodySmall),
                     Row(
                       children: [
                         Text(
@@ -193,8 +184,7 @@ class _EndOfListIndicator extends StatelessWidget {
       padding: const EdgeInsets.only(top: AppSizes.xl, bottom: AppSizes.xl),
       child: Column(
         children: [
-          Icon(Icons.history_outlined,
-              size: 40, color: AppColors.textHint),
+          Icon(Icons.history_outlined, size: 40, color: AppColors.textHint),
           const SizedBox(height: AppSizes.sm),
           Text(
             text,
@@ -208,14 +198,4 @@ class _EndOfListIndicator extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Simple value holder for a pending return row.
-class _PendingReturnData {
-  final String returnNumber;
-  final String orderNumber;
-  const _PendingReturnData({
-    required this.returnNumber,
-    required this.orderNumber,
-  });
 }

@@ -75,10 +75,7 @@ class RefundConfirmView extends StatelessWidget {
             'Your return request has been processed successfully. '
             'An amount of $amount has been refunded to your wallet.',
             textAlign: TextAlign.center,
-            style: AppTextStyles.bodySmall.copyWith(
-              fontSize: 13,
-              height: 1.4,
-            ),
+            style: AppTextStyles.bodySmall.copyWith(fontSize: 13, height: 1.4),
           ),
           const SizedBox(height: AppSizes.xl),
 
@@ -112,14 +109,19 @@ class RefundConfirmView extends StatelessWidget {
               foregroundColor: Colors.white,
               minimumSize: const Size(double.infinity, 52),
               shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(AppSizes.buttonBorderRadius),
+                borderRadius: BorderRadius.circular(
+                  AppSizes.buttonBorderRadius,
+                ),
               ),
               elevation: 0,
             ),
-            child: const Text('Confirm and Continue',
-                style: TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.w600)),
+            child: const Text(
+              'Confirm and Continue',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
           const SizedBox(height: AppSizes.sm),
 
@@ -131,13 +133,18 @@ class RefundConfirmView extends StatelessWidget {
               minimumSize: const Size(double.infinity, 52),
               side: const BorderSide(color: AppColors.primary, width: 1.5),
               shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(AppSizes.buttonBorderRadius),
+                borderRadius: BorderRadius.circular(
+                  AppSizes.buttonBorderRadius,
+                ),
               ),
             ),
-            child: const Text('Not now',
-                style: TextStyle(
-                    color: AppColors.primary, fontWeight: FontWeight.w600)),
+            child: const Text(
+              'Not now',
+              style: TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),

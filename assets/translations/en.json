@@ -1,0 +1,90 @@
+{
+  "app_name": "Warehouse Hub",
+
+  "nav": {
+    "home": "Home",
+    "orders": "Orders",
+    "returns": "Returns",
+    "profile": "Profile"
+  },
+
+  "drawer": {
+    "profile": "Profile",
+    "change_password": "Change Password",
+    "wallet": "Wallet",
+    "theme": "Light",
+    "language": "English",
+    "logout": "Logout",
+    "logout_demo": "Logout (demo only)."
+  },
+
+  "common": {
+    "search": "Search...",
+    "no_results": "No matching results",
+    "try_again": "Try again",
+    "cancel": "Cancel",
+    "close": "Close",
+    "clear": "Clear",
+    "apply": "Apply",
+    "done": "Done",
+    "loading": "Loading...",
+    "error_generic": "Something went wrong",
+    "view_details": "View Details"
+  },
+
+  "home": {
+    "title": "Warehouse Hub",
+    "filter_title": "Apply Filters",
+    "select_province": "Select Province",
+    "all_governorates": "All Governorates",
+    "search_type": "Search for Warehouse Type",
+    "search_type_hint": "e.g. Cold Storage, General...",
+    "apply_filters": "Apply Filters"
+  },
+
+  "returns": {
+    "my_returns": "My Returns",
+    "pending": "Pending",
+    "in_progress": "In Progress",
+    "archived": "Archived",
+    "end_of_pending": "End of pending list",
+    "end_of_in_progress": "End of In Progress list",
+    "end_of_archive": "You've reached the end of your archive",
+    "returned_items": "RETURNED ITEMS",
+    "return_reason": "RETURN REASON",
+    "your_due_money": "Your due money",
+    "money_refund": "money refund",
+    "return_not_processed": "return not processed",
+    "cancel_return_request": "Cancel Return Request",
+    "cancel_confirm_title": "Cancel Return Request",
+    "cancel_confirm_body": "Are you sure you want to cancel this return request?",
+    "go_back": "Go Back",
+    "submit_return_request": "Submit Return Request",
+    "reason_for_return": "REASON FOR RETURN",
+    "select_reason": "Select a reason...",
+    "specify_reason": "Please specify the reason...",
+    "estimated_refund": "Estimated refund",
+    "under_review": "Under Review",
+    "return_order": "Return Order",
+    "qr_code": "QR Code"
+  },
+
+  "orders": {
+    "my_orders": "My Orders",
+    "items_in_order": "ITEMS IN ORDER"
+  },
+
+  "status": {
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "cancelled": "Cancelled",
+    "delivered": "Delivered",
+    "received": "Received",
+    "shipping": "Shipping",
+    "picked_by_driver": "Picked By Driver",
+    "return_to_warehouse": "Return To Warehouse",
+    "return_to_stock": "Return To Stock",
+    "damaged": "Damaged"
+  }
+}

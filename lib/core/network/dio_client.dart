@@ -1,21 +1,25 @@
 import 'package:customer_app/core/network/api_constants.dart';
 import 'package:dio/dio.dart';
 
-
 /// كل إعدادات Dio + معالجة الأخطاء بمكان واحد
 class DioClient {
   DioClient._();
 
-  static final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl: ApiConstants.baseUrl,
-      connectTimeout: const Duration(seconds: 15),
-      receiveTimeout: const Duration(seconds: 15),
-      headers: {'Accept': 'application/json'},
-    ),
-  )..interceptors.add(
-      LogInterceptor(requestBody: true, responseBody: true), // ← بيطبع كل شي بالـ console تلقائياً، بلا ما تكتب أي debugPrint
-    );
+  static final Dio _dio =
+      Dio(
+          BaseOptions(
+            baseUrl: ApiConstants.baseUrl,
+            connectTimeout: const Duration(seconds: 45),
+            receiveTimeout: const Duration(seconds: 45),
+            headers: {'Accept': 'application/json'},
+          ),
+        )
+        ..interceptors.add(
+          LogInterceptor(
+            requestBody: true,
+            responseBody: true,
+          ), // ← بيطبع كل شي بالـ console تلقائياً، بلا ما تكتب أي debugPrint
+        );
 
   static Dio get instance => _dio;
 

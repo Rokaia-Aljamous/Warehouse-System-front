@@ -34,6 +34,7 @@ class ReceivedOrdersScreen extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (_) => ReceivedOrderDetailView(
+                  orderId: order.id,
                   orderNumber: orderNumber,
                 ),
               ),

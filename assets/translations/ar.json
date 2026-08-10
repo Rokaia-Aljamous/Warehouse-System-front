@@ -1,0 +1,90 @@
+{
+  "app_name": "مركز المستودعات",
+
+  "nav": {
+    "home": "الرئيسية",
+    "orders": "الطلبيات",
+    "returns": "المرتجعات",
+    "profile": "حسابي"
+  },
+
+  "drawer": {
+    "profile": "الملف الشخصي",
+    "change_password": "تغيير كلمة المرور",
+    "wallet": "المحفظة",
+    "theme": "فاتح",
+    "language": "العربية",
+    "logout": "تسجيل الخروج",
+    "logout_demo": "تسجيل الخروج (تجريبي فقط)."
+  },
+
+  "common": {
+    "search": "بحث...",
+    "no_results": "لا توجد نتائج مطابقة",
+    "try_again": "حاول مجدداً",
+    "cancel": "إلغاء",
+    "close": "إغلاق",
+    "clear": "مسح",
+    "apply": "تطبيق",
+    "done": "تم",
+    "loading": "جارِ التحميل...",
+    "error_generic": "حدث خطأ ما",
+    "view_details": "عرض التفاصيل"
+  },
+
+  "home": {
+    "title": "مركز المستودعات",
+    "filter_title": "تطبيق الفلاتر",
+    "select_province": "اختر المحافظة",
+    "all_governorates": "كل المحافظات",
+    "search_type": "ابحث عن نوع المستودع",
+    "search_type_hint": "مثال: تبريد، عام...",
+    "apply_filters": "تطبيق الفلاتر"
+  },
+
+  "returns": {
+    "my_returns": "مرتجعاتي",
+    "pending": "قيد الانتظار",
+    "in_progress": "قيد المعالجة",
+    "archived": "الأرشيف",
+    "end_of_pending": "نهاية القائمة",
+    "end_of_in_progress": "نهاية القائمة",
+    "end_of_archive": "وصلتِ لنهاية الأرشيف",
+    "returned_items": "المنتجات المرتجعة",
+    "return_reason": "سبب الإرجاع",
+    "your_due_money": "المبلغ المستحق",
+    "money_refund": "مبلغ مسترجع",
+    "return_not_processed": "لم تتم معالجة الإرجاع",
+    "cancel_return_request": "إلغاء طلب الإرجاع",
+    "cancel_confirm_title": "إلغاء طلب الإرجاع",
+    "cancel_confirm_body": "هل أنت متأكد من إلغاء طلب الإرجاع؟",
+    "go_back": "رجوع",
+    "submit_return_request": "تقديم طلب الإرجاع",
+    "reason_for_return": "سبب الإرجاع",
+    "select_reason": "اختر سبباً...",
+    "specify_reason": "الرجاء توضيح السبب...",
+    "estimated_refund": "المبلغ المتوقع استرجاعه",
+    "under_review": "قيد المراجعة",
+    "return_order": "إرجاع الطلبية",
+    "qr_code": "رمز QR"
+  },
+
+  "orders": {
+    "my_orders": "طلبياتي",
+    "items_in_order": "منتجات الطلبية"
+  },
+
+  "status": {
+    "pending": "قيد الانتظار",
+    "approved": "تمت الموافقة",
+    "rejected": "مرفوض",
+    "cancelled": "ملغى",
+    "delivered": "تم التوصيل",
+    "received": "تم الاستلام",
+    "shipping": "قيد الشحن",
+    "picked_by_driver": "استلمها السائق",
+    "return_to_warehouse": "بطريقها للمستودع",
+    "return_to_stock": "أعيدت للمخزون",
+    "damaged": "تالفة"
+  }
+}

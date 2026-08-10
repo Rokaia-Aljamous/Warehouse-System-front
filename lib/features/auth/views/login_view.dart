@@ -1,11 +1,11 @@
 import 'package:customer_app/controllers/login_controller.dart';
+import 'package:customer_app/core/storage/token_storage.dart';
 import 'package:customer_app/features/auth/views/forget_password_view.dart';
 import 'package:customer_app/features/auth/views/register_view.dart';
 import 'package:customer_app/features/auth/widgets/app_button.dart';
 import 'package:customer_app/features/auth/widgets/app_text_field.dart';
 import 'package:customer_app/features/home/views/home_view.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_text_styles.dart';
@@ -17,16 +17,46 @@ class LoginView extends StatefulWidget {
   State<LoginView> createState() => _LoginViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
+class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
   final _controller = LoginController();
   bool _showPassword = false;
   bool _isLoading = false;
   String? _errorMessage;
+  bool _isWaitingForGoogle = false; // ← نراقب إذا المستخدم راح على Chrome
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this); // ← نراقب lifecycle التطبيق
+  }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _controller.dispose();
     super.dispose();
+  }
+
+  /// لما المستخدم يرجع من Chrome للتطبيق، هاد بيتفعل.
+  /// إذا الـ deep link ما وصل (يعني المستخدم ألغى)، نطلع الـ loading.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _isWaitingForGoogle) {
+      // نستنى شوي لين ما الـ deep link يتعالج (لو فيه)
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        if (!mounted) return; // التطبيق انتقل لشاشة تانية = نجح
+        TokenStorage.hasToken().then((hasToken) {
+          if (mounted && !hasToken) {
+            // ما في token = المستخدم ألغى تسجيل الدخول
+            setState(() {
+              _isLoading = false;
+              _isWaitingForGoogle = false;
+            });
+          }
+          // لو فيه token، main.dart بكون انتقل للـ HomeView فعلاً
+        });
+      });
+    }
   }
 
   Future<void> _onLogin() async {
@@ -52,10 +82,21 @@ class _LoginViewState extends State<LoginView> {
   }
 
   Future<void> _onGoogleLogin() async {
-    final url = Uri.parse('http://10.0.2.2:8000/api/customers/google/redirect');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    }
+    setState(() {
+      _isWaitingForGoogle = true;
+      _errorMessage = null;
+    });
+
+    await _controller.loginWithGoogleExternal(
+      context: context,
+      onLoading: () => setState(() => _isLoading = true),
+      onSuccess: () {}, // ما بيستعمل (main.dart بيتعامل مع التنقل)
+      onError: (msg) => setState(() {
+        _isLoading = false;
+        _isWaitingForGoogle = false;
+        _errorMessage = msg;
+      }),
+    );
   }
 
   @override

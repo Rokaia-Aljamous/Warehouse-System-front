@@ -1,49 +1,92 @@
 import 'package:customer_app/features/orders/widgets/app_header_in.dart';
-import 'package:customer_app/features/orders/widgets/order_status_badge.dart';
 import 'package:flutter/material.dart';
+import '../../../controllers/returns_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../home/views/home_view.dart';
+import '../models/return_model.dart';
 import 'package:customer_app/features/home/views/notifications_view.dart';
 
-/// Status variant for [ReturnDetailView].
-/// Drives which action button is shown.
-enum ReturnDetailStatus { pending, inShipping }
-
-/// Return order detail screen.
-///
-/// Matches Figma screens:
-///  - "تفاصيل طلب مرتجع قيد الانتظار"  → status = [ReturnDetailStatus.pending]
-///  - "تفاصيل طلب مرتجع قيد الشحن"     → status = [ReturnDetailStatus.inShipping]
+/// Return order detail screen — يجيب المرتجع الحقيقي حسب [returnId] من الباك اند.
 ///
 /// Layout (top → bottom):
-///   AppHeader (orderNumber or returnNumber)
-///   Order Status banner (same widget pattern as My Orders detail screens)
-///   Warehouse card — "Clothing Warehouse"
-///   RETURNED ITEMS section label
-///   Item cards (Classic Jeans $660.00, Leather Belt $450.00)
-///   RETURN REASON section label
-///   Reason card — "Size doesn't fit correctly"
-///   Your due money — "$1100.00"
+///   AppHeader (Return #id)
+///   Order Status banner
+///   Warehouse card
+///   RETURNED ITEMS section
+///   RETURN REASON section
+///   Your due money
 ///   Action button —
-///       pending     → "Cancel Return Request" (outlined red, opens bottom sheet)
-///       inShipping  → "QR Code" (filled navy, opens bottom sheet — not a new page)
-class ReturnDetailView extends StatelessWidget {
-  final String returnNumber;
-  final String orderNumber;
-  final ReturnDetailStatus status;
+///       pending      → "Cancel Return Request" (يستدعي POST /returns/{id}/cancel فعلياً)
+///       غير ذلك      → "QR Code" (يعرض QR الطلبية الأصلي — إجراء معلوماتي، بدون نداء API)
+class ReturnDetailView extends StatefulWidget {
+  final int returnId;
 
-  const ReturnDetailView({
-    super.key,
-    required this.returnNumber,
-    required this.orderNumber,
-    this.status = ReturnDetailStatus.inShipping,
-  });
+  const ReturnDetailView({super.key, required this.returnId});
+
+  @override
+  State<ReturnDetailView> createState() => _ReturnDetailViewState();
+}
+
+class _ReturnDetailViewState extends State<ReturnDetailView> {
+  final _controller = ReturnsController();
+  bool _isLoading = true;
+  bool _isCancelling = false;
+  String? _errorMessage;
+  ReturnModel? _returnData;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    final data = await _controller.fetchReturnDetails(widget.returnId);
+    if (!mounted) return;
+    setState(() {
+      _returnData = data;
+      _isLoading = false;
+      if (data == null) _errorMessage = 'تعذر تحميل تفاصيل المرتجع';
+    });
+  }
+
+  // Section label style used for RETURNED ITEMS / RETURN REASON headers.
+  static final TextStyle _sectionLabelStyle = AppTextStyles.sectionLabel
+      .copyWith(
+        fontSize: 14,
+        letterSpacing: 0.5,
+        color: AppColors.textSecondary,
+      );
 
   @override
   Widget build(BuildContext context) {
-    final bool isPending = status == ReturnDetailStatus.pending;
+    if (_isLoading) {
+      return const Scaffold(
+        backgroundColor: AppColors.cardBg,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_returnData == null) {
+      return Scaffold(
+        backgroundColor: AppColors.cardBg,
+        body: Center(
+          child: Text(
+            _errorMessage ?? 'حدث خطأ',
+            style: AppTextStyles.bodySmall,
+          ),
+        ),
+      );
+    }
+
+    final data = _returnData!;
+    final isPending = data.status == 'pending';
 
     return Scaffold(
       backgroundColor: AppColors.cardBg,
@@ -52,31 +95,36 @@ class ReturnDetailView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppHeader(
-              title: isPending ? orderNumber : returnNumber,
+              title: 'Return #${data.id}',
               showBack: true,
               showNotification: true,
-              onNotificationTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsView())),
+              onNotificationTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NotificationsView()),
+              ),
               borderRadius: const BorderRadius.only(
                 bottomRight: Radius.circular(30),
               ),
               extraBottomPadding: 25,
             ),
 
-            // ── Order Status banner (same style as My Orders detail screens)
-            // Reuses the same Container+Row+Icon+Text pattern as
-            // order_pending_view / order_inshipping_view / order_recireved_detail_view.
-            _OrderStatusBanner(status: status),
+            _OrderStatusBanner(status: data.status),
 
             Padding(
               padding: const EdgeInsets.symmetric(
-                  horizontal: AppSizes.pagePaddingH),
+                horizontal: AppSizes.pagePaddingH,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: AppSizes.lg),
 
                   // ── Warehouse card ─────────────────────────────────────
-                  const _WarehouseCard(),
+                  _WarehouseCard(
+                    name: data.warehouseName.isNotEmpty
+                        ? data.warehouseName
+                        : 'Warehouse #${data.warehouseId}',
+                  ),
 
                   const SizedBox(height: AppSizes.lg),
 
@@ -84,69 +132,93 @@ class ReturnDetailView extends StatelessWidget {
                   Text('RETURNED ITEMS', style: _sectionLabelStyle),
                   const SizedBox(height: AppSizes.md),
 
-                  const _ReturnItemCard(
-                    name: 'Classic Jeans',
-                    imagePath: 'assets/images/jeans.png',
-                    quantity: 1,
-                    price: 660.00,
-                  ),
-                  const _ReturnItemCard(
-                    name: 'Leather Belt',
-                    imagePath: 'assets/images/belt.png',
-                    quantity: 1,
-                    price: 450.00,
-                  ),
+                  if (data.items.isEmpty)
+                    Text('لا توجد عناصر', style: AppTextStyles.bodySmall)
+                  else
+                    ...data.items.map(
+                      (item) => _ReturnItemCard(
+                        name: item.productName,
+                        quantity: item.quantity,
+                        price: item.subtotal,
+                      ),
+                    ),
 
                   const SizedBox(height: AppSizes.lg),
 
                   // ── RETURN REASON section ──────────────────────────────
                   Text('RETURN REASON', style: _sectionLabelStyle),
                   const SizedBox(height: AppSizes.md),
-                  const _ReturnReasonCard(
-                    reason: 'Size doesn\'t fit correctly',
-                  ),
+                  _ReturnReasonCard(reason: data.returnReason),
 
                   const SizedBox(height: AppSizes.lg),
 
                   // ── Your due money ─────────────────────────────────────
-                  const _DueMoneyCard(amount: 1100.00),
+                  _DueMoneyCard(amount: data.dueAmount),
 
                   const SizedBox(height: AppSizes.lg),
+
+                  if (_errorMessage != null && !_isLoading)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: AppSizes.md),
+                      child: Text(
+                        _errorMessage!,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: Colors.red,
+                        ),
+                      ),
+                    ),
 
                   // ── Action button ──────────────────────────────────────
                   if (isPending)
                     OutlinedButton(
-                      onPressed: () => _showCancelDialog(context),
+                      onPressed: _isCancelling
+                          ? null
+                          : () => _showCancelDialog(context),
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 52),
                         side: const BorderSide(color: Colors.red, width: 1.5),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
-                              AppSizes.buttonBorderRadius),
+                            AppSizes.buttonBorderRadius,
+                          ),
                         ),
                       ),
-                      child: const Text(
-                        'Cancel Return Request',
-                        style: TextStyle(
-                            color: Colors.red, fontWeight: FontWeight.w600),
-                      ),
+                      child: _isCancelling
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text(
+                              'Cancel Return Request',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                     )
-                  else
+                  else if (data.orderQrCode.isNotEmpty)
                     ElevatedButton.icon(
-                      onPressed: () => _showQrCodeSheet(context),
-                      icon: const Icon(Icons.qr_code_2,
-                          color: Colors.white, size: 20),
+                      onPressed: () => _showQrCodeSheet(context, data),
+                      icon: const Icon(
+                        Icons.qr_code_2,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                       label: const Text(
                         'QR Code',
                         style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.w600),
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         minimumSize: const Size(double.infinity, 52),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
-                              AppSizes.buttonBorderRadius),
+                            AppSizes.buttonBorderRadius,
+                          ),
                         ),
                         elevation: 0,
                       ),
@@ -161,20 +233,9 @@ class ReturnDetailView extends StatelessWidget {
     );
   }
 
-  // Section label style used for RETURNED ITEMS / RETURN REASON headers.
-  // Figma: 14px, w600, dark gray, 0.5 letter-spacing.
-  static final TextStyle _sectionLabelStyle =
-      AppTextStyles.sectionLabel.copyWith(
-    fontSize: 14,
-    letterSpacing: 0.5,
-    color: AppColors.textSecondary,
-  );
-
-  /// QR Code bottom sheet — opens (instead of navigating to a new page)
-  /// when the user taps the QR Code button. Same visual template as the
-  /// Cancel Order bottom sheet (drag handle, white card, rounded top
-  /// corners, icon header, primary action button, secondary text button).
-  void _showQrCodeSheet(BuildContext context) {
+  /// QR Code bottom sheet — معلوماتي فقط (بيعرض رمز الطلبية الأصلي للمرتجع
+  /// حتى يبينه الزبون لموظف المستودع)، بدون أي نداء API وهمي.
+  void _showQrCodeSheet(BuildContext context, ReturnModel data) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -196,7 +257,6 @@ class ReturnDetailView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Drag handle
             Container(
               width: 40,
               height: 4,
@@ -206,24 +266,21 @@ class ReturnDetailView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppSizes.lg),
-
-            // Title + description
             Text(
               'Return Request',
               style: AppTextStyles.screenTitle.copyWith(fontSize: 20),
             ),
             const SizedBox(height: AppSizes.sm),
             Text(
-              'Please show this barcode to the store representative to process your return',
+              'Please show this code to the store representative to process your return',
               textAlign: TextAlign.center,
               style: AppTextStyles.bodySmall,
             ),
             const SizedBox(height: AppSizes.xl),
-
-            // QR code area (200x200)
             Container(
               width: 200,
               height: 200,
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
@@ -236,173 +293,33 @@ class ReturnDetailView extends StatelessWidget {
                   ),
                 ],
               ),
-              child: const Center(
-                child: Icon(
-                  Icons.qr_code_2,
-                  size: 160,
+              child: Center(
+                child: Text(
+                  data.orderQrCode,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.bodySmall,
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSizes.xl),
+            OutlinedButton(
+              onPressed: () => Navigator.pop(context),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.primary,
+                minimumSize: const Size(double.infinity, 52),
+                side: const BorderSide(color: AppColors.primary, width: 1.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    AppSizes.buttonBorderRadius,
+                  ),
+                ),
+              ),
+              child: const Text(
+                'Close',
+                style: TextStyle(
                   color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
                 ),
-              ),
-            ),
-            const SizedBox(height: AppSizes.xl),
-
-            // Confirm Return — opens the next bottom sheet (Refund Confirmation)
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context); // close this sheet
-                _showRefundConfirmSheet(context);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                minimumSize: const Size(double.infinity, 52),
-                shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(AppSizes.buttonBorderRadius),
-                ),
-                elevation: 0,
-              ),
-              child: const Text(
-                'Confirm Return',
-                style: TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.w600),
-              ),
-            ),
-            const SizedBox(height: AppSizes.sm),
-
-            // Not now — dismisses the sheet
-            OutlinedButton(
-              onPressed: () => Navigator.pop(context),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                minimumSize: const Size(double.infinity, 52),
-                side: const BorderSide(color: AppColors.primary, width: 1.5),
-                shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(AppSizes.buttonBorderRadius),
-                ),
-              ),
-              child: const Text(
-                'Not now',
-                style: TextStyle(
-                    color: AppColors.primary, fontWeight: FontWeight.w600),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Refund Confirmation bottom sheet — opens after the QR Code sheet's
-  /// "Confirm Return" button is tapped. Same visual template (drag handle,
-  /// white card, rounded top corners). Shows success icon + confirmation
-  /// message + "Confirm and Continue" button that returns the user to Home.
-  void _showRefundConfirmSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (_) => Container(
-        padding: const EdgeInsets.fromLTRB(
-          AppSizes.pagePaddingH,
-          AppSizes.xl,
-          AppSizes.pagePaddingH,
-          40,
-        ),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(24),
-            topRight: Radius.circular(24),
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Drag handle
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.border,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: AppSizes.lg),
-
-            // Title + description
-            Text(
-              'Refund Confirmation',
-              style: AppTextStyles.screenTitle.copyWith(fontSize: 20),
-            ),
-            const SizedBox(height: AppSizes.sm),
-            Text(
-              'Your return request has been processed successfully. '
-              'An amount of \$1100.00 has been refunded to your wallet.',
-              textAlign: TextAlign.center,
-              style: AppTextStyles.bodySmall,
-            ),
-            const SizedBox(height: AppSizes.xl),
-
-            // Success icon (green circle with check)
-            Container(
-              width: 100,
-              height: 100,
-              decoration: const BoxDecoration(
-                color: AppColors.statusApprovedBg,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.check_circle,
-                color: AppColors.statusApprovedTxt,
-                size: 60,
-              ),
-            ),
-            const SizedBox(height: AppSizes.xl),
-
-            // Confirm and Continue — push HomeView and clear the stack
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => const HomeView()),
-                  (route) => false,
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                minimumSize: const Size(double.infinity, 52),
-                shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(AppSizes.buttonBorderRadius),
-                ),
-                elevation: 0,
-              ),
-              child: const Text(
-                'Confirm and Continue',
-                style: TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.w600),
-              ),
-            ),
-            const SizedBox(height: AppSizes.sm),
-
-            // Not now — dismisses the sheet
-            OutlinedButton(
-              onPressed: () => Navigator.pop(context),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                minimumSize: const Size(double.infinity, 52),
-                side: const BorderSide(color: AppColors.primary, width: 1.5),
-                shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(AppSizes.buttonBorderRadius),
-                ),
-              ),
-              child: const Text(
-                'Not now',
-                style: TextStyle(
-                    color: AppColors.primary, fontWeight: FontWeight.w600),
               ),
             ),
           ],
@@ -418,7 +335,11 @@ class ReturnDetailView extends StatelessWidget {
       isScrollControlled: true,
       builder: (_) => Container(
         padding: const EdgeInsets.fromLTRB(
-            AppSizes.pagePaddingH, AppSizes.xl, AppSizes.pagePaddingH, 40),
+          AppSizes.pagePaddingH,
+          AppSizes.xl,
+          AppSizes.pagePaddingH,
+          40,
+        ),
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.only(
@@ -445,12 +366,17 @@ class ReturnDetailView extends StatelessWidget {
                 color: Colors.red.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.warning_amber_rounded,
-                  color: Colors.red, size: 28),
+              child: const Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.red,
+                size: 28,
+              ),
             ),
             const SizedBox(height: AppSizes.md),
-            Text('Cancel Return Request',
-                style: AppTextStyles.screenTitle.copyWith(fontSize: 20)),
+            Text(
+              'Cancel Return Request',
+              style: AppTextStyles.screenTitle.copyWith(fontSize: 20),
+            ),
             const SizedBox(height: AppSizes.sm),
             Text(
               'Are you sure you want to cancel this return request?',
@@ -459,21 +385,41 @@ class ReturnDetailView extends StatelessWidget {
             ),
             const SizedBox(height: AppSizes.xl),
             OutlinedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pop(context);
+              onPressed: () async {
+                Navigator.pop(context); // close the confirm sheet
+                setState(() => _isCancelling = true);
+                final ok = await _controller.cancelReturn(widget.returnId);
+                if (!mounted) return;
+                setState(() => _isCancelling = false);
+                if (ok) {
+                  await _load();
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('تم إلغاء طلب الإرجاع')),
+                  );
+                } else {
+                  setState(() {
+                    _errorMessage =
+                        _controller.errorMessage ?? 'تعذّر إلغاء طلب الإرجاع';
+                  });
+                }
               },
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 52),
                 side: const BorderSide(color: Colors.red, width: 1.5),
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(AppSizes.buttonBorderRadius),
+                  borderRadius: BorderRadius.circular(
+                    AppSizes.buttonBorderRadius,
+                  ),
                 ),
               ),
-              child: const Text('Cancel Return Request',
-                  style: TextStyle(
-                      color: Colors.red, fontWeight: FontWeight.w600)),
+              child: const Text(
+                'Cancel Return Request',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
             const SizedBox(height: AppSizes.sm),
             OutlinedButton(
@@ -482,13 +428,18 @@ class ReturnDetailView extends StatelessWidget {
                 minimumSize: const Size(double.infinity, 52),
                 side: const BorderSide(color: AppColors.primary, width: 1.5),
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(AppSizes.buttonBorderRadius),
+                  borderRadius: BorderRadius.circular(
+                    AppSizes.buttonBorderRadius,
+                  ),
                 ),
               ),
-              child: const Text('Go Back',
-                  style: TextStyle(
-                      color: AppColors.primary, fontWeight: FontWeight.w600)),
+              child: const Text(
+                'Go Back',
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ],
         ),
@@ -497,24 +448,20 @@ class ReturnDetailView extends StatelessWidget {
   }
 }
 
-/// Order Status banner — uses the same Container + Row + Icon + Text pattern
-/// as the My Orders detail screens (order_pending_view, order_inshipping_view,
-/// order_recireved_detail_view). Reuses [OrderStatus] enum and the project's
-/// status color palette defined in [AppColors].
+/// Order Status banner — بيعرض الحالة الحقيقية (raw status من الباك اند)
+/// بنفس نمط Container+Row+Icon+Text المستخدم بباقي شاشات التفاصيل.
 class _OrderStatusBanner extends StatelessWidget {
-  final ReturnDetailStatus status;
+  final String status;
 
   const _OrderStatusBanner({required this.status});
 
   @override
   Widget build(BuildContext context) {
-    final OrderStatus orderStatus = status == ReturnDetailStatus.pending
-        ? OrderStatus.pending
-        : OrderStatus.shipping;
-
-    final Color color = _bgColorForStatus(orderStatus);
-    final IconData icon = _iconForStatus(orderStatus);
-    final String label = _labelForStatus(orderStatus);
+    final label = status.replaceAll('_', ' ').toUpperCase();
+    final isPending = status == 'pending';
+    final color = isPending
+        ? AppColors.statusPendingTxt
+        : AppColors.statusShippingTxt;
 
     return Container(
       width: double.infinity,
@@ -527,7 +474,11 @@ class _OrderStatusBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(icon, color: color, size: 24),
+          Icon(
+            isPending ? Icons.hourglass_empty : Icons.local_shipping_outlined,
+            color: color,
+            size: 24,
+          ),
           const SizedBox(width: 12),
           Text(
             label,
@@ -542,55 +493,12 @@ class _OrderStatusBanner extends StatelessWidget {
       ),
     );
   }
-
-  Color _bgColorForStatus(OrderStatus s) {
-    switch (s) {
-      case OrderStatus.shipping:
-        return AppColors.statusShippingTxt;
-      case OrderStatus.pending:
-        return AppColors.statusPendingTxt;
-      case OrderStatus.approved:
-      case OrderStatus.Received:
-        return AppColors.statusApprovedTxt;
-      case OrderStatus.cancelled:
-        return AppColors.statusCancelledTxt;
-    }
-  }
-
-  IconData _iconForStatus(OrderStatus s) {
-    switch (s) {
-      case OrderStatus.shipping:
-        return Icons.local_shipping;
-      case OrderStatus.pending:
-        return Icons.autorenew;
-      case OrderStatus.approved:
-        return Icons.check_circle_outline;
-      case OrderStatus.Received:
-        return Icons.inventory;
-      case OrderStatus.cancelled:
-        return Icons.cancel_outlined;
-    }
-  }
-
-  String _labelForStatus(OrderStatus s) {
-    switch (s) {
-      case OrderStatus.shipping:
-        return 'SHIPPING';
-      case OrderStatus.pending:
-        return 'PENDING';
-      case OrderStatus.approved:
-        return 'APPROVED';
-      case OrderStatus.Received:
-        return 'RECEIVED';
-      case OrderStatus.cancelled:
-        return 'CANCELLED';
-    }
-  }
 }
 
 /// Warehouse name card. Cream background, navy border, 12px radius.
 class _WarehouseCard extends StatelessWidget {
-  const _WarehouseCard();
+  final String name;
+  const _WarehouseCard({required this.name});
 
   @override
   Widget build(BuildContext context) {
@@ -604,11 +512,14 @@ class _WarehouseCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.store_outlined,
-              color: AppColors.iconColor, size: 20),
+          const Icon(
+            Icons.store_outlined,
+            color: AppColors.iconColor,
+            size: 20,
+          ),
           const SizedBox(width: AppSizes.sm),
           Text(
-            'Clothing Warehouse',
+            name,
             style: AppTextStyles.fieldLabel.copyWith(
               fontSize: 16,
               color: AppColors.textPrimary,
@@ -620,18 +531,15 @@ class _WarehouseCard extends StatelessWidget {
   }
 }
 
-/// Single returned item card — image left, name/qty/price right.
-/// Matches Figma item card spec (white bg, 12px radius, "Quantity: N" text,
-/// price aligned right).
+/// Single returned item card — name/qty/price (بدون صورة، لأن الباك اند ما
+/// بيرجّع صورة ضمن resource المرتجعات).
 class _ReturnItemCard extends StatelessWidget {
   final String name;
-  final String imagePath;
   final int quantity;
   final double price;
 
   const _ReturnItemCard({
     required this.name,
-    required this.imagePath,
     required this.quantity,
     required this.price,
   });
@@ -657,25 +565,20 @@ class _ReturnItemCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Product image — 64x64 with 8px rounded corners.
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.asset(
-              imagePath,
-              width: 64,
-              height: 64,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 64,
-                height: 64,
-                color: AppColors.border,
-                child: const Icon(Icons.image_outlined,
-                    color: AppColors.textHint, size: 28),
-              ),
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: AppColors.border,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.inventory_2_outlined,
+              color: AppColors.textHint,
+              size: 28,
             ),
           ),
           const SizedBox(width: AppSizes.md),
-          // Name + Quantity + Price
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -683,12 +586,14 @@ class _ReturnItemCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      name,
-                      style: AppTextStyles.fieldLabel.copyWith(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.textPrimary,
+                    Expanded(
+                      child: Text(
+                        name,
+                        style: AppTextStyles.fieldLabel.copyWith(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
                     ),
                     Text(
@@ -731,7 +636,7 @@ class _ReturnReasonCard extends StatelessWidget {
         border: Border.all(color: AppColors.border, width: 1),
       ),
       child: Text(
-        reason,
+        reason.isNotEmpty ? reason : '—',
         style: AppTextStyles.fieldLabel.copyWith(
           fontSize: 14,
           color: AppColors.textPrimary,
