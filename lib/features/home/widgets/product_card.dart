@@ -1,5 +1,6 @@
 import 'package:customer_app/core/constants/app_colors.dart';
 import 'package:customer_app/features/home/views/product_details_view.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class ProductCard extends StatelessWidget {
@@ -122,7 +123,9 @@ class ProductCard extends StatelessWidget {
                                 ),
                               )
                             : Text(
-                                onAddToCart != null ? 'Add to cart' : 'See more',
+                                onAddToCart != null
+                                    ? 'home.add_to_cart'.tr()
+                                    : 'home.see_more'.tr(),
                                 style: const TextStyle(fontSize: 10),
                               ),
                       ),

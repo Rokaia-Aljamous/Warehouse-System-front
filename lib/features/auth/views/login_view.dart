@@ -5,6 +5,7 @@ import 'package:customer_app/features/auth/views/register_view.dart';
 import 'package:customer_app/features/auth/widgets/app_button.dart';
 import 'package:customer_app/features/auth/widgets/app_text_field.dart';
 import 'package:customer_app/features/home/views/home_view.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
@@ -126,34 +127,38 @@ class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Text('Login', style: AppTextStyles.screenTitle),
+                      Text(
+                        'auth.login_title'.tr(),
+                        style: AppTextStyles.screenTitle,
+                      ),
                       const SizedBox(height: AppSizes.xl),
 
                       AppTextField(
-                        label: 'Email',
-                        hint: 'Email',
+                        label: 'auth.email'.tr(),
+                        hint: 'auth.email_hint'.tr(),
                         icon: Icons.email_outlined,
                         controller: _controller.emailCtrl,
                         keyboardType: TextInputType.emailAddress,
                         validator: (v) {
                           if (v == null || v.isEmpty)
-                            return 'Email is required';
-                          if (!v.contains('@')) return 'Enter a valid email';
+                            return 'auth.email_required'.tr();
+                          if (!v.contains('@'))
+                            return 'auth.email_invalid'.tr();
                           return null;
                         },
                       ),
                       const SizedBox(height: AppSizes.lg),
 
                       AppTextField(
-                        label: 'Password',
-                        hint: 'Password',
+                        label: 'auth.password'.tr(),
+                        hint: 'auth.password_hint'.tr(),
                         icon: Icons.lock_outline,
                         controller: _controller.passwordCtrl,
                         obscureText: !_showPassword,
                         validator: (v) {
                           if (v == null || v.isEmpty)
-                            return 'Password is required';
-                          if (v.length < 6) return 'Min 6 characters';
+                            return 'auth.password_required'.tr();
+                          if (v.length < 6) return 'auth.password_min'.tr();
                           return null;
                         },
                         suffixIcon: IconButton(
@@ -179,8 +184,8 @@ class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
                               builder: (_) => const ForgotPasswordView(),
                             ),
                           ),
-                          child: const Text(
-                            'Forgot your password?',
+                          child: Text(
+                            'auth.forgot_password'.tr(),
                             style: AppTextStyles.link,
                           ),
                         ),
@@ -201,7 +206,7 @@ class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
                         ),
 
                       AppButton(
-                        label: 'Login',
+                        label: 'auth.login_button'.tr(),
                         onPressed: _onLogin,
                         isLoading: _isLoading,
                         borderColor: AppColors.borderFocused,
@@ -217,7 +222,10 @@ class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
                             padding: const EdgeInsets.symmetric(
                               horizontal: AppSizes.sm,
                             ),
-                            child: Text('or', style: AppTextStyles.bodySmall),
+                            child: Text(
+                              'auth.or'.tr(),
+                              style: AppTextStyles.bodySmall,
+                            ),
                           ),
                           const Expanded(
                             child: Divider(color: AppColors.border),
@@ -227,7 +235,7 @@ class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
                       const SizedBox(height: AppSizes.md),
 
                       AppButton(
-                        label: 'Continue with Google',
+                        label: 'auth.continue_google'.tr(),
                         onPressed: _onGoogleLogin,
                         fullWidth: true,
                         borderColor: AppColors.borderFocused,
@@ -237,8 +245,8 @@ class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            "Don't have an account? ",
+                          Text(
+                            'auth.no_account'.tr(),
                             style: AppTextStyles.bodySmall,
                           ),
                           GestureDetector(
@@ -248,8 +256,8 @@ class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
                                 builder: (_) => const RegisterView(),
                               ),
                             ),
-                            child: const Text(
-                              'Create a new account',
+                            child: Text(
+                              'auth.create_account'.tr(),
                               style: AppTextStyles.linkBold,
                             ),
                           ),

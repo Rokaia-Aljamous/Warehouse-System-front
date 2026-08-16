@@ -10,9 +10,9 @@ class CustomAppHeader extends StatelessWidget {
   final ValueChanged<String>? onSearchChanged;
 
   const CustomAppHeader({
-    super.key, 
-    required this.title, 
-    this.location, 
+    super.key,
+    required this.title,
+    this.location,
     this.showFilter = true, // افتراضياً الفلترة ستكون موجودة
     this.onFilterTap,
     this.onSearchChanged,
@@ -24,30 +24,49 @@ class CustomAppHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(24, 60, 24, 24),
       decoration: const BoxDecoration(
         color: AppColors.primary,
-        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(0), bottomRight: Radius.circular(30)),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(0),
+          bottomRight: Radius.circular(30),
+        ),
       ),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Icon(Icons.menu, color: Colors.white),
-              Icon(Icons.notifications_none, color: Colors.white),
-            ],
+          // نجبر هالصف يضل LTR دايماً (بغض النظر عن لغة التطبيق) عشان
+          // أيقونة القائمة (☰) تضل دايماً بأعلى اليسار وأيقونة الجرس (🔔)
+          // دايماً بأعلى اليمين — نفس مكانهم الفيزيائي دايماً، بما إنو فيه
+          // منطقة ضغط شفافة (invisible tap zone) بملف home_view.dart متوقعة
+          // إنو الأيقونتين بمكانهم الثابت هاد بالضبط.
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: const [
+                Icon(Icons.menu, color: Colors.white),
+                Icon(Icons.notifications_none, color: Colors.white),
+              ],
+            ),
           ),
           const SizedBox(height: 20),
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              title, 
-              style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           if (location != null) ...[
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(Icons.location_on_outlined, color: Colors.white, size: 16),
+                const Icon(
+                  Icons.location_on_outlined,
+                  color: Colors.white,
+                  size: 16,
+                ),
                 const SizedBox(width: 5),
                 Text(location!, style: const TextStyle(color: Colors.white70)),
               ],
@@ -56,7 +75,7 @@ class CustomAppHeader extends StatelessWidget {
           const SizedBox(height: 20),
           // نمرر الـ showFilter للويدجت المسؤول عن البحث
           SearchAndFilterWidget(
-            showFilter: showFilter, 
+            showFilter: showFilter,
             onFilterTap: onFilterTap,
             onChanged: onSearchChanged,
           ),

@@ -1,4 +1,5 @@
 import 'package:customer_app/features/auth/views/profile_view.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../../controllers/returns_controller.dart';
@@ -87,7 +88,7 @@ class _MyReturnsViewState extends State<MyReturnsView>
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
             SliverToBoxAdapter(
               child: AppHeader(
-                title: 'My Returns',
+                title: 'returns.my_returns'.tr(),
                 showBack: true,
                 showNotification: true,
                 onNotificationTap: () => Navigator.push(
@@ -123,10 +124,10 @@ class _MyReturnsViewState extends State<MyReturnsView>
                     fontSize: 14,
                   ),
 
-                  tabs: const [
-                    Tab(text: 'Pending'),
-                    Tab(text: 'In Progress'),
-                    Tab(text: 'Archived'),
+                  tabs: [
+                    Tab(text: 'returns.pending'.tr()),
+                    Tab(text: 'returns.in_progress'.tr()),
+                    Tab(text: 'returns.archived'.tr()),
                   ],
                 ),
               ),

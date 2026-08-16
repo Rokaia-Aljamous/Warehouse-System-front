@@ -1,4 +1,5 @@
 import 'package:customer_app/features/orders/widgets/app_header_in.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../controllers/returns_controller.dart';
 import '../../../core/constants/app_colors.dart';
@@ -37,7 +38,7 @@ class _ArchivedDetailViewState extends State<ArchivedDetailView> {
     setState(() {
       _returnData = data;
       _isLoading = false;
-      if (data == null) _errorMessage = 'تعذر تحميل تفاصيل المرتجع';
+      if (data == null) _errorMessage = 'returns.details_load_failed'.tr();
     });
   }
 
@@ -62,7 +63,7 @@ class _ArchivedDetailViewState extends State<ArchivedDetailView> {
         backgroundColor: AppColors.cardBg,
         body: Center(
           child: Text(
-            _errorMessage ?? 'حدث خطأ',
+            _errorMessage ?? 'errors.unexpected'.tr(),
             style: AppTextStyles.bodySmall,
           ),
         ),
@@ -81,7 +82,7 @@ class _ArchivedDetailViewState extends State<ArchivedDetailView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppHeader(
-              title: 'Return #${data.id}',
+              title: 'returns.return_number'.tr(args: [data.id.toString()]),
               showBack: true,
               showNotification: true,
               onNotificationTap: () => Navigator.push(
@@ -121,7 +122,7 @@ class _ArchivedDetailViewState extends State<ArchivedDetailView> {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    data.status.replaceAll('_', ' ').toUpperCase(),
+                    'status.${data.status}'.tr().toUpperCase(),
                     style: AppTextStyles.fieldLabel.copyWith(
                       color: isNegative
                           ? AppColors.statusCancelledTxt
@@ -148,17 +149,25 @@ class _ArchivedDetailViewState extends State<ArchivedDetailView> {
                   _ArchivedWarehouseCard(
                     name: data.warehouseName.isNotEmpty
                         ? data.warehouseName
-                        : 'Warehouse #${data.warehouseId}',
+                        : 'orders.warehouse_number'.tr(
+                            args: [data.warehouseId.toString()],
+                          ),
                   ),
 
                   const SizedBox(height: AppSizes.lg),
 
                   // ── RETURNED ITEMS section ─────────────────────────────
-                  Text('RETURNED ITEMS', style: _sectionLabelStyle),
+                  Text(
+                    'returns.returned_items'.tr(),
+                    style: _sectionLabelStyle,
+                  ),
                   const SizedBox(height: AppSizes.md),
 
                   if (data.items.isEmpty)
-                    Text('لا توجد عناصر', style: AppTextStyles.bodySmall)
+                    Text(
+                      'returns.no_items'.tr(),
+                      style: AppTextStyles.bodySmall,
+                    )
                   else
                     ...data.items.map(
                       (item) => _ArchivedItemCard(
@@ -171,7 +180,7 @@ class _ArchivedDetailViewState extends State<ArchivedDetailView> {
                   const SizedBox(height: AppSizes.lg),
 
                   // ── RETURN REASON section ──────────────────────────────
-                  Text('RETURN REASON', style: _sectionLabelStyle),
+                  Text('returns.return_reason'.tr(), style: _sectionLabelStyle),
                   const SizedBox(height: AppSizes.md),
                   _ArchivedReasonCard(reason: data.returnReason),
 
@@ -306,7 +315,7 @@ class _ArchivedItemCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSizes.sm),
                 Text(
-                  'Quantity: $quantity',
+                  'orders.quantity_label'.tr(args: [quantity.toString()]),
                   style: AppTextStyles.bodySmall.copyWith(fontSize: 13),
                 ),
               ],
@@ -371,7 +380,9 @@ class _MoneyRefundCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            isNegative ? 'return not processed' : 'money refund',
+            isNegative
+                ? 'returns.return_not_processed'.tr()
+                : 'returns.money_refund'.tr(),
             style: AppTextStyles.fieldLabel.copyWith(color: color),
           ),
           Text(

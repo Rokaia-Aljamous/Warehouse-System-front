@@ -1,4 +1,5 @@
 import 'package:customer_app/features/orders/widgets/app_header_in.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../controllers/cart_controller.dart';
 import '../../../core/constants/app_colors.dart';
@@ -52,14 +53,16 @@ class _MyCartViewState extends State<MyCartView> {
       _items = cart == null
           ? []
           : cart.items
-              .map((e) => _CartItem(
+                .map(
+                  (e) => _CartItem(
                     cartItemId: e.id,
                     name: e.productName,
                     imagePath: 'assets/image/Glazed Donuts.png',
                     quantity: e.quantity,
                     price: e.unitPrice,
-                  ))
-              .toList();
+                  ),
+                )
+                .toList();
     });
   }
 
@@ -83,9 +86,7 @@ class _MyCartViewState extends State<MyCartView> {
             showNotification: true,
             onNotificationTap: () => Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (_) => const NotificationsView(),
-              ),
+              MaterialPageRoute(builder: (_) => const NotificationsView()),
             ),
             borderRadius: const BorderRadius.only(
               bottomRight: Radius.circular(30),
@@ -98,58 +99,65 @@ class _MyCartViewState extends State<MyCartView> {
                     child: CircularProgressIndicator(color: AppColors.primary),
                   )
                 : _controller.errorMessage != null
-                    ? Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              _controller.errorMessage!,
-                              style: AppTextStyles.bodySmall,
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: AppSizes.md),
-                            OutlinedButton(
-                              onPressed: _controller.loadCart,
-                              child: const Text('Try again'),
-                            ),
-                          ],
+                ? Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _controller.errorMessage!,
+                          style: AppTextStyles.bodySmall,
+                          textAlign: TextAlign.center,
                         ),
-                      )
-                    : _items.isEmpty
-                        ? _buildEmptyState()
-                        : ListView(
-                            padding: const EdgeInsets.fromLTRB(
-                              AppSizes.pagePaddingH,
-                              AppSizes.lg,
-                              AppSizes.pagePaddingH,
-                              AppSizes.lg,
+                        const SizedBox(height: AppSizes.md),
+                        OutlinedButton(
+                          onPressed: _controller.loadCart,
+                          child: const Text('Try again'),
+                        ),
+                      ],
+                    ),
+                  )
+                : _items.isEmpty
+                ? _buildEmptyState()
+                : ListView(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSizes.pagePaddingH,
+                      AppSizes.lg,
+                      AppSizes.pagePaddingH,
+                      AppSizes.lg,
+                    ),
+                    children: [
+                      Text('ITEMS IN ORDER', style: _sectionLabelStyle),
+                      const SizedBox(height: AppSizes.md),
+                      ..._items.map(
+                        (item) => Padding(
+                          padding: const EdgeInsets.only(bottom: AppSizes.md),
+                          child: _CartItemCard(
+                            item: item,
+                            onIncrement: () => _controller.updateQuantity(
+                              item.cartItemId,
+                              item.quantity + 1,
                             ),
-                            children: [
-                              Text('ITEMS IN ORDER', style: _sectionLabelStyle),
-                              const SizedBox(height: AppSizes.md),
-                              ..._items.map((item) => Padding(
-                                    padding: const EdgeInsets.only(
-                                        bottom: AppSizes.md),
-                                    child: _CartItemCard(
-                                      item: item,
-                                      onIncrement: () => _controller
-                                          .updateQuantity(item.cartItemId,
-                                              item.quantity + 1),
-                                      onDecrement: () => _controller
-                                          .updateQuantity(item.cartItemId,
-                                              item.quantity - 1),
-                                      onDelete: () => _controller
-                                          .removeItem(item.cartItemId),
-                                    ),
-                                  )),
-                            ],
+                            onDecrement: () => _controller.updateQuantity(
+                              item.cartItemId,
+                              item.quantity - 1,
+                            ),
+                            onDelete: () =>
+                                _controller.removeItem(item.cartItemId),
                           ),
+                        ),
+                      ),
+                    ],
+                  ),
           ),
           // ── Bottom: Calculate Total price button ───────────────────
           if (_items.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(
-                  AppSizes.pagePaddingH, 0, AppSizes.pagePaddingH, 24),
+                AppSizes.pagePaddingH,
+                0,
+                AppSizes.pagePaddingH,
+                24,
+              ),
               child: SizedBox(
                 width: double.infinity,
                 height: AppSizes.buttonHeight,
@@ -160,8 +168,9 @@ class _MyCartViewState extends State<MyCartView> {
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(AppSizes.buttonBorderRadius),
+                      borderRadius: BorderRadius.circular(
+                        AppSizes.buttonBorderRadius,
+                      ),
                     ),
                   ),
                   child: Row(
@@ -192,8 +201,11 @@ class _MyCartViewState extends State<MyCartView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.shopping_cart_outlined,
-              size: 64, color: AppColors.textHint),
+          Icon(
+            Icons.shopping_cart_outlined,
+            size: 64,
+            color: AppColors.textHint,
+          ),
           const SizedBox(height: AppSizes.md),
           Text(
             'Your cart is empty',
@@ -222,7 +234,7 @@ class _MyCartViewState extends State<MyCartView> {
             _showSuccessSnackBar();
           } else {
             _showErrorSnackBar(
-              _controller.orderError ?? 'تعذّر إتمام الطلب',
+              _controller.orderError ?? 'errors.order_failed'.tr(),
             );
           }
         },
@@ -238,7 +250,11 @@ class _MyCartViewState extends State<MyCartView> {
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 3),
         margin: const EdgeInsets.fromLTRB(
-            AppSizes.pagePaddingH, 0, AppSizes.pagePaddingH, 24),
+          AppSizes.pagePaddingH,
+          0,
+          AppSizes.pagePaddingH,
+          24,
+        ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSizes.buttonBorderRadius),
         ),
@@ -264,7 +280,11 @@ class _MyCartViewState extends State<MyCartView> {
       behavior: SnackBarBehavior.floating,
       duration: const Duration(seconds: 3),
       margin: const EdgeInsets.fromLTRB(
-          AppSizes.pagePaddingH, 0, AppSizes.pagePaddingH, 24),
+        AppSizes.pagePaddingH,
+        0,
+        AppSizes.pagePaddingH,
+        24,
+      ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSizes.buttonBorderRadius),
       ),
@@ -272,12 +292,12 @@ class _MyCartViewState extends State<MyCartView> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  static final TextStyle _sectionLabelStyle =
-      AppTextStyles.sectionLabel.copyWith(
-    fontSize: 14,
-    letterSpacing: 1.2,
-    color: AppColors.textSecondary,
-  );
+  static final TextStyle _sectionLabelStyle = AppTextStyles.sectionLabel
+      .copyWith(
+        fontSize: 14,
+        letterSpacing: 1.2,
+        color: AppColors.textSecondary,
+      );
 }
 
 /// A single cart item row: image | name + qty stepper + price | delete icon.
@@ -325,8 +345,11 @@ class _CartItemCard extends StatelessWidget {
                 width: 60,
                 height: 60,
                 color: AppColors.border,
-                child: const Icon(Icons.image_outlined,
-                    color: AppColors.textHint, size: 24),
+                child: const Icon(
+                  Icons.image_outlined,
+                  color: AppColors.textHint,
+                  size: 24,
+                ),
               ),
             ),
           ),
@@ -412,17 +435,24 @@ class _QtyStepper extends StatelessWidget {
           GestureDetector(
             onTap: onDecrement,
             child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: AppSizes.sm, vertical: AppSizes.xs),
+              padding: EdgeInsets.symmetric(
+                horizontal: AppSizes.sm,
+                vertical: AppSizes.xs,
+              ),
               child: Icon(Icons.remove, size: 16, color: AppColors.textHint),
             ),
           ),
-          Text('$quantity',
-              style:
-                  AppTextStyles.fieldLabel.copyWith(fontSize: 14)),
+          Text(
+            '$quantity',
+            style: AppTextStyles.fieldLabel.copyWith(fontSize: 14),
+          ),
           GestureDetector(
             onTap: onIncrement,
             child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: AppSizes.sm, vertical: AppSizes.xs),
+              padding: EdgeInsets.symmetric(
+                horizontal: AppSizes.sm,
+                vertical: AppSizes.xs,
+              ),
               child: Icon(Icons.add, size: 16, color: AppColors.primary),
             ),
           ),
@@ -466,7 +496,7 @@ class _ConfirmOrderSheetState extends State<_ConfirmOrderSheet> {
   void _handleConfirm() {
     final location = _locationController.text.trim();
     if (location.isEmpty) {
-      setState(() => _locationError = 'الرجاء إدخال عنوان التوصيل');
+      setState(() => _locationError = 'cart.delivery_address_required'.tr());
       return;
     }
     widget.onConfirm(location);
@@ -483,7 +513,11 @@ class _ConfirmOrderSheetState extends State<_ConfirmOrderSheet> {
         ),
       ),
       padding: const EdgeInsets.fromLTRB(
-          AppSizes.pagePaddingH, AppSizes.lg, AppSizes.pagePaddingH, 32),
+        AppSizes.pagePaddingH,
+        AppSizes.lg,
+        AppSizes.pagePaddingH,
+        32,
+      ),
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -525,51 +559,53 @@ class _ConfirmOrderSheetState extends State<_ConfirmOrderSheet> {
             const SizedBox(height: AppSizes.md),
 
             // Items list
-            ...widget.items.map((item) => Padding(
-                  padding: const EdgeInsets.only(bottom: AppSizes.sm),
-                  child: Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(6),
-                        child: Image.asset(
-                          item.imagePath,
+            ...widget.items.map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: AppSizes.sm),
+                child: Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: Image.asset(
+                        item.imagePath,
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
                           width: 40,
                           height: 40,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            width: 40,
-                            height: 40,
-                            color: AppColors.border,
-                            child: const Icon(Icons.image_outlined, size: 16),
-                          ),
+                          color: AppColors.border,
+                          child: const Icon(Icons.image_outlined, size: 16),
                         ),
                       ),
-                      const SizedBox(width: AppSizes.sm),
-                      Expanded(
-                        child: Text(
-                          item.name,
-                          style: AppTextStyles.fieldLabel.copyWith(
-                            fontSize: 14,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        'x${item.quantity}',
-                        style: AppTextStyles.bodySmall.copyWith(fontSize: 13),
-                      ),
-                      const SizedBox(width: AppSizes.md),
-                      Text(
-                        '\$${item.price.toStringAsFixed(2)}',
+                    ),
+                    const SizedBox(width: AppSizes.sm),
+                    Expanded(
+                      child: Text(
+                        item.name,
                         style: AppTextStyles.fieldLabel.copyWith(
                           fontSize: 14,
-                          fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         ),
                       ),
-                    ],
-                  ),
-                )),
+                    ),
+                    Text(
+                      'x${item.quantity}',
+                      style: AppTextStyles.bodySmall.copyWith(fontSize: 13),
+                    ),
+                    const SizedBox(width: AppSizes.md),
+                    Text(
+                      '\$${item.price.toStringAsFixed(2)}',
+                      style: AppTextStyles.fieldLabel.copyWith(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
             const Divider(height: AppSizes.xl),
 
@@ -620,7 +656,7 @@ class _ConfirmOrderSheetState extends State<_ConfirmOrderSheet> {
               },
               decoration: InputDecoration(
                 labelText: 'Delivery address',
-                hintText: 'مثال: شارع الثورة، دمشق',
+                hintText: 'cart.delivery_address_hint'.tr(),
                 errorText: _locationError,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -641,8 +677,9 @@ class _ConfirmOrderSheetState extends State<_ConfirmOrderSheet> {
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(AppSizes.buttonBorderRadius),
+                    borderRadius: BorderRadius.circular(
+                      AppSizes.buttonBorderRadius,
+                    ),
                   ),
                 ),
                 child: Row(
@@ -684,12 +721,12 @@ class _ConfirmOrderSheetState extends State<_ConfirmOrderSheet> {
     );
   }
 
-  static final TextStyle _sectionLabelStyle =
-      AppTextStyles.sectionLabel.copyWith(
-    fontSize: 12,
-    letterSpacing: 1.2,
-    color: AppColors.textSecondary,
-  );
+  static final TextStyle _sectionLabelStyle = AppTextStyles.sectionLabel
+      .copyWith(
+        fontSize: 12,
+        letterSpacing: 1.2,
+        color: AppColors.textSecondary,
+      );
 }
 
 class _InvoiceRow extends StatelessWidget {

@@ -4,6 +4,7 @@ import 'package:customer_app/features/home/views/my_cart_view.dart';
 import 'package:customer_app/features/home/views/notifications_view.dart';
 import 'package:customer_app/features/home/widgets/app_header_out.dart';
 import 'package:customer_app/features/home/widgets/product_card.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../controllers/warehouse_details_controller.dart';
 import '../../../core/constants/app_colors.dart';
@@ -59,7 +60,9 @@ class _WarehouseDetailsViewState extends State<WarehouseDetailsView> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          ok ? 'تمت الإضافة للسلة' : (_controller.cartError ?? 'تعذّرت الإضافة'),
+          ok
+              ? 'home.add_to_cart_success'.tr()
+              : (_controller.cartError ?? 'errors.add_to_cart_failed'.tr()),
         ),
         duration: const Duration(seconds: 1),
       ),
@@ -100,7 +103,9 @@ class _WarehouseDetailsViewState extends State<WarehouseDetailsView> {
           // حالة التحميل
           if (_controller.isLoadingProducts)
             const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+              child: Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              ),
             )
           // حالة الخطأ
           else if (_controller.productsError != null)
@@ -117,7 +122,7 @@ class _WarehouseDetailsViewState extends State<WarehouseDetailsView> {
                     const SizedBox(height: 12),
                     OutlinedButton(
                       onPressed: _controller.loadProducts,
-                      child: const Text('Try again'),
+                      child: Text('common.try_again'.tr()),
                     ),
                   ],
                 ),
@@ -125,8 +130,8 @@ class _WarehouseDetailsViewState extends State<WarehouseDetailsView> {
             )
           // حالة القائمة فاضية
           else if (_controller.products.isEmpty)
-            const SliverFillRemaining(
-              child: Center(child: Text('لا توجد منتجات بهذا المستودع حالياً')),
+            SliverFillRemaining(
+              child: Center(child: Text('home.no_products_in_warehouse'.tr())),
             )
           // القائمة الحقيقية
           else
@@ -139,20 +144,17 @@ class _WarehouseDetailsViewState extends State<WarehouseDetailsView> {
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                 ),
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final p = _controller.products[index];
-                    return ProductCard(
-                      name: p.name,
-                      price: '\$ ${p.sellingPrice.toStringAsFixed(2)}',
-                      image: "assets/image/Glazed Donuts.png",
-                      networkImage: p.mainImage,
-                      isAdding: _addingProductId == p.id,
-                      onAddToCart: () => _onAddToCart(p.id),
-                    );
-                  },
-                  childCount: _controller.products.length,
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final p = _controller.products[index];
+                  return ProductCard(
+                    name: p.name,
+                    price: '\$ ${p.sellingPrice.toStringAsFixed(2)}',
+                    image: "assets/image/Glazed Donuts.png",
+                    networkImage: p.mainImage,
+                    isAdding: _addingProductId == p.id,
+                    onAddToCart: () => _onAddToCart(p.id),
+                  );
+                }, childCount: _controller.products.length),
               ),
             ),
         ],
@@ -207,9 +209,7 @@ class _WarehouseHeader extends StatelessWidget {
               behavior: HitTestBehavior.opaque,
               onTap: () => Navigator.push(
                 innerCtx,
-                MaterialPageRoute(
-                  builder: (_) => const NotificationsView(),
-                ),
+                MaterialPageRoute(builder: (_) => const NotificationsView()),
               ),
               child: const SizedBox(width: 32, height: 32),
             ),
@@ -253,7 +253,7 @@ class _AppDrawer extends StatelessWidget {
           children: [
             _DrawerItem(
               icon: Icons.person_outline,
-              label: 'Profile',
+              label: 'drawer.profile'.tr(),
               onTap: () {
                 Navigator.pop(context); // close drawer
                 Navigator.push(
@@ -264,41 +264,40 @@ class _AppDrawer extends StatelessWidget {
             ),
             _DrawerItem(
               icon: Icons.lock_outline,
-              label: 'Change Password',
+              label: 'drawer.change_password'.tr(),
               onTap: () {
                 Navigator.pop(context); // close drawer
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (_) => const ChangePasswordView()),
+                  MaterialPageRoute(builder: (_) => const ChangePasswordView()),
                 );
               },
             ),
             _DrawerItem(
               icon: Icons.account_balance_wallet_outlined,
-              label: 'Wallet',
+              label: 'drawer.wallet'.tr(),
               onTap: () => Navigator.pop(context),
             ),
             _DrawerItem(
               icon: Icons.light_mode_outlined,
-              label: 'Light',
+              label: 'drawer.theme'.tr(),
               onTap: () => Navigator.pop(context),
             ),
             _DrawerItem(
               icon: Icons.language_outlined,
-              label: 'English',
+              label: 'drawer.language'.tr(),
               onTap: () => Navigator.pop(context),
             ),
             const Divider(height: 32, indent: 24, endIndent: 24),
             _DrawerItem(
               icon: Icons.logout,
-              label: 'Logout',
+              label: 'drawer.logout'.tr(),
               isDestructive: true,
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Logout (demo only).'),
+                  SnackBar(
+                    content: Text('drawer.logout_demo'.tr()),
                     behavior: SnackBarBehavior.floating,
                   ),
                 );
@@ -327,8 +326,9 @@ class _DrawerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color color =
-        isDestructive ? const Color(0xFFDC2626) : AppColors.textPrimary;
+    final Color color = isDestructive
+        ? const Color(0xFFDC2626)
+        : AppColors.textPrimary;
     return ListTile(
       leading: Icon(icon, color: color, size: 24),
       title: Text(

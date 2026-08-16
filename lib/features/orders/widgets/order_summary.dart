@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
@@ -26,11 +27,11 @@ class OrderSummary extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildRow('Subtotal', subtotal, isBold: false),
+          _buildRow('orders.subtotal'.tr(), subtotal, isBold: false),
           const SizedBox(height: AppSizes.sm),
-          _buildRow('Shipping Fee', shippingFee, isBold: false),
+          _buildRow('orders.shipping_fee'.tr(), shippingFee, isBold: false),
           const Divider(height: AppSizes.lg),
-          _buildRow('Total Amount', total, isBold: true),
+          _buildRow('orders.total_amount'.tr(), total, isBold: true),
         ],
       ),
     );

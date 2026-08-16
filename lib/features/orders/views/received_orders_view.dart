@@ -1,5 +1,6 @@
 import 'package:customer_app/features/orders/views/order_recireved_detail_view.dart';
 import 'package:customer_app/features/orders/widgets/order_status_badge.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../auth/models/order_model.dart';
@@ -13,7 +14,7 @@ class ReceivedOrdersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (orders.isEmpty) {
-      return const Center(child: Text('لا توجد طلبيات مستلمة بعد'));
+      return Center(child: Text('orders.no_received_orders'.tr()));
     }
     return ListView(
       padding: const EdgeInsets.all(AppSizes.pagePaddingH),

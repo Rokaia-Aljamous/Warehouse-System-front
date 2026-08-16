@@ -1,5 +1,6 @@
 import 'package:customer_app/core/constants/app_colors.dart';
 import 'package:customer_app/core/constants/app_text_styles.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 enum OrderStatus { shipping, pending, approved, cancelled, Received }
@@ -30,15 +31,15 @@ class OrderStatusBadge extends StatelessWidget {
   String _label() {
     switch (status) {
       case OrderStatus.shipping:
-        return 'Shipping';
+        return 'status.shipping'.tr();
       case OrderStatus.pending:
-        return 'Pending';
+        return 'status.pending'.tr();
       case OrderStatus.approved:
-        return 'Approved';
+        return 'status.approved'.tr();
       case OrderStatus.cancelled:
-        return 'Cancelled';
+        return 'status.cancelled'.tr();
       case OrderStatus.Received:
-        return 'Received';
+        return 'status.received'.tr();
     }
   }
 

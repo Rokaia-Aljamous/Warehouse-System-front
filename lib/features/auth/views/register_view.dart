@@ -1,6 +1,7 @@
 import 'package:customer_app/controllers/register_controller.dart';
 import 'package:customer_app/features/auth/views/verify_Identity_view.dart';
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'dart:io';
@@ -50,7 +51,7 @@ class _RegisterViewState extends State<RegisterView> {
 
   Future<void> _onRegister() async {
     if (_selectedBirthday == null) {
-      setState(() => _errorMessage = 'Please select your birthday');
+      setState(() => _errorMessage = 'auth.please_select_birthday'.tr());
       return;
     }
 
@@ -126,42 +127,42 @@ class _RegisterViewState extends State<RegisterView> {
                     key: _controller.formKey,
                     child: Column(
                       children: [
-                        const Text(
-                          'Register',
+                        Text(
+                          'auth.register_title'.tr(),
                           style: AppTextStyles.screenTitle,
                         ),
                         const SizedBox(height: AppSizes.lg),
                         _buildImageUpload(),
                         const SizedBox(height: AppSizes.xl),
                         AppTextField(
-                          label: 'YOUR FULL NAME',
-                          hint: 'full name',
+                          label: 'auth.full_name'.tr(),
+                          hint: 'auth.full_name_hint'.tr(),
                           icon: Icons.person_outline,
                           controller: _controller.fullNameCtrl,
                         ),
                         const SizedBox(height: 16),
                         AppTextField(
-                          label: 'EMAIL',
-                          hint: 'Email',
+                          label: 'auth.email_label'.tr(),
+                          hint: 'auth.email_hint'.tr(),
                           icon: Icons.email_outlined,
                           controller: _controller.emailCtrl,
                           keyboardType: TextInputType.emailAddress,
                           validator: (v) => (v == null || !v.contains('@'))
-                              ? 'Invalid email'
+                              ? 'auth.invalid_email'.tr()
                               : null,
                         ),
                         const SizedBox(height: 16),
                         AppTextField(
-                          label: 'PHONE NUMBER',
-                          hint: 'phone number',
+                          label: 'auth.phone_number'.tr(),
+                          hint: 'auth.phone_hint'.tr(),
                           icon: Icons.phone_outlined,
                           controller: _controller.phoneCtrl,
                           keyboardType: TextInputType.phone,
                         ),
                         const SizedBox(height: 16),
                         AppTextField(
-                          label: 'PASSWORD',
-                          hint: 'password',
+                          label: 'auth.password_label'.tr(),
+                          hint: 'auth.password_field_hint'.tr(),
                           icon: Icons.lock_outline,
                           controller: _controller.passwordCtrl,
                           obscureText: !_showPassword,
@@ -179,13 +180,13 @@ class _RegisterViewState extends State<RegisterView> {
                         ),
                         const SizedBox(height: 16),
                         AppTextField(
-                          label: 'CONFIRM PASSWORD',
-                          hint: 'confirm password',
+                          label: 'auth.confirm_password'.tr(),
+                          hint: 'auth.confirm_password_hint'.tr(),
                           icon: Icons.lock_outline,
                           controller: _controller.confirmPasswordCtrl,
                           obscureText: !_showConfirmPass,
                           validator: (v) => (v != _controller.passwordCtrl.text)
-                              ? 'Passwords do not match'
+                              ? 'auth.passwords_not_match'.tr()
                               : null,
                           suffixIcon: IconButton(
                             icon: Icon(
@@ -202,8 +203,8 @@ class _RegisterViewState extends State<RegisterView> {
                         ),
                         const SizedBox(height: 16),
                         AppTextField(
-                          label: 'YOUR BIRTHDAY',
-                          hint: 'your birthday',
+                          label: 'auth.birthday'.tr(),
+                          hint: 'auth.birthday_hint'.tr(),
                           icon: Icons.cake_outlined,
                           controller: _controller.displayBirthdayCtrl,
                           suffixIcon: IconButton(
@@ -217,8 +218,8 @@ class _RegisterViewState extends State<RegisterView> {
                         ),
                         const SizedBox(height: 16),
                         AppTextField(
-                          label: 'SELECT YOUR LOCATION',
-                          hint: 'your location',
+                          label: 'auth.location'.tr(),
+                          hint: 'auth.location_hint'.tr(),
                           icon: Icons.location_on_outlined,
                           controller: _controller.locationCtrl,
                         ),
@@ -227,7 +228,7 @@ class _RegisterViewState extends State<RegisterView> {
                           children: [
                             Expanded(
                               child: _buildDropdownField(
-                                'GOVERNORATE',
+                                'auth.governorate'.tr(),
                                 Icons.map_outlined,
                                 _selectedGovernorate,
                                 _governorates,
@@ -237,7 +238,7 @@ class _RegisterViewState extends State<RegisterView> {
                             const SizedBox(width: AppSizes.md),
                             Expanded(
                               child: _buildDropdownField(
-                                'COUNTRY',
+                                'auth.country'.tr(),
                                 Icons.language_outlined,
                                 _selectedCountry,
                                 _countries,
@@ -260,7 +261,7 @@ class _RegisterViewState extends State<RegisterView> {
                           ),
                         const SizedBox(height: AppSizes.md),
                         AppButton(
-                          label: 'Register',
+                          label: 'auth.register_button'.tr(),
                           onPressed: _onRegister,
                           isLoading: _isLoading,
                           borderColor: AppColors.borderFocused,
@@ -269,14 +270,14 @@ class _RegisterViewState extends State<RegisterView> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text(
-                              'Already have an account? ',
+                            Text(
+                              'auth.have_account'.tr(),
                               style: AppTextStyles.bodySmall,
                             ),
                             GestureDetector(
                               onTap: () => Navigator.pop(context),
-                              child: const Text(
-                                'Login',
+                              child: Text(
+                                'auth.login_link'.tr(),
                                 style: AppTextStyles.linkBold,
                               ),
                             ),

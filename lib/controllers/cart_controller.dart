@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../core/network/dio_client.dart';
 import '../core/storage/token_storage.dart';
@@ -32,7 +33,7 @@ class CartController extends ChangeNotifier {
     try {
       final token = await TokenStorage.getToken();
       if (token == null) {
-        errorMessage = 'غير مسجل الدخول';
+        errorMessage = 'errors.not_logged_in'.tr();
         return;
       }
       cart = await _cartRepository.getCart(
@@ -42,7 +43,7 @@ class CartController extends ChangeNotifier {
     } on DioException catch (e) {
       errorMessage = DioClient.getErrorMessage(e);
     } catch (e) {
-      errorMessage = 'حدث خطأ أثناء تحميل السلة';
+      errorMessage = 'errors.cart_load_failed'.tr();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -92,7 +93,7 @@ class CartController extends ChangeNotifier {
     try {
       final token = await TokenStorage.getToken();
       if (token == null) {
-        orderError = 'غير مسجل الدخول';
+        orderError = 'errors.not_logged_in'.tr();
         return false;
       }
       lastPlacedOrder = await _orderRepository.placeOrder(
@@ -107,7 +108,7 @@ class CartController extends ChangeNotifier {
       orderError = DioClient.getErrorMessage(e);
       return false;
     } catch (e) {
-      orderError = 'تعذّر إتمام الطلب';
+      orderError = 'errors.order_failed'.tr();
       return false;
     } finally {
       isPlacingOrder = false;

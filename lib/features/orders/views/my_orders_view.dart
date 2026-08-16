@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:customer_app/features/auth/views/profile_view.dart';
 import 'package:customer_app/features/orders/widgets/app_header_in.dart';
 import 'package:flutter/material.dart';
@@ -46,45 +47,49 @@ class _MyOrdersViewState extends State<MyOrdersView>
       backgroundColor: AppColors.cardBg,
       bottomNavigationBar: AppBottomNav(
         currentIndex: 1,
-       onTap: (index) {
-  if (index == 1) return;
+        onTap: (index) {
+          if (index == 1) return;
 
-  switch (index) {
-    case 0:
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeView()),
-      );
-      break;
+          switch (index) {
+            case 0:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const HomeView()),
+              );
+              break;
 
-    case 1:
-      break;
+            case 1:
+              break;
 
-    case 2:
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const MyReturnsView()),
-      );
-      break;
+            case 2:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const MyReturnsView()),
+              );
+              break;
 
-    case 3:
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const ProfileView()),
-      );
-      break;}
-  },
+            case 3:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const ProfileView()),
+              );
+              break;
+          }
+        },
       ),
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           // ── الهيدر ────────────────────────────────────────
           SliverToBoxAdapter(
             child: AppHeader(
-              title: 'My Orders',
+              title: 'orders.my_orders'.tr(),
               showBack: true,
               showNotification: true,
-              onNotificationTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsView())),
-                   extraBottomPadding: 25,
+              onNotificationTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NotificationsView()),
+              ),
+              extraBottomPadding: 25,
             ),
           ),
 
@@ -98,7 +103,7 @@ class _MyOrdersViewState extends State<MyOrdersView>
                 indicatorWeight: 2,
                 labelColor: Colors.white,
                 unselectedLabelColor: Colors.white54,
-                  dividerColor: Colors.transparent,
+                dividerColor: Colors.transparent,
                 labelStyle: AppTextStyles.fieldLabel.copyWith(
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
@@ -106,10 +111,10 @@ class _MyOrdersViewState extends State<MyOrdersView>
                 unselectedLabelStyle: AppTextStyles.fieldLabel.copyWith(
                   fontSize: 13,
                 ),
-                tabs: const [
-                  Tab(text: 'Pending'),
-                  Tab(text: 'Received'),
-                  Tab(text: 'Cancelled'),
+                tabs: [
+                  Tab(text: 'status.pending'.tr()),
+                  Tab(text: 'status.received'.tr()),
+                  Tab(text: 'status.cancelled'.tr()),
                 ],
               ),
             ),
@@ -122,46 +127,49 @@ class _MyOrdersViewState extends State<MyOrdersView>
                 child: CircularProgressIndicator(color: AppColors.primary),
               )
             : _ordersController.errorMessage != null
-                ? Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          _ordersController.errorMessage!,
-                          style: AppTextStyles.bodySmall,
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 12),
-                        OutlinedButton(
-                          onPressed: () => _ordersController.loadOrders(),
-                          child: const Text('Try again'),
-                        ),
-                      ],
+            ? Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _ordersController.errorMessage!,
+                      style: AppTextStyles.bodySmall,
+                      textAlign: TextAlign.center,
                     ),
-                  )
-                : TabBarView(
-                    controller: _tabController,
-                    children: [
-                      PendingOrdersScreen(
-                        orders: _ordersController.orders
-                            .where((o) =>
-                                o.status == 'pending' || o.status == 'approved')
-                            .toList(),
-                      ),
-                      ReceivedOrdersScreen(
-                        orders: _ordersController.orders
-                            .where((o) => o.status == 'delivered')
-                            .toList(),
-                      ),
-                      CancelledOrdersScreen(
-                        orders: _ordersController.orders
-                            .where((o) =>
-                                o.status == 'cancelled' ||
-                                o.status == 'rejected')
-                            .toList(),
-                      ),
-                    ],
+                    const SizedBox(height: 12),
+                    OutlinedButton(
+                      onPressed: () => _ordersController.loadOrders(),
+                      child: Text('common.try_again'.tr()),
+                    ),
+                  ],
+                ),
+              )
+            : TabBarView(
+                controller: _tabController,
+                children: [
+                  PendingOrdersScreen(
+                    orders: _ordersController.orders
+                        .where(
+                          (o) =>
+                              o.status == 'pending' || o.status == 'approved',
+                        )
+                        .toList(),
                   ),
+                  ReceivedOrdersScreen(
+                    orders: _ordersController.orders
+                        .where((o) => o.status == 'delivered')
+                        .toList(),
+                  ),
+                  CancelledOrdersScreen(
+                    orders: _ordersController.orders
+                        .where(
+                          (o) =>
+                              o.status == 'cancelled' || o.status == 'rejected',
+                        )
+                        .toList(),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -181,14 +189,9 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.primary,
-        borderRadius: BorderRadius.only(
-          bottomRight: Radius.circular(30),
-        ),
+        borderRadius: BorderRadius.only(bottomRight: Radius.circular(30)),
       ),
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: tabBar,
-      ),
+      child: Align(alignment: Alignment.topCenter, child: tabBar),
     );
   }
 

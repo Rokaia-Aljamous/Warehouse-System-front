@@ -1,5 +1,6 @@
 import 'package:customer_app/features/orders/widgets/order_card.dart';
 import 'package:customer_app/features/orders/widgets/order_status_badge.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
@@ -43,10 +44,12 @@ class ArchivedReturnsScreen extends StatelessWidget {
               item.status == 'cancelled' || item.status == 'rejected';
 
           return OrderCard(
-            orderNumber: 'Return #${item.id}',
+            orderNumber: 'returns.return_number'.tr(args: [item.id.toString()]),
             warehouseName: item.warehouseName.isNotEmpty
                 ? item.warehouseName
-                : 'Warehouse #${item.warehouseId}',
+                : 'orders.warehouse_number'.tr(
+                    args: [item.warehouseId.toString()],
+                  ),
             warehouseIcon: Icons.store_outlined,
             date: date,
             status: isCancelledOrRejected
@@ -81,7 +84,7 @@ class _EndOfArchiveIndicator extends StatelessWidget {
           Icon(Icons.archive_outlined, size: 40, color: AppColors.textHint),
           const SizedBox(height: AppSizes.sm),
           Text(
-            "You've the end of your archive",
+            'returns.end_of_archive'.tr(),
             textAlign: TextAlign.center,
             style: AppTextStyles.bodySmall.copyWith(
               color: AppColors.textHint,

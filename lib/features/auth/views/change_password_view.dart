@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -44,8 +45,8 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
     // Local-only validation + save (no backend).
     if (_newPasswordCtrl.text != _confirmPasswordCtrl.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Passwords do not match.'),
+        SnackBar(
+          content: Text('auth.passwords_not_match'.tr()),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -66,7 +67,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
         children: [
           // ── Shared fixed header ─────────────────────────────────────
           AppHeader(
-            title: 'Change Password',
+            title: 'drawer.change_password'.tr(),
             showBack: true,
             showNotification: true,
             onNotificationTap: () {},
@@ -86,8 +87,8 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
 
                   // ── Old Password ────────────────────────────────────
                   AppTextField(
-                    label: 'OLD PASSWORD',
-                    hint: 'old password',
+                    label: 'auth.old_password'.tr(),
+                    hint: 'auth.old_password_hint'.tr(),
                     icon: Icons.lock_outline,
                     controller: _oldPasswordCtrl,
                     obscureText: !_showOld,
@@ -99,16 +100,15 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
                         color: AppColors.textHint,
                         size: 20,
                       ),
-                      onPressed: () =>
-                          setState(() => _showOld = !_showOld),
+                      onPressed: () => setState(() => _showOld = !_showOld),
                     ),
                   ),
                   const SizedBox(height: 16),
 
                   // ── New Password ────────────────────────────────────
                   AppTextField(
-                    label: 'NEW PASSWORD',
-                    hint: 'new password',
+                    label: 'auth.new_password'.tr(),
+                    hint: 'auth.new_password_hint_lower'.tr(),
                     icon: Icons.lock_outline,
                     controller: _newPasswordCtrl,
                     obscureText: !_showNew,
@@ -120,16 +120,15 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
                         color: AppColors.textHint,
                         size: 20,
                       ),
-                      onPressed: () =>
-                          setState(() => _showNew = !_showNew),
+                      onPressed: () => setState(() => _showNew = !_showNew),
                     ),
                   ),
                   const SizedBox(height: 16),
 
                   // ── Confirm Password ────────────────────────────────
                   AppTextField(
-                    label: 'CONFIRM PASSWORD',
-                    hint: 'confirm password',
+                    label: 'auth.confirm_password'.tr(),
+                    hint: 'auth.confirm_password_hint'.tr(),
                     icon: Icons.lock_outline,
                     controller: _confirmPasswordCtrl,
                     obscureText: !_showConfirm,
@@ -150,7 +149,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
 
                   // ── Confirm button (Auth AppButton) ─────────────────
                   AppButton(
-                    label: 'Confirm',
+                    label: 'auth.confirm_btn'.tr(),
                     onPressed: _confirm,
                     color: AppColors.primary,
                     textColor: Colors.white,

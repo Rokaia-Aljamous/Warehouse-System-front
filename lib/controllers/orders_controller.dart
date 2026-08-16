@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../core/network/dio_client.dart';
 import '../core/storage/token_storage.dart';
@@ -21,14 +22,14 @@ class OrdersController extends ChangeNotifier {
     try {
       final token = await TokenStorage.getToken();
       if (token == null) {
-        errorMessage = 'غير مسجل الدخول';
+        errorMessage = 'errors.not_logged_in'.tr();
         return;
       }
       orders = await _repository.getOrders(token: token, status: status);
     } on DioException catch (e) {
       errorMessage = DioClient.getErrorMessage(e);
     } catch (e) {
-      errorMessage = 'حدث خطأ أثناء تحميل الطلبيات';
+      errorMessage = 'errors.orders_load_failed'.tr();
     } finally {
       isLoading = false;
       notifyListeners();

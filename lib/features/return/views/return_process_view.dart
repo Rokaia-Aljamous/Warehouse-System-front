@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
@@ -64,7 +65,7 @@ class ReturnProcessView extends StatelessWidget {
 
           // Title + description
           Text(
-            'Return Request',
+            'returns.return_request_title'.tr(),
             textAlign: TextAlign.center,
             style: AppTextStyles.screenTitle.copyWith(
               fontSize: 20,
@@ -73,7 +74,7 @@ class ReturnProcessView extends StatelessWidget {
           ),
           const SizedBox(height: AppSizes.sm),
           Text(
-            'Please show this barcode to the store representative to process your return',
+            'returns.show_barcode_to_staff'.tr(),
             textAlign: TextAlign.center,
             style: AppTextStyles.bodySmall.copyWith(fontSize: 13, height: 1.4),
           ),
@@ -121,9 +122,9 @@ class ReturnProcessView extends StatelessWidget {
               ),
               elevation: 0,
             ),
-            child: const Text(
-              'Confirm Return',
-              style: TextStyle(
+            child: Text(
+              'returns.confirm_return'.tr(),
+              style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
               ),
@@ -144,9 +145,9 @@ class ReturnProcessView extends StatelessWidget {
                 ),
               ),
             ),
-            child: const Text(
-              'Not now',
-              style: TextStyle(
+            child: Text(
+              'common.not_now'.tr(),
+              style: const TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w600,
               ),

@@ -96,7 +96,7 @@ class _HomeViewState extends State<HomeView> {
           // to NotificationsView. The shared CustomAppHeader widget itself
           // is left untouched.
           _HomeHeader(
-            title: "Warehouse Hub",
+            title: 'app_name'.tr(),
             showFilter: true,
             onFilterTap: () async {
               final result = await showFilterDialog(
@@ -133,15 +133,15 @@ class _HomeViewState extends State<HomeView> {
                         const SizedBox(height: AppSizes.md),
                         OutlinedButton(
                           onPressed: _homeController.loadWarehouses,
-                          child: const Text('Try again'),
+                          child: Text('common.try_again'.tr()),
                         ),
                       ],
                     ),
                   )
                 : _homeController.warehouses.isEmpty
-                ? const Center(
+                ? Center(
                     child: Text(
-                      'لا توجد نتائج مطابقة',
+                      'common.no_results'.tr(),
                       style: AppTextStyles.bodySmall,
                     ),
                   )
@@ -245,7 +245,7 @@ class _HomeDrawer extends StatelessWidget {
           children: [
             _DrawerItem(
               icon: Icons.person_outline,
-              label: 'Profile',
+              label: 'drawer.profile'.tr(),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -256,7 +256,7 @@ class _HomeDrawer extends StatelessWidget {
             ),
             _DrawerItem(
               icon: Icons.lock_outline,
-              label: 'Change Password',
+              label: 'drawer.change_password'.tr(),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -267,19 +267,17 @@ class _HomeDrawer extends StatelessWidget {
             ),
             _DrawerItem(
               icon: Icons.account_balance_wallet_outlined,
-              label: 'Wallet',
+              label: 'drawer.wallet'.tr(),
               onTap: () => Navigator.pop(context),
             ),
             _DrawerItem(
               icon: Icons.light_mode_outlined,
-              label: 'Light',
+              label: 'drawer.theme'.tr(),
               onTap: () => Navigator.pop(context),
             ),
             _DrawerItem(
               icon: Icons.language_outlined,
-              label: context.locale.languageCode == 'ar'
-                  ? 'drawer.language'.tr()
-                  : 'English',
+              label: 'drawer.language'.tr(),
               onTap: () async {
                 final newLocale = context.locale.languageCode == 'en'
                     ? const Locale('ar')
@@ -291,13 +289,13 @@ class _HomeDrawer extends StatelessWidget {
             const Divider(height: 32, indent: 24, endIndent: 24),
             _DrawerItem(
               icon: Icons.logout,
-              label: 'Logout',
+              label: 'drawer.logout'.tr(),
               isDestructive: true,
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Logout (demo only).'),
+                  SnackBar(
+                    content: Text('drawer.logout_demo'.tr()),
                     behavior: SnackBarBehavior.floating,
                   ),
                 );

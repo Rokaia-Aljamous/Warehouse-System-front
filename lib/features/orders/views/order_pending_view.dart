@@ -4,6 +4,7 @@ import 'package:customer_app/features/orders/widgets/order_barcode_widget.dart';
 import 'package:customer_app/features/auth/widgets/app_button.dart';
 import 'package:customer_app/controllers/orders_controller.dart';
 import 'package:customer_app/features/auth/models/order_model.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
@@ -59,12 +60,12 @@ class _OrderDetailViewState extends State<OrderDetailView> {
       setState(() {
         _order = order;
         _isLoading = false;
-        if (order == null) _errorMessage = 'تعذر تحميل تفاصيل الطلبية';
+        if (order == null) _errorMessage = 'orders.details_load_failed'.tr();
       });
     } catch (_) {
       setState(() {
         _isLoading = false;
-        _errorMessage = 'حدث خطأ أثناء تحميل تفاصيل الطلبية';
+        _errorMessage = 'orders.details_load_error'.tr();
       });
     }
   }
@@ -123,7 +124,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
 
     if (items.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('لازم يضل عنصر واحد على الأقل بالطلبية')),
+        SnackBar(content: Text('orders.min_one_item_required'.tr())),
       );
       return;
     }
@@ -147,13 +148,13 @@ class _OrderDetailViewState extends State<OrderDetailView> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('تم تحديث الطلبية بنجاح')));
+        ).showSnackBar(SnackBar(content: Text('orders.update_success'.tr())));
       }
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تعذر حفظ التعديلات، حاول مرة تانية')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('orders.update_failed'.tr())));
       }
     }
   }
@@ -191,7 +192,10 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                   children: [
                     Text(_errorMessage!, style: AppTextStyles.fieldLabel),
                     const SizedBox(height: 12),
-                    AppButton(label: 'إعادة المحاولة', onPressed: _loadOrder),
+                    AppButton(
+                      label: 'common.retry'.tr(),
+                      onPressed: _loadOrder,
+                    ),
                   ],
                 ),
               )
@@ -304,7 +308,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Text(
-                          'لا توجد عناصر بهاي الطلبية',
+                          'orders.no_items_in_order'.tr(),
                           style: AppTextStyles.fieldLabel,
                         ),
                       )

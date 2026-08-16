@@ -2,6 +2,7 @@ import 'package:customer_app/features/orders/views/order_approved_view.dart';
 import 'package:customer_app/features/orders/views/order_inshipping_view.dart';
 import 'package:customer_app/features/orders/views/order_pending_view.dart';
 import 'package:customer_app/features/orders/widgets/order_status_badge.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../auth/models/order_model.dart';
@@ -15,7 +16,7 @@ class PendingOrdersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (orders.isEmpty) {
-      return const Center(child: Text('لا توجد طلبيات قيد الانتظار'));
+      return Center(child: Text('orders.no_pending_orders'.tr()));
     }
     return ListView(
       padding: const EdgeInsets.all(AppSizes.pagePaddingH),

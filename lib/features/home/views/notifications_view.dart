@@ -1,4 +1,5 @@
 import 'package:customer_app/features/orders/widgets/app_header_in.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
@@ -21,35 +22,34 @@ class NotificationsView extends StatelessWidget {
   const NotificationsView({super.key});
 
   // "New" section items (unread — green dot, white background).
-  static const List<_NotificationItem> _newItems = [
+  static List<_NotificationItem> get _newItems => [
     _NotificationItem(
-      title: 'Destruction task assigned: Order #1234 requires processing.',
-      time: '2m ago',
+      title: 'notifications.demo_destruction_task'.tr(),
+      time: 'notifications.time_2m_ago'.tr(),
       isUnread: true,
     ),
     _NotificationItem(
-      title:
-          'New receiving task: Shipment from Supplier X has arrived.',
-      time: '15m ago',
+      title: 'notifications.demo_receiving_task'.tr(),
+      time: 'notifications.time_15m_ago'.tr(),
       isUnread: true,
     ),
   ];
 
   // "Earlier" section items (read — gray dot).
-  static const List<_NotificationItem> _earlierItems = [
+  static List<_NotificationItem> get _earlierItems => [
     _NotificationItem(
-      title: 'Storage task: Move 50 units of Product A to Zone B.',
-      time: '2h ago',
+      title: 'notifications.demo_storage_task'.tr(),
+      time: 'notifications.time_2h_ago'.tr(),
       isUnread: false,
     ),
     _NotificationItem(
-      title: 'Inventory check required for Section 4.',
-      time: '5h ago',
+      title: 'notifications.demo_inventory_check'.tr(),
+      time: 'notifications.time_5h_ago'.tr(),
       isUnread: false,
     ),
     _NotificationItem(
-      title: 'System alert: Inventory levels low for Item #5521.',
-      time: 'Yesterday',
+      title: 'notifications.demo_system_alert'.tr(),
+      time: 'notifications.time_yesterday'.tr(),
       isUnread: false,
     ),
   ];
@@ -61,7 +61,7 @@ class NotificationsView extends StatelessWidget {
       body: Column(
         children: [
           AppHeader(
-            title: 'Notification',
+            title: 'notifications.title'.tr(),
             showBack: true,
             showNotification: false, // we ARE on the notifications screen
             borderRadius: const BorderRadius.only(
@@ -78,11 +78,11 @@ class NotificationsView extends StatelessWidget {
                 AppSizes.xl,
               ),
               children: [
-                _SectionLabel(text: 'New'),
+                _SectionLabel(text: 'notifications.new_label'.tr()),
                 const SizedBox(height: AppSizes.sm),
                 ..._newItems.map((item) => _NotificationRow(item: item)),
                 const SizedBox(height: AppSizes.lg),
-                _SectionLabel(text: 'Earlier'),
+                _SectionLabel(text: 'notifications.earlier_label'.tr()),
                 const SizedBox(height: AppSizes.sm),
                 ..._earlierItems.map((item) => _NotificationRow(item: item)),
               ],

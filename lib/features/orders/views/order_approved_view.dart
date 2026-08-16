@@ -3,6 +3,7 @@ import 'package:customer_app/features/orders/widgets/order_barcode_widget.dart';
 import 'package:customer_app/features/auth/widgets/app_button.dart';
 import 'package:customer_app/controllers/orders_controller.dart';
 import 'package:customer_app/features/auth/models/order_model.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
@@ -10,6 +11,7 @@ import '../../../core/constants/app_text_styles.dart';
 import '../widgets/order_item_card.dart';
 import '../widgets/order_summary.dart';
 import 'package:customer_app/features/home/views/notifications_view.dart';
+import 'package:customer_app/features/orders/views/transaction_details_view.dart';
 
 class OrderApprovedView extends StatefulWidget {
   final int orderId;
@@ -49,12 +51,12 @@ class _OrderApprovedViewState extends State<OrderApprovedView> {
       setState(() {
         _order = order;
         _isLoading = false;
-        if (order == null) _errorMessage = 'تعذر تحميل تفاصيل الطلبية';
+        if (order == null) _errorMessage = 'orders.details_load_failed'.tr();
       });
     } catch (_) {
       setState(() {
         _isLoading = false;
-        _errorMessage = 'حدث خطأ أثناء تحميل تفاصيل الطلبية';
+        _errorMessage = 'orders.details_load_error'.tr();
       });
     }
   }
@@ -92,7 +94,10 @@ class _OrderApprovedViewState extends State<OrderApprovedView> {
                   children: [
                     Text(_errorMessage!, style: AppTextStyles.fieldLabel),
                     const SizedBox(height: 12),
-                    AppButton(label: 'إعادة المحاولة', onPressed: _loadOrder),
+                    AppButton(
+                      label: 'common.retry'.tr(),
+                      onPressed: _loadOrder,
+                    ),
                   ],
                 ),
               )
@@ -191,7 +196,7 @@ class _OrderApprovedViewState extends State<OrderApprovedView> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Text(
-                          'لا توجد عناصر بهاي الطلبية',
+                          'orders.no_items_in_order'.tr(),
                           style: AppTextStyles.fieldLabel,
                         ),
                       )
@@ -214,6 +219,64 @@ class _OrderApprovedViewState extends State<OrderApprovedView> {
 
                     // ── الباركود الخاص بالطلبية ──────────────────
                     OrderBarcodeWidget(orderQrCode: _order!.orderQrCode),
+
+                    // ── زر الدفع عبر PayPal (يفتح شاشة تأكيد الدفع) ──
+                    // بيظهر فقط لما can_pay == true (مو بس status ==
+                    // approved) — can_pay هو المرجع الوحيد من الباك اند
+                    // لمعرفة إذا مسموح تبلّشي دفع جديد لهاد الطلب.
+                    if (!isEditMode && _order!.canPay) ...[
+                      const SizedBox(height: 20),
+                      AppButton(
+                        label: 'orders.pay_now'.tr(),
+                        fullWidth: true,
+                        onPressed: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => TransactionDetailsView(
+                                orderId: _order!.id,
+                                orderNumber: widget.orderNumber,
+                                totalPrice: _order!.totalPrice,
+                              ),
+                            ),
+                          );
+                          // بعد الرجوع من شاشة الدفع (نجاح أو إلغاء)
+                          // نعيد تحميل الطلب حتى يتحدث can_pay/payment_status.
+                          if (mounted) _loadOrder();
+                        },
+                        color: AppColors.primary,
+                        textColor: Colors.white,
+                      ),
+                    ] else if (!isEditMode && _order!.isPaid) ...[
+                      const SizedBox(height: 20),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.check_circle,
+                              color: Colors.green,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'orders.payment_success'.tr(),
+                              style: const TextStyle(
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
 
                     // ── منطق الأزرار ───────────────────────────
                     if (isEditMode) ...[

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -24,7 +25,7 @@ class PendingReturnsScreen extends StatelessWidget {
       itemCount: returns.length + 1, // +1 for footer
       itemBuilder: (context, index) {
         if (index == returns.length) {
-          return const _EndOfListIndicator(text: 'End of pending list');
+          return _EndOfListIndicator(text: 'returns.end_of_pending'.tr());
         }
         final item = returns[index];
         return _PendingReturnCard(
@@ -93,7 +94,7 @@ class _PendingReturnCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Return #${data.id}',
+                      'returns.return_number'.tr(args: [data.id.toString()]),
                       style: AppTextStyles.screenTitle.copyWith(fontSize: 18),
                     ),
                     const _UnderReviewBadge(),
@@ -112,7 +113,9 @@ class _PendingReturnCard extends StatelessWidget {
                     Text(
                       data.warehouseName.isNotEmpty
                           ? data.warehouseName
-                          : 'Warehouse #${data.warehouseId}',
+                          : 'orders.warehouse_number'.tr(
+                              args: [data.warehouseId.toString()],
+                            ),
                       style: AppTextStyles.bodySmall,
                     ),
                   ],
@@ -126,7 +129,7 @@ class _PendingReturnCard extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          'View Details',
+                          'common.view_details'.tr(),
                           style: AppTextStyles.fieldLabel.copyWith(
                             color: AppColors.primary,
                           ),
@@ -163,7 +166,7 @@ class _UnderReviewBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        'Under Review',
+        'returns.under_review'.tr(),
         style: AppTextStyles.fieldLabel.copyWith(
           color: AppColors.statusPendingTxt,
           fontSize: 11,

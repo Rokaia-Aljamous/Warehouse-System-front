@@ -1,4 +1,5 @@
 import 'package:customer_app/features/orders/widgets/app_header_in.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../controllers/returns_controller.dart';
 import '../../../core/constants/app_colors.dart';
@@ -52,7 +53,7 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
     setState(() {
       _returnData = data;
       _isLoading = false;
-      if (data == null) _errorMessage = 'تعذر تحميل تفاصيل المرتجع';
+      if (data == null) _errorMessage = 'returns.details_load_failed'.tr();
     });
   }
 
@@ -78,7 +79,7 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
         backgroundColor: AppColors.cardBg,
         body: Center(
           child: Text(
-            _errorMessage ?? 'حدث خطأ',
+            _errorMessage ?? 'errors.unexpected'.tr(),
             style: AppTextStyles.bodySmall,
           ),
         ),
@@ -95,7 +96,7 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppHeader(
-              title: 'Return #${data.id}',
+              title: 'returns.return_number'.tr(args: [data.id.toString()]),
               showBack: true,
               showNotification: true,
               onNotificationTap: () => Navigator.push(
@@ -123,17 +124,25 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
                   _WarehouseCard(
                     name: data.warehouseName.isNotEmpty
                         ? data.warehouseName
-                        : 'Warehouse #${data.warehouseId}',
+                        : 'orders.warehouse_number'.tr(
+                            args: [data.warehouseId.toString()],
+                          ),
                   ),
 
                   const SizedBox(height: AppSizes.lg),
 
                   // ── RETURNED ITEMS section ─────────────────────────────
-                  Text('RETURNED ITEMS', style: _sectionLabelStyle),
+                  Text(
+                    'returns.returned_items'.tr(),
+                    style: _sectionLabelStyle,
+                  ),
                   const SizedBox(height: AppSizes.md),
 
                   if (data.items.isEmpty)
-                    Text('لا توجد عناصر', style: AppTextStyles.bodySmall)
+                    Text(
+                      'returns.no_items'.tr(),
+                      style: AppTextStyles.bodySmall,
+                    )
                   else
                     ...data.items.map(
                       (item) => _ReturnItemCard(
@@ -146,7 +155,7 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
                   const SizedBox(height: AppSizes.lg),
 
                   // ── RETURN REASON section ──────────────────────────────
-                  Text('RETURN REASON', style: _sectionLabelStyle),
+                  Text('returns.return_reason'.tr(), style: _sectionLabelStyle),
                   const SizedBox(height: AppSizes.md),
                   _ReturnReasonCard(reason: data.returnReason),
 
@@ -189,9 +198,9 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
                               height: 20,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                          : const Text(
-                              'Cancel Return Request',
-                              style: TextStyle(
+                          : Text(
+                              'returns.cancel_return_request'.tr(),
+                              style: const TextStyle(
                                 color: Colors.red,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -205,9 +214,9 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
                         color: Colors.white,
                         size: 20,
                       ),
-                      label: const Text(
-                        'QR Code',
-                        style: TextStyle(
+                      label: Text(
+                        'returns.qr_code'.tr(),
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                         ),
@@ -267,12 +276,12 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
             ),
             const SizedBox(height: AppSizes.lg),
             Text(
-              'Return Request',
+              'returns.return_request_title'.tr(),
               style: AppTextStyles.screenTitle.copyWith(fontSize: 20),
             ),
             const SizedBox(height: AppSizes.sm),
             Text(
-              'Please show this code to the store representative to process your return',
+              'returns.show_qr_to_staff'.tr(),
               textAlign: TextAlign.center,
               style: AppTextStyles.bodySmall,
             ),
@@ -314,9 +323,9 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
                   ),
                 ),
               ),
-              child: const Text(
-                'Close',
-                style: TextStyle(
+              child: Text(
+                'common.close'.tr(),
+                style: const TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
                 ),
@@ -374,12 +383,12 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
             ),
             const SizedBox(height: AppSizes.md),
             Text(
-              'Cancel Return Request',
+              'returns.cancel_confirm_title'.tr(),
               style: AppTextStyles.screenTitle.copyWith(fontSize: 20),
             ),
             const SizedBox(height: AppSizes.sm),
             Text(
-              'Are you sure you want to cancel this return request?',
+              'returns.cancel_confirm_body'.tr(),
               textAlign: TextAlign.center,
               style: AppTextStyles.bodySmall,
             ),
@@ -395,12 +404,13 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
                   await _load();
                   if (!mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('تم إلغاء طلب الإرجاع')),
+                    SnackBar(content: Text('returns.cancel_success'.tr())),
                   );
                 } else {
                   setState(() {
                     _errorMessage =
-                        _controller.errorMessage ?? 'تعذّر إلغاء طلب الإرجاع';
+                        _controller.errorMessage ??
+                        'returns.cancel_failed'.tr();
                   });
                 }
               },
@@ -413,9 +423,9 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
                   ),
                 ),
               ),
-              child: const Text(
-                'Cancel Return Request',
-                style: TextStyle(
+              child: Text(
+                'returns.cancel_return_request'.tr(),
+                style: const TextStyle(
                   color: Colors.red,
                   fontWeight: FontWeight.w600,
                 ),
@@ -433,9 +443,9 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
                   ),
                 ),
               ),
-              child: const Text(
-                'Go Back',
-                style: TextStyle(
+              child: Text(
+                'returns.go_back'.tr(),
+                style: const TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
                 ),
@@ -457,7 +467,7 @@ class _OrderStatusBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = status.replaceAll('_', ' ').toUpperCase();
+    final label = 'status.$status'.tr().toUpperCase();
     final isPending = status == 'pending';
     final color = isPending
         ? AppColors.statusPendingTxt
@@ -608,7 +618,7 @@ class _ReturnItemCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSizes.sm),
                 Text(
-                  'Quantity: $quantity',
+                  'orders.quantity_label'.tr(args: [quantity.toString()]),
                   style: AppTextStyles.bodySmall.copyWith(fontSize: 13),
                 ),
               ],
@@ -665,7 +675,7 @@ class _DueMoneyCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'Your due money',
+            'returns.your_due_money'.tr(),
             style: AppTextStyles.fieldLabel.copyWith(
               color: AppColors.textSecondary,
             ),

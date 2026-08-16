@@ -1,14 +1,14 @@
 import 'package:customer_app/features/auth/repositories/auth_repository.dart';
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../core/network/dio_client.dart';
-
 
 class CreatePasswordController {
   final AuthRepository _repository = AuthRepository();
 
-  final formKey        = GlobalKey<FormState>();
-  final newPassCtrl    = TextEditingController();
+  final formKey = GlobalKey<FormState>();
+  final newPassCtrl = TextEditingController();
   final confirmPassCtrl = TextEditingController();
 
   Future<void> resetPassword({
@@ -33,7 +33,7 @@ class CreatePasswordController {
     } on DioException catch (e) {
       onError(DioClient.getErrorMessage(e));
     } catch (e) {
-      onError('حدث خطأ غير متوقع');
+      onError('errors.unexpected'.tr());
     }
   }
 

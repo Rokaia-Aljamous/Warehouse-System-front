@@ -44,6 +44,18 @@ class OrderModel {
   final int? itemsCount;
   final List<OrderItemModel> items;
 
+  /// not_started | pending | processing | paid | failed
+  /// (راجع "قواعد مهمة قبل الربط" بدليل PayPal — هاد الحقل هو المرجع
+  /// الوحيد لمعرفة إذا الطلب مدفوع فعلاً، مش مجرد الرجوع من صفحة PayPal).
+  final String? paymentStatus;
+
+  /// true فقط لما يصير مسموح تبلّشي جلسة دفع جديدة لهاد الطلب.
+  /// يصير false تلقائياً بعد نجاح الدفع — هو المرجع الوحيد لإظهار/إخفاء
+  /// زر "Pay Now"، مش status الطلب لحاله.
+  final bool canPay;
+
+  final bool canPrepare;
+
   OrderModel({
     required this.id,
     required this.warehouseId,
@@ -55,7 +67,13 @@ class OrderModel {
     this.transferAssignment,
     this.itemsCount,
     this.items = const [],
+    this.paymentStatus,
+    this.canPay = false,
+    this.canPrepare = false,
   });
+
+  /// الطلب "مدفوع" فقط لما الحالة تكون paid صراحة من الباك اند.
+  bool get isPaid => paymentStatus == 'paid';
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     return OrderModel(
@@ -63,8 +81,7 @@ class OrderModel {
       warehouseId: json['warehouse_id'] ?? 0,
       status: json['status'] ?? 'pending',
       totalPrice: double.tryParse('${json['total_price']}') ?? 0.0,
-      orderDate:
-          DateTime.tryParse(json['order_date'] ?? '') ?? DateTime.now(),
+      orderDate: DateTime.tryParse(json['order_date'] ?? '') ?? DateTime.now(),
       customerLocation: json['customer_location'] ?? '',
       orderQrCode: json['order_qr_code'] ?? '',
       transferAssignment: json['transfer_assignment'] != null
@@ -74,6 +91,9 @@ class OrderModel {
       items: (json['items'] as List<dynamic>? ?? [])
           .map((e) => OrderItemModel.fromJson(e as Map<String, dynamic>))
           .toList(),
+      paymentStatus: json['payment_status'],
+      canPay: json['can_pay'] == true,
+      canPrepare: json['can_prepare'] == true,
     );
   }
 }

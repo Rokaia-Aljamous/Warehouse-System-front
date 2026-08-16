@@ -1,5 +1,6 @@
 import 'package:customer_app/features/orders/widgets/app_header_in.dart';
 import 'package:customer_app/features/auth/models/order_model.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../controllers/returns_controller.dart';
 import '../../../core/constants/app_colors.dart';
@@ -97,7 +98,8 @@ class _ReturnOrderViewState extends State<ReturnOrderView> {
       _showConfirmationDialog(result.dueAmount);
     } else {
       setState(() {
-        _errorMessage = _controller.errorMessage ?? 'تعذّر تقديم طلب الإرجاع';
+        _errorMessage =
+            _controller.errorMessage ?? 'errors.return_submit_failed'.tr();
       });
     }
   }
@@ -286,7 +288,7 @@ class _ReturnOrderViewState extends State<ReturnOrderView> {
 
                   if (widget.order.items.isEmpty)
                     Text(
-                      'لا توجد عناصر بهاي الطلبية',
+                      'orders.no_items_in_order'.tr(),
                       style: AppTextStyles.bodySmall,
                     )
                   else

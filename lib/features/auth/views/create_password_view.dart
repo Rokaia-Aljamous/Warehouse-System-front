@@ -1,5 +1,6 @@
 import 'package:customer_app/controllers/create_password_controller.dart';
 import 'package:customer_app/features/auth/views/login_view.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
@@ -50,7 +51,8 @@ class _CreateNewPasswordViewState extends State<CreateNewPasswordView> {
                 Container(
                   width: double.infinity,
                   constraints: BoxConstraints(
-                      minHeight: MediaQuery.of(context).size.height - 150),
+                    minHeight: MediaQuery.of(context).size.height - 150,
+                  ),
                   decoration: const BoxDecoration(
                     color: AppColors.cardBg,
                     borderRadius: BorderRadius.only(
@@ -59,24 +61,28 @@ class _CreateNewPasswordViewState extends State<CreateNewPasswordView> {
                     ),
                   ),
                   padding: const EdgeInsets.symmetric(
-                      horizontal: AppSizes.pagePaddingH, vertical: AppSizes.xl),
+                    horizontal: AppSizes.pagePaddingH,
+                    vertical: AppSizes.xl,
+                  ),
                   child: Form(
                     key: _controller.formKey,
                     child: Column(
                       children: [
-                        const Text('Create New Password',
-                            style: AppTextStyles.screenTitle),
+                        Text(
+                          'auth.create_new_password_title'.tr(),
+                          style: AppTextStyles.screenTitle,
+                        ),
                         const SizedBox(height: AppSizes.md),
-                        const Text(
-                          'Your new password must be different from previous used passwords.',
+                        Text(
+                          'auth.new_password_desc'.tr(),
                           textAlign: TextAlign.center,
                           style: AppTextStyles.bodySmall,
                         ),
                         const SizedBox(height: AppSizes.xl),
 
                         AppTextField(
-                          label: 'NEW PASSWORD',
-                          hint: 'Enter new password',
+                          label: 'auth.new_password'.tr(),
+                          hint: 'auth.new_password_hint'.tr(),
                           icon: Icons.lock_outline,
                           controller: _controller.newPassCtrl,
                           obscureText: !_showPassword,
@@ -86,18 +92,18 @@ class _CreateNewPasswordViewState extends State<CreateNewPasswordView> {
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
                             ),
-                            onPressed: () => setState(
-                                () => _showPassword = !_showPassword),
+                            onPressed: () =>
+                                setState(() => _showPassword = !_showPassword),
                           ),
                           validator: (v) => (v == null || v.length < 6)
-                              ? 'Password too short'
+                              ? 'auth.password_too_short'.tr()
                               : null,
                         ),
                         const SizedBox(height: AppSizes.lg),
 
                         AppTextField(
-                          label: 'CONFIRM PASSWORD',
-                          hint: 'Confirm new password',
+                          label: 'auth.confirm_password'.tr(),
+                          hint: 'auth.confirm_password_hint2'.tr(),
                           icon: Icons.lock_outline,
                           controller: _controller.confirmPassCtrl,
                           obscureText: !_showConfirmPassword,
@@ -108,10 +114,12 @@ class _CreateNewPasswordViewState extends State<CreateNewPasswordView> {
                                   : Icons.visibility_outlined,
                             ),
                             onPressed: () => setState(
-                                () => _showConfirmPassword = !_showConfirmPassword),
+                              () =>
+                                  _showConfirmPassword = !_showConfirmPassword,
+                            ),
                           ),
                           validator: (v) => (v != _controller.newPassCtrl.text)
-                              ? 'Passwords do not match'
+                              ? 'auth.passwords_not_match'.tr()
                               : null,
                         ),
 
@@ -122,13 +130,15 @@ class _CreateNewPasswordViewState extends State<CreateNewPasswordView> {
                           Text(
                             _errorMessage!,
                             style: const TextStyle(
-                                color: Colors.red, fontSize: 13),
+                              color: Colors.red,
+                              fontSize: 13,
+                            ),
                             textAlign: TextAlign.center,
                           ),
 
                         const SizedBox(height: AppSizes.lg),
                         AppButton(
-                          label: 'Reset Password',
+                          label: 'auth.reset_password_button'.tr(),
                           isLoading: _isLoading,
                           onPressed: () => _controller.resetPassword(
                             email: widget.email,
@@ -142,7 +152,8 @@ class _CreateNewPasswordViewState extends State<CreateNewPasswordView> {
                               Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (_) => const LoginView()),
+                                  builder: (_) => const LoginView(),
+                                ),
                                 (route) => false,
                               );
                             },
@@ -158,11 +169,14 @@ class _CreateNewPasswordViewState extends State<CreateNewPasswordView> {
                           onTap: () => Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                                builder: (_) => const LoginView()),
+                              builder: (_) => const LoginView(),
+                            ),
                             (route) => false,
                           ),
-                          child: const Text('Back to Login',
-                              style: AppTextStyles.linkBold),
+                          child: Text(
+                            'auth.back_to_login'.tr(),
+                            style: AppTextStyles.linkBold,
+                          ),
                         ),
                       ],
                     ),

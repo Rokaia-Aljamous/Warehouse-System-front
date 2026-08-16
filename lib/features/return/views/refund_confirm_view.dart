@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
@@ -63,7 +64,7 @@ class RefundConfirmView extends StatelessWidget {
 
           // Title + description
           Text(
-            'Refund Confirmation',
+            'returns.refund_confirmation'.tr(),
             textAlign: TextAlign.center,
             style: AppTextStyles.screenTitle.copyWith(
               fontSize: 20,
@@ -72,8 +73,7 @@ class RefundConfirmView extends StatelessWidget {
           ),
           const SizedBox(height: AppSizes.sm),
           Text(
-            'Your return request has been processed successfully. '
-            'An amount of $amount has been refunded to your wallet.',
+            'returns.refund_success_message'.tr(args: [amount]),
             textAlign: TextAlign.center,
             style: AppTextStyles.bodySmall.copyWith(fontSize: 13, height: 1.4),
           ),
@@ -115,9 +115,9 @@ class RefundConfirmView extends StatelessWidget {
               ),
               elevation: 0,
             ),
-            child: const Text(
-              'Confirm and Continue',
-              style: TextStyle(
+            child: Text(
+              'returns.confirm_and_continue'.tr(),
+              style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
               ),
@@ -138,9 +138,9 @@ class RefundConfirmView extends StatelessWidget {
                 ),
               ),
             ),
-            child: const Text(
-              'Not now',
-              style: TextStyle(
+            child: Text(
+              'common.not_now'.tr(),
+              style: const TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w600,
               ),

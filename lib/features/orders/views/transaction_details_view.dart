@@ -1,16 +1,141 @@
-
 import 'package:customer_app/features/auth/widgets/app_button.dart';
 import 'package:customer_app/features/orders/widgets/app_header_in.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_text_styles.dart';
 import 'package:customer_app/features/home/views/notifications_view.dart';
+import 'package:customer_app/controllers/payment_controller.dart';
+import 'package:customer_app/features/auth/models/order_payment_model.dart';
+import 'package:customer_app/features/orders/views/paypal_webview_view.dart';
 
-class TransactionDetailsView extends StatelessWidget {
+/// شاشة تأكيد ودفع طلبية معتمدة (Approved) عبر PayPal.
+///
+/// لازم تُفتح دايماً بـ orderId و totalPrice حقيقيين — الباك اند بيرفض
+/// الدفع لأي طلبية مش بحالة "approved" بالظبط (OrderPaymentService).
+class TransactionDetailsView extends StatefulWidget {
+  final int orderId;
   final String orderNumber;
+  final double totalPrice;
 
-  const TransactionDetailsView({super.key, required this.orderNumber});
+  const TransactionDetailsView({
+    super.key,
+    required this.orderId,
+    required this.orderNumber,
+    required this.totalPrice,
+  });
+
+  @override
+  State<TransactionDetailsView> createState() => _TransactionDetailsViewState();
+}
+
+class _TransactionDetailsViewState extends State<TransactionDetailsView> {
+  final _controller = PaymentController();
+  bool _isProcessing = false;
+  bool _isCheckingExisting = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkExistingAttempt();
+  }
+
+  /// قبل ما نعرض زر الدفع، نتأكد إذا في محاولة دفع سابقة على نفس الطلب
+  /// لسا شغالة (created/processing) — recovery لو التطبيق كان انسكر أو
+  /// المستخدم طلع عالمتصفح ورجع بدون ما يكمل. لو لقينا وحدة منها، نكمل
+  /// عليها بدل ما نبلّش create جديد (اللي ممكن يرجع 409 processing).
+  Future<void> _checkExistingAttempt() async {
+    final attempts = await _controller.fetchPaymentAttempts(widget.orderId);
+    if (!mounted) return;
+
+    final pending = attempts.cast<OrderPaymentModel?>().firstWhere(
+      (p) =>
+          p != null &&
+          (p.status == 'created' || p.status == 'processing') &&
+          p.approvalUrl != null,
+      orElse: () => null,
+    );
+
+    setState(() => _isCheckingExisting = false);
+
+    if (pending != null) {
+      _openApprovalUrl(pending);
+    }
+  }
+
+  Future<void> _startPayment() async {
+    setState(() => _isProcessing = true);
+
+    // 1) ننشئ جلسة دفع PayPal ونجيب approval_url.
+    final created = await _controller.startPayPalPayment(widget.orderId);
+
+    if (!mounted) return;
+
+    if (created == null || created.approvalUrl == null) {
+      setState(() => _isProcessing = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _controller.errorMessage ?? 'common.error_generic'.tr(),
+          ),
+        ),
+      );
+      return;
+    }
+
+    await _openApprovalUrl(created);
+  }
+
+  /// يفتح approval_url بالـ WebView (لجلسة جديدة أو محاولة سابقة لسا
+  /// شغالة) ويكمل على نتيجتها بالـ capture. مشتركة بين _startPayment
+  /// و _checkExistingAttempt.
+  Future<void> _openApprovalUrl(OrderPaymentModel created) async {
+    setState(() => _isProcessing = true);
+
+    // 2) نفتح صفحة PayPal جوا WebView ونستنى نتيجة موافقة/إلغاء الزبون.
+    final result = await Navigator.push<PayPalWebViewResult>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PayPalWebViewView(approvalUrl: created.approvalUrl!),
+      ),
+    );
+
+    if (!mounted) return;
+
+    if (result == null || !result.approved || result.paypalOrderId == null) {
+      setState(() => _isProcessing = false);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('orders.payment_cancelled'.tr())));
+      return;
+    }
+
+    // 3) نأكد الدفع (capture) بعد ما الزبون وافق فعلياً بصفحة PayPal.
+    final captured = await _controller.confirmPayPalPayment(
+      orderId: widget.orderId,
+      paypalOrderId: result.paypalOrderId!,
+    );
+
+    if (!mounted) return;
+    setState(() => _isProcessing = false);
+
+    if (captured == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _controller.errorMessage ?? 'orders.payment_failed'.tr(),
+          ),
+        ),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('orders.payment_success'.tr())));
+    Navigator.popUntil(context, (route) => route.isFirst);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,10 +144,13 @@ class TransactionDetailsView extends StatelessWidget {
       body: Column(
         children: [
           AppHeader(
-            title: orderNumber,
+            title: widget.orderNumber,
             showBack: true,
             showNotification: true,
-            onNotificationTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsView())),
+            onNotificationTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const NotificationsView()),
+            ),
             borderRadius: const BorderRadius.only(
               bottomRight: Radius.circular(30),
             ),
@@ -36,35 +164,16 @@ class TransactionDetailsView extends StatelessWidget {
                 children: [
                   const SizedBox(height: AppSizes.xl),
 
-                  // ── أيقونة نجاح ─────────────────────────────
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.green.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.check_circle,
-                      color: Colors.green,
-                      size: 48,
-                    ),
-                  ),
-                  const SizedBox(height: AppSizes.md),
-
+                  // ── عنوان ──────────────────────────────────
                   Text(
-                    'Scan Successful',
-                    style: AppTextStyles.screenTitle.copyWith(fontSize: 20),
+                    'orders.confirm_and_pay'.tr(),
+                    style: AppTextStyles.screenTitle.copyWith(fontSize: 22),
                   ),
                   const SizedBox(height: AppSizes.xs),
-
-                  Text(
-                    orderNumber,
-                    style: AppTextStyles.bodySmall,
-                  ),
+                  Text(widget.orderNumber, style: AppTextStyles.bodySmall),
                   const SizedBox(height: AppSizes.xl),
 
-                  // ── Transaction Details ──────────────────────
+                  // ── تفاصيل المعاملة (المبلغ الحقيقي فقط) ─────
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(AppSizes.lg),
@@ -77,20 +186,16 @@ class TransactionDetailsView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Transaction Details',
+                          'orders.transaction_details'.tr(),
                           style: AppTextStyles.fieldLabel.copyWith(
                             fontSize: 16,
                             color: AppColors.textPrimary,
                           ),
                         ),
                         const SizedBox(height: AppSizes.md),
-                        _buildRow('Total Amount', '\$ 1000.00'),
-                        const SizedBox(height: AppSizes.sm),
-                        _buildRow('Service Fee', '\$ 12.00'),
-                        const Divider(height: AppSizes.lg),
                         _buildRow(
-                          'Total to Deduct',
-                          '\$ 1012.00',
+                          'orders.total_amount'.tr(),
+                          '\$ ${widget.totalPrice.toStringAsFixed(2)}',
                           isBold: true,
                         ),
                       ],
@@ -98,9 +203,9 @@ class TransactionDetailsView extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSizes.sm),
 
-                  // ── ملاحظة ──────────────────────────────────
+                  // ── ملاحظة PayPal ─────────────────────────────
                   Text(
-                    '* an amount will be deducted from your Wallet Balance. Make sure you have enough balance.',
+                    'orders.paypal_redirect_note'.tr(),
                     style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
                     textAlign: TextAlign.center,
                   ),
@@ -108,12 +213,12 @@ class TransactionDetailsView extends StatelessWidget {
 
                   // ── زر Confirm & Pay ─────────────────────────
                   AppButton(
-                    label: 'Confirm & Pay',
+                    label: 'orders.confirm_and_pay'.tr(),
                     fullWidth: true,
-                    onPressed: () {
-                      // TODO: API call للدفع
-                      Navigator.popUntil(context, (route) => route.isFirst);
-                    },
+                    isLoading: _isProcessing || _isCheckingExisting,
+                    onPressed: (_isProcessing || _isCheckingExisting)
+                        ? null
+                        : _startPayment,
                     color: AppColors.primary,
                     textColor: Colors.white,
                   ),

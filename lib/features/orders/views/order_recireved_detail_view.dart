@@ -3,6 +3,7 @@ import 'package:customer_app/features/orders/widgets/app_header_in.dart';
 import 'package:customer_app/features/orders/widgets/order_barcode_widget.dart';
 import 'package:customer_app/controllers/orders_controller.dart';
 import 'package:customer_app/features/auth/models/order_model.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
@@ -51,13 +52,13 @@ class _ReceivedOrderDetailViewState extends State<ReceivedOrderDetailView> {
       setState(() {
         _order = order;
         _isLoading = false;
-        if (order == null) _errorMessage = 'تعذر تحميل تفاصيل الطلبية';
+        if (order == null) _errorMessage = 'orders.details_load_failed'.tr();
       });
     } catch (_) {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _errorMessage = 'حدث خطأ أثناء تحميل تفاصيل الطلبية';
+        _errorMessage = 'orders.details_load_error'.tr();
       });
     }
   }
@@ -92,7 +93,7 @@ class _ReceivedOrderDetailViewState extends State<ReceivedOrderDetailView> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 40),
                 child: Text(
-                  _errorMessage ?? 'حدث خطأ',
+                  _errorMessage ?? 'common.error_generic'.tr(),
                   style: AppTextStyles.fieldLabel,
                 ),
               )
@@ -178,7 +179,7 @@ class _ReceivedOrderDetailViewState extends State<ReceivedOrderDetailView> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Text(
-                          'لا توجد عناصر بهاي الطلبية',
+                          'orders.no_items_in_order'.tr(),
                           style: AppTextStyles.fieldLabel,
                         ),
                       )

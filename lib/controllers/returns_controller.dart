@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../core/network/dio_client.dart';
 import '../core/storage/token_storage.dart';
@@ -23,14 +24,14 @@ class ReturnsController extends ChangeNotifier {
     try {
       final token = await TokenStorage.getToken();
       if (token == null) {
-        errorMessage = 'غير مسجل الدخول';
+        errorMessage = 'errors.not_logged_in'.tr();
         return;
       }
       returns = await _repository.getReturns(token: token);
     } on DioException catch (e) {
       errorMessage = DioClient.getErrorMessage(e);
     } catch (e) {
-      errorMessage = 'حدث خطأ أثناء تحميل المرتجعات';
+      errorMessage = 'errors.returns_load_failed'.tr();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -64,7 +65,7 @@ class ReturnsController extends ChangeNotifier {
     try {
       final token = await TokenStorage.getToken();
       if (token == null) {
-        errorMessage = 'غير مسجل الدخول';
+        errorMessage = 'errors.not_logged_in'.tr();
         return null;
       }
       final created = await _repository.createReturn(
@@ -80,7 +81,7 @@ class ReturnsController extends ChangeNotifier {
       errorMessage = DioClient.getErrorMessage(e);
       return null;
     } catch (e) {
-      errorMessage = 'تعذّر تقديم طلب الإرجاع';
+      errorMessage = 'errors.return_submit_failed'.tr();
       return null;
     }
   }

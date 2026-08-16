@@ -1,4 +1,5 @@
 import 'package:customer_app/features/orders/widgets/order_status_badge.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
@@ -79,22 +80,27 @@ class OrderCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 if (cancellationReason != null) ...[
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withValues(alpha: 0.05), // لون خلفية خفيف
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    'Reason: $cancellationReason',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: Colors.red.shade400,
-                      fontWeight: FontWeight.w500,
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withValues(
+                        alpha: 0.05,
+                      ), // لون خلفية خفيف
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'orders.reason_label'.tr(args: [cancellationReason!]),
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: Colors.red.shade400,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 8),
-              ],
+                  const SizedBox(height: 8),
+                ],
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -102,7 +108,7 @@ class OrderCard extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          'View Details',
+                          'common.view_details'.tr(),
                           style: AppTextStyles.fieldLabel.copyWith(
                             color: AppColors.primary,
                           ),

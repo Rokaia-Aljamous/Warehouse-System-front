@@ -2,6 +2,7 @@ import 'package:customer_app/features/orders/widgets/app_header_in.dart';
 import 'package:customer_app/features/orders/widgets/order_status_badge.dart';
 import 'package:customer_app/controllers/orders_controller.dart';
 import 'package:customer_app/features/auth/models/order_model.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../../core/constants/app_colors.dart';
@@ -49,12 +50,12 @@ class _InShippingViewState extends State<InShippingView> {
       setState(() {
         _order = order;
         _isLoading = false;
-        if (order == null) _errorMessage = 'تعذر تحميل تفاصيل الطلبية';
+        if (order == null) _errorMessage = 'orders.details_load_failed'.tr();
       });
     } catch (_) {
       setState(() {
         _isLoading = false;
-        _errorMessage = 'حدث خطأ أثناء تحميل تفاصيل الطلبية';
+        _errorMessage = 'orders.details_load_error'.tr();
       });
     }
   }
@@ -518,7 +519,7 @@ class _InShippingViewState extends State<InShippingView> {
                     const SizedBox(height: 12),
                     ElevatedButton(
                       onPressed: _loadOrder,
-                      child: const Text('إعادة المحاولة'),
+                      child: Text('common.retry'.tr()),
                     ),
                   ],
                 ),
@@ -637,7 +638,7 @@ class _InShippingViewState extends State<InShippingView> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Text(
-                          'لا توجد عناصر بهاي الطلبية',
+                          'orders.no_items_in_order'.tr(),
                           style: AppTextStyles.fieldLabel,
                         ),
                       )

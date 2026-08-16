@@ -1,13 +1,11 @@
-
 import 'package:customer_app/features/auth/widgets/app_button.dart';
-import 'package:customer_app/features/orders/views/transaction_details_view.dart';
 import 'package:customer_app/features/orders/widgets/app_header_in.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_text_styles.dart';
 import 'package:customer_app/features/home/views/notifications_view.dart';
-
 
 class ConfirmDeliveryView extends StatelessWidget {
   final String orderNumber;
@@ -24,7 +22,10 @@ class ConfirmDeliveryView extends StatelessWidget {
             title: orderNumber,
             showBack: true,
             showNotification: true,
-            onNotificationTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsView())),
+            onNotificationTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const NotificationsView()),
+            ),
             borderRadius: const BorderRadius.only(
               bottomRight: Radius.circular(30),
             ),
@@ -40,13 +41,13 @@ class ConfirmDeliveryView extends StatelessWidget {
 
                   // ── عنوان ──────────────────────────────────
                   Text(
-                    'Confirm Delivery',
+                    'orders.confirm_delivery'.tr(),
                     style: AppTextStyles.screenTitle.copyWith(fontSize: 22),
                   ),
                   const SizedBox(height: AppSizes.sm),
 
                   Text(
-                    'Please show this QR code to the delivery agent or scan the provided receipt.',
+                    'orders.show_qr_to_agent'.tr(),
                     textAlign: TextAlign.center,
                     style: AppTextStyles.bodySmall,
                   ),
@@ -79,7 +80,7 @@ class ConfirmDeliveryView extends StatelessWidget {
                   const SizedBox(height: AppSizes.sm),
 
                   Text(
-                    'Scan me',
+                    'orders.scan_me'.tr(),
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppColors.textHint,
                     ),
@@ -88,16 +89,9 @@ class ConfirmDeliveryView extends StatelessWidget {
 
                   // ── زر Confirm Receipt ──────────────────────
                   AppButton(
-                    label: 'Confirm Receipt',
+                    label: 'orders.confirm_receipt'.tr(),
                     fullWidth: true,
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => TransactionDetailsView(
-                          orderNumber: orderNumber,
-                        ),
-                      ),
-                    ),
+                    onPressed: () => Navigator.pop(context),
                     color: AppColors.primary,
                     textColor: Colors.white,
                   ),
@@ -107,7 +101,7 @@ class ConfirmDeliveryView extends StatelessWidget {
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Text(
-                      'Back to order',
+                      'orders.back_to_order'.tr(),
                       style: AppTextStyles.link,
                     ),
                   ),

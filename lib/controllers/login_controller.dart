@@ -1,6 +1,7 @@
 import 'package:customer_app/features/auth/repositories/auth_repository.dart';
 import 'package:customer_app/core/network/api_constants.dart';
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../core/network/dio_client.dart';
@@ -38,7 +39,7 @@ class LoginController {
     } on DioException catch (e) {
       onError(DioClient.getErrorMessage(e));
     } catch (e) {
-      onError('حدث خطأ غير متوقع');
+      onError('errors.unexpected'.tr());
     }
   }
 
@@ -68,11 +69,11 @@ class LoginController {
       );
 
       if (!launched) {
-        onError('تعذر فتح المتصفح، حاول مرة أخرى');
+        onError('errors.browser_open_failed'.tr());
       }
       // إذا نجح الفتح، ما نعمل شي — main.dart بيتعامل مع الباقي
     } catch (e) {
-      onError('حدث خطأ أثناء فتح المتصفح: $e');
+      onError('errors.browser_open_error'.tr(args: [e.toString()]));
     }
   }
 

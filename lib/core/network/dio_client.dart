@@ -1,5 +1,6 @@
 import 'package:customer_app/core/network/api_constants.dart';
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 /// كل إعدادات Dio + معالجة الأخطاء بمكان واحد
 class DioClient {
@@ -30,9 +31,9 @@ class DioClient {
     }
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.connectionError) {
-      return 'تأكد من اتصالك بالإنترنت';
+      return 'errors.no_internet'.tr();
     }
-    return 'حدث خطأ، حاول مرة أخرى';
+    return 'common.error_generic'.tr();
   }
 
   /// يرجع أخطاء الـ validation تبعت Laravel (لو موجودة)

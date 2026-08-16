@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../core/network/dio_client.dart';
 import '../core/storage/token_storage.dart';
@@ -36,7 +37,7 @@ class WarehouseDetailsController extends ChangeNotifier {
     try {
       final token = await TokenStorage.getToken();
       if (token == null) {
-        productsError = 'غير مسجل الدخول';
+        productsError = 'errors.not_logged_in'.tr();
         return;
       }
       products = await _productRepository.getProducts(
@@ -46,7 +47,7 @@ class WarehouseDetailsController extends ChangeNotifier {
     } on DioException catch (e) {
       productsError = DioClient.getErrorMessage(e);
     } catch (e) {
-      productsError = 'حدث خطأ أثناء تحميل المنتجات';
+      productsError = 'errors.products_load_failed'.tr();
     } finally {
       isLoadingProducts = false;
       notifyListeners();
@@ -75,7 +76,7 @@ class WarehouseDetailsController extends ChangeNotifier {
     try {
       final token = await TokenStorage.getToken();
       if (token == null) {
-        cartError = 'غير مسجل الدخول';
+        cartError = 'errors.not_logged_in'.tr();
         return false;
       }
       cart = await _cartRepository.addItem(
@@ -89,7 +90,7 @@ class WarehouseDetailsController extends ChangeNotifier {
       cartError = DioClient.getErrorMessage(e);
       return false;
     } catch (e) {
-      cartError = 'تعذّرت إضافة المنتج للسلة';
+      cartError = 'errors.add_to_cart_failed'.tr();
       return false;
     } finally {
       isCartBusy = false;

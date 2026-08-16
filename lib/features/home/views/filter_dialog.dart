@@ -1,4 +1,5 @@
 // lib/features/home/views/filter_dialog.dart
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 
@@ -34,9 +35,9 @@ Future<Map<String, String?>?> showFilterDialog(
           children: [
             Container(width: 40, height: 4, color: Colors.grey[300]),
             const SizedBox(height: 20),
-            const Text(
-              "Apply Filters",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Text(
+              'home.filter_title'.tr(),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
 
@@ -44,8 +45,8 @@ Future<Map<String, String?>?> showFilterDialog(
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                "Select Province",
-                style: TextStyle(fontWeight: FontWeight.bold),
+                'home.select_province'.tr(),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(height: 8),
@@ -58,12 +59,12 @@ Future<Map<String, String?>?> showFilterDialog(
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String?>(
                   isExpanded: true,
-                  hint: const Text('All Governorates'),
+                  hint: Text('home.all_governorates'.tr()),
                   value: selectedGovernorate,
                   items: [
-                    const DropdownMenuItem<String?>(
+                    DropdownMenuItem<String?>(
                       value: null,
-                      child: Text('All Governorates'),
+                      child: Text('home.all_governorates'.tr()),
                     ),
                     ...governorates.map(
                       (g) =>
@@ -81,15 +82,15 @@ Future<Map<String, String?>?> showFilterDialog(
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                "Search for Warehouse Type",
-                style: TextStyle(fontWeight: FontWeight.bold),
+                'home.search_type'.tr(),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: typeController,
               decoration: InputDecoration(
-                hintText: 'e.g. Cold Storage, General...',
+                hintText: 'home.search_type_hint'.tr(),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -116,8 +117,8 @@ Future<Map<String, String?>?> showFilterDialog(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        'Clear',
+                      child: Text(
+                        'common.clear'.tr(),
                         style: TextStyle(color: AppColors.primary),
                       ),
                     ),
@@ -141,8 +142,8 @@ Future<Map<String, String?>?> showFilterDialog(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        "Apply Filters",
+                      child: Text(
+                        'home.apply_filters'.tr(),
                         style: TextStyle(color: Colors.white),
                       ),
                     ),

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:customer_app/features/auth/views/create_password_view.dart';
 import 'package:customer_app/features/auth/views/login_view.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
@@ -61,10 +62,8 @@ class _ForgotPasswordWaitViewState extends State<ForgotPasswordWaitView> {
   void _goToCreatePassword(String token) {
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(
-        builder: (_) => CreateNewPasswordView(
-          email: widget.email,
-          token: token,
-        ),
+        builder: (_) =>
+            CreateNewPasswordView(email: widget.email, token: token),
       ),
       (_) => false,
     );
@@ -78,7 +77,7 @@ class _ForgotPasswordWaitViewState extends State<ForgotPasswordWaitView> {
       );
       _startResendTimer();
     } catch (e) {
-      setState(() => _errorMessage = 'Failed to resend. Try again.');
+      setState(() => _errorMessage = 'auth.resend_failed'.tr());
     }
   }
 
@@ -118,19 +117,19 @@ class _ForgotPasswordWaitViewState extends State<ForgotPasswordWaitView> {
                     children: [
                       _buildIcon(),
                       const SizedBox(height: AppSizes.lg),
-                      const Text(
-                        'Check Your Email',
+                      Text(
+                        'auth.check_email_title'.tr(),
                         style: AppTextStyles.screenTitle,
                       ),
                       const SizedBox(height: AppSizes.sm),
                       Text(
-                        'We sent a password reset link to\n${widget.email}',
+                        'auth.reset_link_sent'.tr(args: [widget.email]),
                         textAlign: TextAlign.center,
                         style: AppTextStyles.bodySmall,
                       ),
                       const SizedBox(height: AppSizes.sm),
-                      const Text(
-                        'Please open your email and click the reset link.\nThen come back and press the button below.',
+                      Text(
+                        'auth.open_email_reset'.tr(),
                         textAlign: TextAlign.center,
                         style: AppTextStyles.bodySmall,
                       ),
@@ -159,16 +158,18 @@ class _ForgotPasswordWaitViewState extends State<ForgotPasswordWaitView> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            "Didn't receive the email? ",
+                          Text(
+                            'auth.didnt_receive_email'.tr(),
                             style: AppTextStyles.bodySmall,
                           ),
                           GestureDetector(
                             onTap: _secondsRemaining == 0 ? _resendEmail : null,
                             child: Text(
                               _secondsRemaining > 0
-                                  ? 'Resend in ${_secondsRemaining}s'
-                                  : 'Resend',
+                                  ? 'auth.resend_in'.tr(
+                                      args: ['$_secondsRemaining'],
+                                    )
+                                  : 'auth.resend'.tr(),
                               style: AppTextStyles.linkBold.copyWith(
                                 color: _secondsRemaining > 0
                                     ? Colors.grey
@@ -182,7 +183,7 @@ class _ForgotPasswordWaitViewState extends State<ForgotPasswordWaitView> {
                       const SizedBox(height: AppSizes.xl),
 
                       AppButton(
-                        label: 'I already clicked the link',
+                        label: 'auth.already_clicked_link'.tr(),
                         isLoading: _isChecking,
                         onPressed: () async {
                           setState(() => _isChecking = true);
@@ -191,8 +192,10 @@ class _ForgotPasswordWaitViewState extends State<ForgotPasswordWaitView> {
                           if (token != null) {
                             _goToCreatePassword(token);
                           } else {
-                            setState(() => _errorMessage =
-                                'Please click the link in your email first.');
+                            setState(
+                              () =>
+                                  _errorMessage = 'auth.click_link_first'.tr(),
+                            );
                           }
                         },
                       ),
@@ -204,8 +207,8 @@ class _ForgotPasswordWaitViewState extends State<ForgotPasswordWaitView> {
                           MaterialPageRoute(builder: (_) => const LoginView()),
                           (_) => false,
                         ),
-                        child: const Text(
-                          'Back to Login',
+                        child: Text(
+                          'auth.back_to_login'.tr(),
                           style: AppTextStyles.linkBold,
                         ),
                       ),

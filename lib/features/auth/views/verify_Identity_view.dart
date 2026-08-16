@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:customer_app/controllers/verify_identity_controller.dart';
 import 'package:customer_app/features/auth/views/login_view.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
@@ -104,19 +105,19 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
                     children: [
                       _buildIcon(),
                       const SizedBox(height: AppSizes.lg),
-                      const Text(
-                        'Verify Your Email',
+                      Text(
+                        'auth.verify_email_title'.tr(),
                         style: AppTextStyles.screenTitle,
                       ),
                       const SizedBox(height: AppSizes.sm),
                       Text(
-                        'We sent a verification link to\n${widget.email}',
+                        'auth.verification_link_sent'.tr(args: [widget.email]),
                         textAlign: TextAlign.center,
                         style: AppTextStyles.bodySmall,
                       ),
                       const SizedBox(height: AppSizes.sm),
-                      const Text(
-                        'Please open your email and click the verification link.\nThis page will update automatically.',
+                      Text(
+                        'auth.open_email_verify'.tr(),
                         textAlign: TextAlign.center,
                         style: AppTextStyles.bodySmall,
                       ),
@@ -134,8 +135,8 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
                         ),
 
                       const SizedBox(height: AppSizes.sm),
-                      const Text(
-                        'Waiting for verification...',
+                      Text(
+                        'auth.waiting_verification'.tr(),
                         style: AppTextStyles.bodySmall,
                       ),
 
@@ -157,8 +158,8 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            "Didn't receive the email? ",
+                          Text(
+                            'auth.didnt_receive_email'.tr(),
                             style: AppTextStyles.bodySmall,
                           ),
                           GestureDetector(
@@ -172,8 +173,10 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
                                 : null,
                             child: Text(
                               _secondsRemaining > 0
-                                  ? 'Resend in ${_secondsRemaining}s'
-                                  : 'Resend',
+                                  ? 'auth.resend_in'.tr(
+                                      args: ['$_secondsRemaining'],
+                                    )
+                                  : 'auth.resend'.tr(),
                               style: AppTextStyles.linkBold.copyWith(
                                 color: _secondsRemaining > 0
                                     ? Colors.grey
@@ -188,7 +191,7 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
 
                       // ── زر التحقق اليدوي ───────────────
                       AppButton(
-                        label: 'I already verified',
+                        label: 'auth.already_verified'.tr(),
                         isLoading: _isChecking,
                         onPressed: () async {
                           setState(() => _isChecking = true);
@@ -200,8 +203,8 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
                             _goToLogin();
                           } else {
                             setState(
-                              () => _errorMessage =
-                                  'Email not verified yet. Please check your inbox.',
+                              () =>
+                                  _errorMessage = 'auth.not_verified_yet'.tr(),
                             );
                           }
                         },

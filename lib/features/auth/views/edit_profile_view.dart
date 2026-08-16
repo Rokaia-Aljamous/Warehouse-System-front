@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -69,7 +70,7 @@ class _EditProfileViewState extends State<EditProfileView> {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _errorMessage = 'يرجى تسجيل الدخول أولاً';
+        _errorMessage = 'profile.please_login_first'.tr();
       });
       return;
     }
@@ -140,7 +141,7 @@ class _EditProfileViewState extends State<EditProfileView> {
   Future<void> _saveChanges() async {
     final token = await TokenStorage.getToken();
     if (token == null) {
-      setState(() => _errorMessage = 'يرجى تسجيل الدخول أولاً');
+      setState(() => _errorMessage = 'profile.please_login_first'.tr());
       return;
     }
 
@@ -202,8 +203,10 @@ class _EditProfileViewState extends State<EditProfileView> {
                         )
                       : Column(
                           children: [
-                            const Text('Edit Profile',
-                                style: AppTextStyles.screenTitle),
+                            Text(
+                              'profile.edit_title'.tr(),
+                              style: AppTextStyles.screenTitle,
+                            ),
                             const SizedBox(height: AppSizes.lg),
                             // ── Image upload (Register-style) ─────────
                             _buildImageUpload(),
@@ -223,23 +226,24 @@ class _EditProfileViewState extends State<EditProfileView> {
                               Text(
                                 _errorMessage!,
                                 textAlign: TextAlign.center,
-                                style: AppTextStyles.bodySmall
-                                    .copyWith(color: const Color(0xFFDC2626)),
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: const Color(0xFFDC2626),
+                                ),
                               ),
                               const SizedBox(height: AppSizes.md),
                             ],
 
                             // ── Editable fields ────────────────────────
                             AppTextField(
-                              label: 'FULL NAME',
-                              hint: 'full name',
+                              label: 'profile.full_name_label'.tr(),
+                              hint: 'auth.full_name_hint'.tr(),
                               icon: Icons.person_outline,
                               controller: _fullNameCtrl,
                             ),
                             const SizedBox(height: 16),
                             AppTextField(
-                              label: 'EMAIL',
-                              hint: 'Email',
+                              label: 'auth.email_label'.tr(),
+                              hint: 'auth.email_hint'.tr(),
                               icon: Icons.email_outlined,
                               controller: _emailCtrl,
                               keyboardType: TextInputType.emailAddress,
@@ -249,16 +253,16 @@ class _EditProfileViewState extends State<EditProfileView> {
                             ),
                             const SizedBox(height: 16),
                             AppTextField(
-                              label: 'PHONE NUMBER',
-                              hint: 'phone number',
+                              label: 'auth.phone_number'.tr(),
+                              hint: 'auth.phone_hint'.tr(),
                               icon: Icons.phone_outlined,
                               controller: _phoneCtrl,
                               keyboardType: TextInputType.phone,
                             ),
                             const SizedBox(height: 16),
                             AppTextField(
-                              label: 'YOUR BIRTHDAY',
-                              hint: 'your birthday',
+                              label: 'auth.birthday'.tr(),
+                              hint: 'auth.birthday_hint'.tr(),
                               icon: Icons.cake_outlined,
                               controller: _birthdayCtrl,
                               suffixIcon: IconButton(
@@ -274,8 +278,9 @@ class _EditProfileViewState extends State<EditProfileView> {
                             const SizedBox(height: AppSizes.lg),
                             // ── Save Changes button ────────────────────
                             AppButton(
-                              label:
-                                  _isSaving ? 'جارِ الحفظ...' : 'Save Changes',
+                              label: _isSaving
+                                  ? 'profile.saving'.tr()
+                                  : 'profile.save_changes'.tr(),
                               onPressed: _isSaving ? () {} : _saveChanges,
                               color: AppColors.primary,
                               textColor: Colors.white,
@@ -296,8 +301,7 @@ class _EditProfileViewState extends State<EditProfileView> {
             left: 20,
             child: IconButton(
               onPressed: () => Navigator.pop(context, false),
-              icon: const Icon(Icons.arrow_back,
-                  color: Colors.white, size: 28),
+              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
             ),
           ),
           Positioned(
@@ -330,12 +334,15 @@ class _EditProfileViewState extends State<EditProfileView> {
               border: Border.all(color: AppColors.primary, width: 1.5),
               image: _pickedImage != null
                   ? DecorationImage(
-                      image: FileImage(_pickedImage!), fit: BoxFit.cover)
+                      image: FileImage(_pickedImage!),
+                      fit: BoxFit.cover,
+                    )
                   : (_currentImageUrl != null
-                      ? DecorationImage(
-                          image: NetworkImage(_currentImageUrl!),
-                          fit: BoxFit.cover)
-                      : null),
+                        ? DecorationImage(
+                            image: NetworkImage(_currentImageUrl!),
+                            fit: BoxFit.cover,
+                          )
+                        : null),
             ),
             child: (_pickedImage == null && _currentImageUrl == null)
                 ? const Icon(

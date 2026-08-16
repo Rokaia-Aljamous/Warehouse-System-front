@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class GoogleButton extends StatelessWidget {
@@ -19,22 +20,15 @@ class GoogleButton extends StatelessWidget {
         onPressed: isLoading ? null : onPressed,
         style: OutlinedButton.styleFrom(
           backgroundColor: Colors.white,
-          side: const BorderSide(
-            color: Colors.grey,
-          ),
+          side: const BorderSide(color: Colors.grey),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
         ),
-        icon: const Icon(
-          Icons.g_mobiledata,
-          size: 32,
-        ),
+        icon: const Icon(Icons.g_mobiledata, size: 32),
         label: isLoading
             ? const CircularProgressIndicator()
-            : const Text(
-                "Continue with Google",
-              ),
+            : Text('auth.continue_google'.tr()),
       ),
     );
   }

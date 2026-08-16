@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 
@@ -19,15 +20,19 @@ class SearchAndFilterWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 50,
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
+      ),
       child: TextField(
         controller: controller,
         onChanged: onChanged,
         decoration: InputDecoration(
-          hintText: "Search...",
+          hintText: 'common.search'.tr(),
           prefixIcon: const Icon(Icons.search),
-          suffixIcon: showFilter 
-              ? IconButton(icon: const Icon(Icons.tune), onPressed: onFilterTap) 
+          suffixIcon: showFilter
+              ? IconButton(icon: const Icon(Icons.tune), onPressed: onFilterTap)
               : null,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 12),

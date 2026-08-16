@@ -1,6 +1,7 @@
 import 'package:customer_app/controllers/forgot_password_controller.dart';
 import 'package:customer_app/features/auth/views/forgot_password_wait_view.dart';
 import 'package:customer_app/features/auth/views/login_view.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
@@ -56,25 +57,25 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                     key: _controller.formKey,
                     child: Column(
                       children: [
-                        const Text(
-                          'Forgot Password?',
+                        Text(
+                          'auth.forgot_password_title'.tr(),
                           style: AppTextStyles.screenTitle,
                         ),
                         const SizedBox(height: AppSizes.lg),
-                        const Text(
-                          'Enter your Email Address below and we\'ll send you a 4-digit code to reset your password.',
+                        Text(
+                          'auth.forgot_password_desc'.tr(),
                           textAlign: TextAlign.center,
                           style: AppTextStyles.bodySmall,
                         ),
                         const SizedBox(height: 70),
                         AppTextField(
-                          label: 'EMAIL',
-                          hint: 'Email',
+                          label: 'auth.email_label'.tr(),
+                          hint: 'auth.email_hint'.tr(),
                           icon: Icons.email_outlined,
                           controller: _controller.emailCtrl,
                           keyboardType: TextInputType.emailAddress,
                           validator: (v) => (v == null || !v.contains('@'))
-                              ? 'Invalid email'
+                              ? 'auth.invalid_email'.tr()
                               : null,
                         ),
                         const SizedBox(height: AppSizes.md),
@@ -92,7 +93,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
 
                         const SizedBox(height: AppSizes.md),
                         AppButton(
-                          label: 'Send Code',
+                          label: 'auth.send_code'.tr(),
                           isLoading: _isLoading,
                           borderColor: AppColors.borderFocused,
                           onPressed: () => _controller.sendCode(
@@ -105,7 +106,8 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => ForgotPasswordWaitView(email: email),
+                                  builder: (_) =>
+                                      ForgotPasswordWaitView(email: email),
                                 ),
                               );
                             },
@@ -120,11 +122,12 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                           onTap: () => Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const LoginView()),
+                              builder: (context) => const LoginView(),
+                            ),
                             (route) => false,
                           ),
-                          child: const Text(
-                            'Back to Login',
+                          child: Text(
+                            'auth.back_to_login'.tr(),
                             style: AppTextStyles.linkBold,
                           ),
                         ),

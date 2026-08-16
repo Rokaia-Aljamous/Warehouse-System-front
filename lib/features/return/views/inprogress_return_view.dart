@@ -1,5 +1,6 @@
 import 'package:customer_app/features/orders/widgets/order_card.dart';
 import 'package:customer_app/features/orders/widgets/order_status_badge.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
@@ -40,10 +41,12 @@ class InProgressReturnsScreen extends StatelessWidget {
           final date =
               '${item.updatedAt.year}-${item.updatedAt.month.toString().padLeft(2, '0')}-${item.updatedAt.day.toString().padLeft(2, '0')}';
           return OrderCard(
-            orderNumber: 'Return #${item.id}',
+            orderNumber: 'returns.return_number'.tr(args: [item.id.toString()]),
             warehouseName: item.warehouseName.isNotEmpty
                 ? item.warehouseName
-                : 'Warehouse #${item.warehouseId}',
+                : 'orders.warehouse_number'.tr(
+                    args: [item.warehouseId.toString()],
+                  ),
             warehouseIcon: Icons.store_outlined,
             date: date,
             status: OrderStatus.shipping,
@@ -77,7 +80,7 @@ class _EndOfInProgressListIndicator extends StatelessWidget {
           ),
           const SizedBox(height: AppSizes.sm),
           Text(
-            'End of In Progress list',
+            'returns.end_of_in_progress'.tr(),
             textAlign: TextAlign.center,
             style: AppTextStyles.bodySmall.copyWith(
               color: AppColors.textHint,

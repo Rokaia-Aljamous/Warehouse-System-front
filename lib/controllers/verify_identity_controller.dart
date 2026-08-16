@@ -1,5 +1,6 @@
 import 'package:customer_app/features/auth/repositories/auth_repository.dart';
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../core/network/dio_client.dart';
 
@@ -32,7 +33,7 @@ class VerifyIdentityController {
     } on DioException catch (e) {
       onError(DioClient.getErrorMessage(e));
     } catch (e) {
-      onError('حدث خطأ غير متوقع');
+      onError('errors.unexpected'.tr());
     }
   }
 

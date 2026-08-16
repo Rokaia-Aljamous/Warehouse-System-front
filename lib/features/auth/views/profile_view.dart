@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -60,7 +61,7 @@ class _ProfileViewState extends State<ProfileView> {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _errorMessage = 'يرجى تسجيل الدخول أولاً';
+        _errorMessage = 'profile.please_login_first'.tr();
       });
       return;
     }
@@ -120,7 +121,11 @@ class _ProfileViewState extends State<ProfileView> {
           // Navy background behind the top area (avatar zone), independent
           // of the Scaffold background so the bottom nav bar keeps its
           // rounded contrast against AppColors.cardBg.
-          Container(color: AppColors.primary, height: 120, width: double.infinity),
+          Container(
+            color: AppColors.primary,
+            height: 120,
+            width: double.infinity,
+          ),
           SingleChildScrollView(
             child: Column(
               children: [
@@ -145,61 +150,63 @@ class _ProfileViewState extends State<ProfileView> {
                           child: Center(child: CircularProgressIndicator()),
                         )
                       : _errorMessage != null
-                          ? _buildErrorState()
-                          : Column(
-                              children: [
-                                const Text('Profile',
-                                    style: AppTextStyles.screenTitle),
-                                const SizedBox(height: AppSizes.lg),
-
-                                // ── Avatar + name ─────────────────────
-                                _buildAvatar(),
-                                const SizedBox(height: AppSizes.sm),
-                                Text(
-                                  _fullName,
-                                  style: AppTextStyles.screenTitle.copyWith(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(height: AppSizes.xl),
-
-                                // ── Read-only field rows ──────────────
-                                _ProfileField(
-                                  label: 'FULL NAME',
-                                  value: _fullName,
-                                  icon: Icons.person_outline,
-                                ),
-                                _ProfileField(
-                                  label: 'EMAIL',
-                                  value: _email,
-                                  icon: Icons.email_outlined,
-                                ),
-                                _ProfileField(
-                                  label: 'PHONE NUMBER',
-                                  value: _phone,
-                                  icon: Icons.phone_outlined,
-                                ),
-                                _ProfileField(
-                                  label: 'BIRTHDAY',
-                                  value: _birthday,
-                                  icon: Icons.cake_outlined,
-                                ),
-
-                                const SizedBox(height: AppSizes.xl),
-                                // ── Delete Account button ─────────────
-                                AppButton(
-                                  label: 'Delete Account',
-                                  onPressed: () =>
-                                      _showDeleteConfirmDialog(context),
-                                  color: Colors.transparent,
-                                  textColor: const Color(0xFFDC2626),
-                                  borderColor: const Color(0xFFDC2626),
-                                  fullWidth: true,
-                                ),
-                                const SizedBox(height: AppSizes.xl),
-                              ],
+                      ? _buildErrorState()
+                      : Column(
+                          children: [
+                            Text(
+                              'profile.title'.tr(),
+                              style: AppTextStyles.screenTitle,
                             ),
+                            const SizedBox(height: AppSizes.lg),
+
+                            // ── Avatar + name ─────────────────────
+                            _buildAvatar(),
+                            const SizedBox(height: AppSizes.sm),
+                            Text(
+                              _fullName,
+                              style: AppTextStyles.screenTitle.copyWith(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: AppSizes.xl),
+
+                            // ── Read-only field rows ──────────────
+                            _ProfileField(
+                              label: 'profile.full_name_label'.tr(),
+                              value: _fullName,
+                              icon: Icons.person_outline,
+                            ),
+                            _ProfileField(
+                              label: 'auth.email_label'.tr(),
+                              value: _email,
+                              icon: Icons.email_outlined,
+                            ),
+                            _ProfileField(
+                              label: 'auth.phone_number'.tr(),
+                              value: _phone,
+                              icon: Icons.phone_outlined,
+                            ),
+                            _ProfileField(
+                              label: 'profile.birthday_label'.tr(),
+                              value: _birthday,
+                              icon: Icons.cake_outlined,
+                            ),
+
+                            const SizedBox(height: AppSizes.xl),
+                            // ── Delete Account button ─────────────
+                            AppButton(
+                              label: 'profile.delete_account'.tr(),
+                              onPressed: () =>
+                                  _showDeleteConfirmDialog(context),
+                              color: Colors.transparent,
+                              textColor: const Color(0xFFDC2626),
+                              borderColor: const Color(0xFFDC2626),
+                              fullWidth: true,
+                            ),
+                            const SizedBox(height: AppSizes.xl),
+                          ],
+                        ),
                 ),
               ],
             ),
@@ -221,9 +228,7 @@ class _ProfileViewState extends State<ProfileView> {
               onPressed: () async {
                 final updated = await Navigator.push<bool>(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const EditProfileView(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const EditProfileView()),
                 );
                 if (updated == true) {
                   // Reload saved data when returning from Edit Profile.
@@ -278,13 +283,13 @@ class _ProfileViewState extends State<ProfileView> {
           const Icon(Icons.error_outline, color: Color(0xFFDC2626), size: 40),
           const SizedBox(height: AppSizes.sm),
           Text(
-            _errorMessage ?? 'حدث خطأ',
+            _errorMessage ?? 'common.error_generic'.tr(),
             textAlign: TextAlign.center,
             style: AppTextStyles.bodySmall,
           ),
           const SizedBox(height: AppSizes.md),
           AppButton(
-            label: 'إعادة المحاولة',
+            label: 'common.try_again'.tr(),
             onPressed: _loadProfile,
             color: AppColors.primary,
             textColor: Colors.white,
@@ -300,32 +305,34 @@ class _ProfileViewState extends State<ProfileView> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          'profile.delete_account'.tr(),
+          style: const TextStyle(color: AppColors.textPrimary),
         ),
-        title: const Text('Delete Account',
-            style: TextStyle(color: AppColors.textPrimary)),
-        content: const Text(
-          'Are you sure you want to delete your account? This action cannot be undone.',
+        content: Text(
+          'profile.delete_confirm_body'.tr(),
           style: AppTextStyles.bodySmall,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('common.cancel'.tr()),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Account deletion requested (demo only).'),
+                SnackBar(
+                  content: Text('profile.delete_demo'.tr()),
                   behavior: SnackBarBehavior.floating,
                 ),
               );
             },
-            child: const Text('Delete',
-                style: TextStyle(color: Color(0xFFDC2626))),
+            child: Text(
+              'profile.delete'.tr(),
+              style: const TextStyle(color: Color(0xFFDC2626)),
+            ),
           ),
         ],
       ),
@@ -365,12 +372,13 @@ class _ProfileField extends StatelessWidget {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(
-                horizontal: AppSizes.md, vertical: AppSizes.md),
+              horizontal: AppSizes.md,
+              vertical: AppSizes.md,
+            ),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(AppSizes.inputBorderRadius),
-              border: Border.all(
-                  color: AppColors.borderFocused, width: 1),
+              border: Border.all(color: AppColors.borderFocused, width: 1),
             ),
             child: Row(
               children: [

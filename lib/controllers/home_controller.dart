@@ -1,6 +1,7 @@
 import 'package:customer_app/features/auth/models/warehouse_model.dart';
 import 'package:customer_app/features/auth/repositories/home_repository.dart';
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../core/network/dio_client.dart';
 import '../core/storage/token_storage.dart';
@@ -42,7 +43,7 @@ class HomeController extends ChangeNotifier {
     try {
       final token = await TokenStorage.getToken();
       if (token == null) {
-        errorMessage = 'غير مسجل الدخول';
+        errorMessage = 'errors.not_logged_in'.tr();
         return;
       }
 
@@ -51,7 +52,7 @@ class HomeController extends ChangeNotifier {
     } on DioException catch (e) {
       errorMessage = DioClient.getErrorMessage(e);
     } catch (e) {
-      errorMessage = 'حدث خطأ غير متوقع';
+      errorMessage = 'errors.unexpected'.tr();
     } finally {
       isLoading = false;
       notifyListeners();

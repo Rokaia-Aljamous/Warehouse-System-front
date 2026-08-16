@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../../core/constants/app_colors.dart';
@@ -28,7 +29,7 @@ class OrderBarcodeWidget extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text('باركود الطلبية', style: AppTextStyles.sectionLabel),
+          Text('orders.barcode_title'.tr(), style: AppTextStyles.sectionLabel),
           const SizedBox(height: 12),
           QrImageView(
             data: orderQrCode,
@@ -47,7 +48,7 @@ class OrderBarcodeWidget extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'أظهر هاد الكود للسائق عند التسليم',
+            'orders.show_barcode_to_driver'.tr(),
             style: AppTextStyles.fieldLabel.copyWith(
               fontSize: 12,
               color: AppColors.textSecondary,
