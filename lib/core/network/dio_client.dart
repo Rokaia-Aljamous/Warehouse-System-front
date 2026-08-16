@@ -1,6 +1,7 @@
 import 'package:customer_app/core/network/api_constants.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
+import '../storage/token_storage.dart';
 
 /// كل إعدادات Dio + معالجة الأخطاء بمكان واحد
 class DioClient {
@@ -16,6 +17,26 @@ class DioClient {
           ),
         )
         ..interceptors.add(
+          InterceptorsWrapper(
+            onRequest: (options, handler) async {
+              final token = await TokenStorage.getToken();
+              if (token != null && token.isNotEmpty) {
+                options.headers.putIfAbsent(
+                  'Authorization',
+                  () => 'Bearer $token',
+                );
+              }
+              handler.next(options);
+            },
+            onError: (error, handler) async {
+              if (error.response?.statusCode == 401) {
+                await TokenStorage.clearToken();
+              }
+              handler.next(error);
+            },
+          ),
+        )
+        ..interceptors.add(
           LogInterceptor(
             requestBody: true,
             responseBody: true,
@@ -27,7 +48,7 @@ class DioClient {
   /// يحوّل أي خطأ Dio لرسالة نص واضحة + الأخطاء التفصيلية (validation)
   static String getErrorMessage(DioException e) {
     if (e.response?.data is Map && e.response?.data['message'] != null) {
-      return e.response!.data['message'];
+      return e.response!.data['message'].toString();
     }
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.connectionError) {

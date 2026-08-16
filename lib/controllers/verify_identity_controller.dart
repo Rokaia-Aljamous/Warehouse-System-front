@@ -28,7 +28,7 @@ class VerifyIdentityController {
     required void Function(String message) onError,
   }) async {
     try {
-      await _repository.forgotPassword(email: email);
+      await _repository.resendVerification(email: email);
       onSuccess();
     } on DioException catch (e) {
       onError(DioClient.getErrorMessage(e));

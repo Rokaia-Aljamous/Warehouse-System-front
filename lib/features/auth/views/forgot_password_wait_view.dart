@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:customer_app/features/auth/views/create_password_view.dart';
 import 'package:customer_app/features/auth/views/login_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +7,6 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/network/dio_client.dart';
-import '../widgets/app_button.dart';
 
 class ForgotPasswordWaitView extends StatefulWidget {
   final String email;
@@ -19,7 +17,6 @@ class ForgotPasswordWaitView extends StatefulWidget {
 }
 
 class _ForgotPasswordWaitViewState extends State<ForgotPasswordWaitView> {
-  bool _isChecking = false;
   String? _errorMessage;
   int _secondsRemaining = 30;
   Timer? _resendTimer;
@@ -44,29 +41,6 @@ class _ForgotPasswordWaitViewState extends State<ForgotPasswordWaitView> {
         });
       }
     });
-  }
-
-  // نجيب الـ token من الباك مباشرة
-  Future<String?> _getToken() async {
-    try {
-      final response = await DioClient.instance.get(
-        '/api/customers/get-reset-token',
-        queryParameters: {'email': widget.email},
-      );
-      return response.data['token'];
-    } catch (e) {
-      return null;
-    }
-  }
-
-  void _goToCreatePassword(String token) {
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(
-        builder: (_) =>
-            CreateNewPasswordView(email: widget.email, token: token),
-      ),
-      (_) => false,
-    );
   }
 
   Future<void> _resendEmail() async {
@@ -182,25 +156,6 @@ class _ForgotPasswordWaitViewState extends State<ForgotPasswordWaitView> {
 
                       const SizedBox(height: AppSizes.xl),
 
-                      AppButton(
-                        label: 'auth.already_clicked_link'.tr(),
-                        isLoading: _isChecking,
-                        onPressed: () async {
-                          setState(() => _isChecking = true);
-                          final token = await _getToken();
-                          setState(() => _isChecking = false);
-                          if (token != null) {
-                            _goToCreatePassword(token);
-                          } else {
-                            setState(
-                              () =>
-                                  _errorMessage = 'auth.click_link_first'.tr(),
-                            );
-                          }
-                        },
-                      ),
-
-                      const SizedBox(height: AppSizes.lg),
                       GestureDetector(
                         onTap: () => Navigator.pushAndRemoveUntil(
                           context,

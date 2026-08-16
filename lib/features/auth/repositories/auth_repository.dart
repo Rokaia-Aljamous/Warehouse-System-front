@@ -26,7 +26,10 @@ class AuthRepository {
         'password_confirmation': passwordConfirmation,
       },
     );
-    return UserModel.fromJson(response.data['data'] ?? response.data);
+    final data = Map<String, dynamic>.from(response.data as Map);
+    return UserModel.fromJson(
+      Map<String, dynamic>.from(data['customer'] as Map? ?? data),
+    );
   }
 
   // ── تسجيل الدخول (form-data) ─────────────────────────────
@@ -38,7 +41,10 @@ class AuthRepository {
       '/api/customers/login',
       data: FormData.fromMap({'email': email, 'password': password}),
     );
-    return UserModel.fromJson(response.data['data'] ?? response.data);
+    final data = Map<String, dynamic>.from(response.data as Map);
+    final customer = Map<String, dynamic>.from(data['customer'] as Map? ?? {});
+    customer['token'] = data['token'];
+    return UserModel.fromJson(customer);
   }
 
   // ── نسيت كلمة السر ────────────────────────────────────────
@@ -66,9 +72,31 @@ class AuthRepository {
 
   // ── تسجيل خروج ────────────────────────────────────────────
   Future<void> logout({required String token}) async {
-    await _dio.get(
+    await _dio.post(
       '/api/customers/logout',
       options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
+  }
+
+  Future<void> resendVerification({required String email}) async {
+    await _dio.post(
+      '/api/customers/email/verification-notification',
+      data: {'email': email},
+    );
+  }
+
+  Future<void> changePassword({
+    required String currentPassword,
+    required String password,
+    required String passwordConfirmation,
+  }) async {
+    await _dio.post(
+      '/api/customers/change-password',
+      data: {
+        'current_password': currentPassword,
+        'password': password,
+        'password_confirmation': passwordConfirmation,
+      },
     );
   }
 

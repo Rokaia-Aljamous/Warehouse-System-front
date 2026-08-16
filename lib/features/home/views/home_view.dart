@@ -2,12 +2,14 @@ import 'package:customer_app/features/auth/views/change_password_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:customer_app/features/auth/views/profile_view.dart';
 import 'package:customer_app/features/home/views/filter_dialog.dart';
-import 'package:customer_app/features/home/views/my_cart_view.dart';
 import 'package:customer_app/features/home/views/notifications_view.dart';
 import 'package:customer_app/features/home/widgets/app_header_out.dart';
 import 'package:customer_app/features/orders/views/my_orders_view.dart';
 import 'package:customer_app/features/return/views/myReturnsView.dart';
 import 'package:flutter/material.dart';
+import '../../auth/repositories/auth_repository.dart';
+import '../../auth/views/login_view.dart';
+import '../../../core/storage/token_storage.dart';
 import '../../../controllers/home_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
@@ -291,13 +293,23 @@ class _HomeDrawer extends StatelessWidget {
               icon: Icons.logout,
               label: 'drawer.logout'.tr(),
               isDestructive: true,
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('drawer.logout_demo'.tr()),
-                    behavior: SnackBarBehavior.floating,
-                  ),
+                final token = await TokenStorage.getToken();
+                try {
+                  if (token != null) {
+                    await AuthRepository().logout(token: token);
+                  }
+                } catch (_) {
+                  // Local logout must still complete if the token expired or
+                  // the server is temporarily unreachable.
+                } finally {
+                  await TokenStorage.clearToken();
+                }
+                if (!context.mounted) return;
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const LoginView()),
+                  (_) => false,
                 );
               },
             ),

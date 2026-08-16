@@ -3,6 +3,7 @@ import 'package:app_links/app_links.dart';
 import 'package:customer_app/core/storage/token_storage.dart';
 import 'package:customer_app/features/auth/views/login_view.dart';
 import 'package:customer_app/features/home/views/home_view.dart';
+import 'package:customer_app/features/auth/views/create_password_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
@@ -76,6 +77,17 @@ class _MyAppState extends State<MyApp> {
         });
       } else {
         debugPrint('❌ [DeepLink] No token in URI');
+      }
+    } else if (uri.scheme == 'customerapp' && uri.host == 'password-reset') {
+      final token = uri.queryParameters['token'];
+      final email = uri.queryParameters['email'];
+      if (token != null && token.isNotEmpty && email != null && email.isNotEmpty) {
+        navigatorKey.currentState?.pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (_) => CreateNewPasswordView(email: email, token: token),
+          ),
+          (route) => false,
+        );
       }
     }
   }

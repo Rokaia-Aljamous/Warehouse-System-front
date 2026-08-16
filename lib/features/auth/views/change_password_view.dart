@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dio/dio.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
-import '../../../core/constants/app_text_styles.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_text_field.dart';
+import '../repositories/auth_repository.dart';
+import '../../../core/network/dio_client.dart';
 import 'package:customer_app/features/orders/widgets/app_header_in.dart';
 
 /// "Change Password" screen — accessible from the Drawer.
@@ -14,9 +15,6 @@ import 'package:customer_app/features/orders/widgets/app_header_in.dart';
 /// Uses the shared [AppHeader] (the project's fixed header) and the Auth
 /// [AppTextField] widget for all three fields, exactly like Profile/Auth.
 ///
-/// On "Confirm":
-///   - Saves the new password to SharedPreferences (local only, no API).
-///   - Pops back to the previous screen.
 class ChangePasswordView extends StatefulWidget {
   const ChangePasswordView({super.key});
 
@@ -32,6 +30,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
   bool _showOld = false;
   bool _showNew = false;
   bool _showConfirm = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -42,7 +41,12 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
   }
 
   Future<void> _confirm() async {
-    // Local-only validation + save (no backend).
+    if (_oldPasswordCtrl.text.isEmpty || _newPasswordCtrl.text.length < 8) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('common.error_generic'.tr())),
+      );
+      return;
+    }
     if (_newPasswordCtrl.text != _confirmPasswordCtrl.text) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -52,11 +56,23 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
       );
       return;
     }
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('profile_password', _newPasswordCtrl.text);
-
-    if (!mounted) return;
-    Navigator.pop(context);
+    setState(() => _isLoading = true);
+    try {
+      await AuthRepository().changePassword(
+        currentPassword: _oldPasswordCtrl.text,
+        password: _newPasswordCtrl.text,
+        passwordConfirmation: _confirmPasswordCtrl.text,
+      );
+      if (mounted) Navigator.pop(context);
+    } on DioException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(DioClient.getErrorMessage(e))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -150,7 +166,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
                   // ── Confirm button (Auth AppButton) ─────────────────
                   AppButton(
                     label: 'auth.confirm_btn'.tr(),
-                    onPressed: _confirm,
+                    onPressed: _isLoading ? null : _confirm,
                     color: AppColors.primary,
                     textColor: Colors.white,
                     borderColor: AppColors.primary,
