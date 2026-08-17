@@ -5,7 +5,8 @@ import '../../../core/constants/app_text_styles.dart';
 
 class OrderItemCard extends StatelessWidget {
   final String name;
-  final String imagePath;
+  final String imagePath; // asset محلي (يُستخدم كـ fallback)
+  final String? networkImage; // رابط صورة حقيقي من الباكيند (اختياري)
   final int quantity;
   final double price;
   final VoidCallback? onDelete;
@@ -17,6 +18,7 @@ class OrderItemCard extends StatelessWidget {
     super.key,
     required this.name,
     required this.imagePath,
+    this.networkImage,
     required this.quantity,
     required this.price,
     this.onDelete,
@@ -29,7 +31,9 @@ class OrderItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // تحديد الألوان بناءً على وضع التعديل
     final Color iconDeleteColor = isEditMode ? Colors.red : AppColors.textHint;
-    final Color actionIconColor = isEditMode ? AppColors.primary : AppColors.textHint;
+    final Color actionIconColor = isEditMode
+        ? AppColors.primary
+        : AppColors.textHint;
 
     return Container(
       margin: const EdgeInsets.only(bottom: AppSizes.md),
@@ -51,16 +55,43 @@ class OrderItemCard extends StatelessWidget {
           // ── صورة المنتج ───────────────────────────────────
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.asset(
-              imagePath,
-              width: 60,
-              height: 60,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 60, height: 60, color: AppColors.border,
-                child: const Icon(Icons.image_outlined, color: AppColors.textHint),
-              ),
-            ),
+            child: (networkImage != null && networkImage!.isNotEmpty)
+                ? Image.network(
+                    networkImage!,
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Image.asset(
+                      imagePath,
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        width: 60,
+                        height: 60,
+                        color: AppColors.border,
+                        child: const Icon(
+                          Icons.image_outlined,
+                          color: AppColors.textHint,
+                        ),
+                      ),
+                    ),
+                  )
+                : Image.asset(
+                    imagePath,
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      width: 60,
+                      height: 60,
+                      color: AppColors.border,
+                      child: const Icon(
+                        Icons.image_outlined,
+                        color: AppColors.textHint,
+                      ),
+                    ),
+                  ),
           ),
           const SizedBox(width: AppSizes.md),
 
@@ -72,13 +103,21 @@ class OrderItemCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(name, style: AppTextStyles.fieldLabel.copyWith(fontSize: 15, color: AppColors.textPrimary)),
+                    Text(
+                      name,
+                      style: AppTextStyles.fieldLabel.copyWith(
+                        fontSize: 15,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
                     // أيقونة الحذف تظهر وتتغير باللون الأحمر في وضع التعديل
                     GestureDetector(
                       onTap: isEditMode ? onDelete : null,
                       child: Icon(
                         Icons.delete_outline,
-                        color: isEditMode ? Colors.red : Colors.transparent, // تظهر فقط في وضع التعديل
+                        color: isEditMode
+                            ? Colors.red
+                            : Colors.transparent, // تظهر فقط في وضع التعديل
                         size: 20,
                       ),
                     ),
@@ -92,7 +131,11 @@ class OrderItemCard extends StatelessWidget {
                     // ── +/- (تتغير الألوان بناءً على isEditMode) ──
                     Container(
                       decoration: BoxDecoration(
-                        border: Border.all(color: isEditMode ? AppColors.primary : AppColors.border),
+                        border: Border.all(
+                          color: isEditMode
+                              ? AppColors.primary
+                              : AppColors.border,
+                        ),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -100,16 +143,37 @@ class OrderItemCard extends StatelessWidget {
                           GestureDetector(
                             onTap: onDecrement,
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: AppSizes.sm, vertical: AppSizes.xs),
-                              child: Icon(Icons.remove, size: 16, color: isEditMode ? Colors.red : AppColors.textHint,),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSizes.sm,
+                                vertical: AppSizes.xs,
+                              ),
+                              child: Icon(
+                                Icons.remove,
+                                size: 16,
+                                color: isEditMode
+                                    ? Colors.red
+                                    : AppColors.textHint,
+                              ),
                             ),
                           ),
-                          Text('$quantity', style: AppTextStyles.fieldLabel.copyWith(fontSize: 14)),
+                          Text(
+                            '$quantity',
+                            style: AppTextStyles.fieldLabel.copyWith(
+                              fontSize: 14,
+                            ),
+                          ),
                           GestureDetector(
                             onTap: onIncrement,
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: AppSizes.sm, vertical: AppSizes.xs),
-                              child: Icon(Icons.add, size: 16, color: actionIconColor),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSizes.sm,
+                                vertical: AppSizes.xs,
+                              ),
+                              child: Icon(
+                                Icons.add,
+                                size: 16,
+                                color: actionIconColor,
+                              ),
                             ),
                           ),
                         ],
@@ -119,7 +183,10 @@ class OrderItemCard extends StatelessWidget {
                     // ── السعر ─────────────────────────────────
                     Text(
                       '\$${price.toStringAsFixed(2)}',
-                      style: AppTextStyles.fieldLabel.copyWith(fontSize: 15, color: AppColors.textPrimary),
+                      style: AppTextStyles.fieldLabel.copyWith(
+                        fontSize: 15,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                   ],
                 ),

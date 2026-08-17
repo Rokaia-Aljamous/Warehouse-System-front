@@ -58,6 +58,7 @@ class _MyCartViewState extends State<MyCartView> {
                     cartItemId: e.id,
                     name: e.productName,
                     imagePath: 'assets/image/Glazed Donuts.png',
+                    networkImage: e.mainImage,
                     quantity: e.quantity,
                     price: e.unitPrice,
                   ),
@@ -336,22 +337,45 @@ class _CartItemCard extends StatelessWidget {
           // Product image (60x60) — matches existing OrderItemCard size
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.asset(
-              item.imagePath,
-              width: 60,
-              height: 60,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 60,
-                height: 60,
-                color: AppColors.border,
-                child: const Icon(
-                  Icons.image_outlined,
-                  color: AppColors.textHint,
-                  size: 24,
-                ),
-              ),
-            ),
+            child: (item.networkImage != null && item.networkImage!.isNotEmpty)
+                ? Image.network(
+                    item.networkImage!,
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Image.asset(
+                      item.imagePath,
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        width: 60,
+                        height: 60,
+                        color: AppColors.border,
+                        child: const Icon(
+                          Icons.image_outlined,
+                          color: AppColors.textHint,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                  )
+                : Image.asset(
+                    item.imagePath,
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      width: 60,
+                      height: 60,
+                      color: AppColors.border,
+                      child: const Icon(
+                        Icons.image_outlined,
+                        color: AppColors.textHint,
+                        size: 24,
+                      ),
+                    ),
+                  ),
           ),
           const SizedBox(width: AppSizes.md),
           // Name + qty stepper + price
@@ -566,18 +590,45 @@ class _ConfirmOrderSheetState extends State<_ConfirmOrderSheet> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(6),
-                      child: Image.asset(
-                        item.imagePath,
-                        width: 40,
-                        height: 40,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          width: 40,
-                          height: 40,
-                          color: AppColors.border,
-                          child: const Icon(Icons.image_outlined, size: 16),
-                        ),
-                      ),
+                      child:
+                          (item.networkImage != null &&
+                              item.networkImage!.isNotEmpty)
+                          ? Image.network(
+                              item.networkImage!,
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Image.asset(
+                                item.imagePath,
+                                width: 40,
+                                height: 40,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Container(
+                                  width: 40,
+                                  height: 40,
+                                  color: AppColors.border,
+                                  child: const Icon(
+                                    Icons.image_outlined,
+                                    size: 16,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Image.asset(
+                              item.imagePath,
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Container(
+                                width: 40,
+                                height: 40,
+                                color: AppColors.border,
+                                child: const Icon(
+                                  Icons.image_outlined,
+                                  size: 16,
+                                ),
+                              ),
+                            ),
                     ),
                     const SizedBox(width: AppSizes.sm),
                     Expanded(
@@ -757,7 +808,8 @@ class _InvoiceRow extends StatelessWidget {
 class _CartItem {
   final int cartItemId; // رقم صف السلة الحقيقي بقاعدة البيانات
   final String name;
-  final String imagePath;
+  final String imagePath; // asset محلي احتياطي (fallback)
+  final String? networkImage; // رابط الصورة الحقيقي من الباك اند
   int quantity;
   final double price;
 
@@ -765,6 +817,7 @@ class _CartItem {
     required this.cartItemId,
     required this.name,
     required this.imagePath,
+    this.networkImage,
     required this.quantity,
     required this.price,
   });

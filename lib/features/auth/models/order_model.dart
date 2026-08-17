@@ -7,6 +7,10 @@ class OrderItemModel {
   final double unitPrice;
   final double subtotal;
 
+  /// رابط صورة المنتج — الباك اند ما بيرجعها ضمن ردود الطلبات، فبتنعبى
+  /// محليًا بالفلاتر (frontend enrichment) عبر ProductRepository.getProductImage.
+  final String? mainImage;
+
   OrderItemModel({
     required this.id,
     required this.productId,
@@ -14,6 +18,7 @@ class OrderItemModel {
     required this.quantity,
     required this.unitPrice,
     required this.subtotal,
+    this.mainImage,
   });
 
   factory OrderItemModel.fromJson(Map<String, dynamic> json) {
@@ -24,6 +29,18 @@ class OrderItemModel {
       quantity: json['quantity'] ?? 0,
       unitPrice: double.tryParse('${json['unit_price']}') ?? 0.0,
       subtotal: double.tryParse('${json['subtotal']}') ?? 0.0,
+    );
+  }
+
+  OrderItemModel copyWith({String? mainImage}) {
+    return OrderItemModel(
+      id: id,
+      productId: productId,
+      productName: productName,
+      quantity: quantity,
+      unitPrice: unitPrice,
+      subtotal: subtotal,
+      mainImage: mainImage ?? this.mainImage,
     );
   }
 }
@@ -94,6 +111,27 @@ class OrderModel {
       paymentStatus: json['payment_status'],
       canPay: json['can_pay'] == true,
       canPrepare: json['can_prepare'] == true,
+    );
+  }
+
+  /// بيرجع نسخة جديدة من نفس الطلب لكن بقائمة items مختلفة — تستخدم
+  /// بعد تعبئة صور المنتجات محليًا (frontend image enrichment) بدون
+  /// ما نحتاج نعيد بناء كل حقول OrderModel يدويًا بكل مرة.
+  OrderModel copyWithItems(List<OrderItemModel> items) {
+    return OrderModel(
+      id: id,
+      warehouseId: warehouseId,
+      status: status,
+      totalPrice: totalPrice,
+      orderDate: orderDate,
+      customerLocation: customerLocation,
+      orderQrCode: orderQrCode,
+      transferAssignment: transferAssignment,
+      itemsCount: itemsCount,
+      items: items,
+      paymentStatus: paymentStatus,
+      canPay: canPay,
+      canPrepare: canPrepare,
     );
   }
 }

@@ -647,6 +647,7 @@ class _InShippingViewState extends State<InShippingView> {
                         (item) => OrderItemCard(
                           name: item.productName,
                           imagePath: 'assets/images/med1.png',
+                          networkImage: item.mainImage,
                           quantity: item.quantity,
                           price: item.unitPrice,
                           isEditMode: false,

@@ -7,6 +7,7 @@ import '../features/auth/models/cart_model.dart';
 import '../features/auth/models/order_model.dart';
 import '../features/auth/repositories/cart_repository.dart';
 import '../features/auth/repositories/order_repository.dart';
+import '../features/auth/repositories/product_repository.dart';
 
 /// يدير حالة شاشة "سلتي" الخاصة بمستودع محدد: عرض/تعديل/حذف عناصر السلة،
 /// وإنشاء الطلب النهائي (Checkout).
@@ -14,6 +15,7 @@ class CartController extends ChangeNotifier {
   final int warehouseId;
   final CartRepository _cartRepository = CartRepository();
   final OrderRepository _orderRepository = OrderRepository();
+  final ProductRepository _productRepository = ProductRepository();
 
   CartController({required this.warehouseId});
 
@@ -40,6 +42,7 @@ class CartController extends ChangeNotifier {
         token: token,
         warehouseId: warehouseId,
       );
+      await _enrichCartImages(token);
     } on DioException catch (e) {
       errorMessage = DioClient.getErrorMessage(e);
     } catch (e) {
@@ -61,6 +64,7 @@ class CartController extends ChangeNotifier {
         cartItemId: cartItemId,
         quantity: quantity,
       );
+      await _enrichCartImages(token);
       notifyListeners();
     } on DioException catch (e) {
       errorMessage = DioClient.getErrorMessage(e);
@@ -77,6 +81,7 @@ class CartController extends ChangeNotifier {
         warehouseId: warehouseId,
         cartItemId: cartItemId,
       );
+      await _enrichCartImages(token);
       notifyListeners();
     } on DioException catch (e) {
       errorMessage = DioClient.getErrorMessage(e);
@@ -114,5 +119,41 @@ class CartController extends ChangeNotifier {
       isPlacingOrder = false;
       notifyListeners();
     }
+  }
+
+  /// تعبئة صور عناصر السلة محليًا (frontend-side image enrichment).
+  ///
+  /// الباك اند حاليًا ما بيرجّع main_image ضمن رد السلة (CartItemResource
+  /// الأصلي ما فيه هاد الحقل)، فبنجيب صورة كل منتج ناقصة صورته عبر
+  /// endpoint المنتج الفردي (يلي أصلاً بيرجّعها صح) — وهاد الـ endpoint
+  /// نفسه مزوّد بكاش داخل ProductRepository، فما منكرر نفس الطلب لنفس
+  /// المنتج أكتر من مرة بالجلسة الواحدة.
+  ///
+  /// ما منوقف تحميل السلة لو فشل جلب صورة معينة — بترجع null بهدوء
+  /// وبتضل بس الصورة الاحتياطية (fallback) ظاهرة لهاد العنصر تحديداً.
+  Future<void> _enrichCartImages(String token) async {
+    final currentCart = cart;
+    if (currentCart == null || currentCart.items.isEmpty) return;
+
+    final itemsNeedingImage = currentCart.items
+        .where((item) => item.mainImage == null || item.mainImage!.isEmpty)
+        .toList();
+    if (itemsNeedingImage.isEmpty) return;
+
+    await Future.wait(
+      itemsNeedingImage.map((item) async {
+        final image = await _productRepository.getProductImage(
+          token: token,
+          warehouseId: warehouseId,
+          productId: item.productId,
+        );
+        if (image == null || image.isEmpty) return;
+        final index = currentCart.items.indexWhere((e) => e.id == item.id);
+        if (index == -1) return;
+        currentCart.items[index] = currentCart.items[index].copyWith(
+          mainImage: image,
+        );
+      }),
+    );
   }
 }

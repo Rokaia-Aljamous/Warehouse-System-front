@@ -1,3 +1,5 @@
+import '../../../core/network/api_constants.dart';
+
 /// عنصر داخل السلة (منتج + كمية).
 class CartItemModel {
   final int id;
@@ -6,6 +8,7 @@ class CartItemModel {
   final int quantity;
   final double unitPrice;
   final double subtotal;
+  final String? mainImage;
 
   CartItemModel({
     required this.id,
@@ -14,6 +17,7 @@ class CartItemModel {
     required this.quantity,
     required this.unitPrice,
     required this.subtotal,
+    this.mainImage,
   });
 
   factory CartItemModel.fromJson(Map<String, dynamic> json) {
@@ -24,6 +28,22 @@ class CartItemModel {
       quantity: json['quantity'] ?? 0,
       unitPrice: double.tryParse('${json['unit_price']}') ?? 0.0,
       subtotal: double.tryParse('${json['subtotal']}') ?? 0.0,
+      mainImage: ApiConstants.resolveImageUrl(json['main_image']),
+    );
+  }
+
+  /// بيرجع نسخة جديدة من نفس العنصر لكن بصورة مختلفة — تستخدم لتعبئة
+  /// الصورة محليًا (frontend enrichment) لما الباك اند ما يرجعها ضمن
+  /// رد السلة نفسه.
+  CartItemModel copyWith({String? mainImage}) {
+    return CartItemModel(
+      id: id,
+      productId: productId,
+      productName: productName,
+      quantity: quantity,
+      unitPrice: unitPrice,
+      subtotal: subtotal,
+      mainImage: mainImage ?? this.mainImage,
     );
   }
 }
@@ -59,10 +79,22 @@ class CartModel {
 
   /// سلة فاضية (تستخدم لما الباكيند يرجع cart: null، يعني ما في سلة بعد).
   factory CartModel.empty(int warehouseId) => CartModel(
-        id: 0,
-        warehouseId: warehouseId,
-        items: [],
-        totalPrice: 0,
-        itemsCount: 0,
-      );
+    id: 0,
+    warehouseId: warehouseId,
+    items: [],
+    totalPrice: 0,
+    itemsCount: 0,
+  );
+
+  /// بيرجع نسخة جديدة من نفس السلة لكن بقائمة items مختلفة — تستخدم
+  /// بعد تعبئة صور المنتجات محليًا.
+  CartModel copyWithItems(List<CartItemModel> items) {
+    return CartModel(
+      id: id,
+      warehouseId: warehouseId,
+      items: items,
+      totalPrice: totalPrice,
+      itemsCount: itemsCount,
+    );
+  }
 }

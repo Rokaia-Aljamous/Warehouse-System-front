@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 
+/// مفتاح عام للـ Navigator عشان نقدر نتنقل من خارج الـ widget tree
+/// (مثلاً لما نستقبل deep link بـ main.dart)، وكمان عشان dio_client.dart
+/// يقدر يوصل لـ BuildContext الحالي ويقرأ منه لغة التطبيق (context.locale)
+/// بدون ما يصير استيراد دائري (circular import) بين main.dart وdio_client.dart.
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 /// Navigation helpers that gracefully handle the "back" gesture/button.
 ///
 /// Problem this solves:

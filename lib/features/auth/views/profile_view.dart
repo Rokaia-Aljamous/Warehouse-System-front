@@ -121,9 +121,16 @@ class _ProfileViewState extends State<ProfileView> {
           // Navy background behind the top area (avatar zone), independent
           // of the Scaffold background so the bottom nav bar keeps its
           // rounded contrast against AppColors.cardBg.
+          //
+          // ملاحظة: الارتفاع هون لازم يكون 120 + نص قطر انحناء الكرت
+          // (AppSizes.cardBorderRadius)، مش 120 بس. لأنه الكرت البيج
+          // تحته إله زوايا علوية مدوّرة (topLeft/topRight)، وهاد الانحناء
+          // بيقص جزء من الكرت بمنطقة الزاوية (بين y=120 وy=160). إذا
+          // المستطيل الأزرق وقف بالظبط عند 120، ما رح يكون في أزرق
+          // منكشف بهالمنطقة، وبيبين خط مستقيم بدل الانحناء.
           Container(
             color: AppColors.primary,
-            height: 120,
+            height: 120 + AppSizes.cardBorderRadius,
             width: double.infinity,
           ),
           SingleChildScrollView(

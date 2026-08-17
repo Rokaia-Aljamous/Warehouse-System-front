@@ -24,59 +24,67 @@ class AppBottomNav extends StatelessWidget {
     final double tabWidth = width / _icons.length;
     final double targetCenterX = (currentIndex * tabWidth) + (tabWidth / 2);
 
-    return Container(
-      height: 75,
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-      child: TweenAnimationBuilder<double>(
-        tween: Tween<double>(begin: targetCenterX, end: targetCenterX),
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-        builder: (context, animatedX, child) {
-          return Stack(
-            clipBehavior: Clip.none,
-            children: [
-              CustomPaint(
-                size: Size(width, 75),
-                painter: NavBarClipper(
-                  centerX: animatedX,
-                  backgroundColor: AppColors.primary,
-                ),
-              ),
-
-              Positioned(
-                left: animatedX - 8,
-                top: -6,
-                child: Container(
-                  width: 16,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    color: AppColors.iconColor,
-                    shape: BoxShape.circle,
+    return Directionality(
+      // نجبر الشريط يضل بترتيب ثابت (LTR) بكل اللغات، لأنه أيقونات
+      // مش نص، وحساب موقع الدائرة (targetCenterX) مبني على افتراض
+      // إنه index 0 دايماً أول أيقونة من الشمال. لو تركناه يتبع اتجاه
+      // اللغة (RTL بالعربي)، الـ Row بينعكس تلقائياً بس حساب الدائرة
+      // لأ، فبتطلع الدائرة فوق أيقونة غلط.
+      textDirection: TextDirection.ltr,
+      child: Container(
+        height: 75,
+        margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: TweenAnimationBuilder<double>(
+          tween: Tween<double>(begin: targetCenterX, end: targetCenterX),
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          builder: (context, animatedX, child) {
+            return Stack(
+              clipBehavior: Clip.none,
+              children: [
+                CustomPaint(
+                  size: Size(width, 75),
+                  painter: NavBarClipper(
+                    centerX: animatedX,
+                    backgroundColor: AppColors.primary,
                   ),
                 ),
-              ),
 
-              Positioned.fill(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: List.generate(
-                    _icons.length,
-                    (index) => GestureDetector(
-                      onTap: () => onTap(index),
-                      child: Icon(
-                        _icons[index],
-                        color: currentIndex == index
-                            ? AppColors.iconColor
-                            : Colors.white,
-                        size: 28,
+                Positioned(
+                  left: animatedX - 8,
+                  top: -6,
+                  child: Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: AppColors.iconColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+
+                Positioned.fill(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: List.generate(
+                      _icons.length,
+                      (index) => GestureDetector(
+                        onTap: () => onTap(index),
+                        child: Icon(
+                          _icons[index],
+                          color: currentIndex == index
+                              ? AppColors.iconColor
+                              : Colors.white,
+                          size: 28,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -86,10 +94,7 @@ class NavBarClipper extends CustomPainter {
   final double centerX;
   final Color backgroundColor;
 
-  NavBarClipper({
-    required this.centerX,
-    required this.backgroundColor,
-  });
+  NavBarClipper({required this.centerX, required this.backgroundColor});
 
   @override
   void paint(Canvas canvas, Size size) {

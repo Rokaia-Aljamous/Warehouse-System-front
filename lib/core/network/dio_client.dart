@@ -1,4 +1,5 @@
 import 'package:customer_app/core/network/api_constants.dart';
+import 'package:customer_app/core/utils/nav_utils.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -13,6 +14,19 @@ class DioClient {
             connectTimeout: const Duration(seconds: 45),
             receiveTimeout: const Duration(seconds: 45),
             headers: {'Accept': 'application/json'},
+          ),
+        )
+        ..interceptors.add(
+          InterceptorsWrapper(
+            onRequest: (options, handler) {
+              // نبعت اللغة الحالية للتطبيق مع كل طلب (X-Locale)، عشان
+              // الباك اند (middleware SetLocale) يرجّع رسائل الأخطاء/
+              // الفاليديشن بنفس لغة الواجهة (ar/en).
+              final locale =
+                  navigatorKey.currentContext?.locale.languageCode ?? 'en';
+              options.headers['X-Locale'] = locale;
+              return handler.next(options);
+            },
           ),
         )
         ..interceptors.add(

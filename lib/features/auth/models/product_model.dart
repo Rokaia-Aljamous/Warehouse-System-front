@@ -1,3 +1,5 @@
+import '../../../core/network/api_constants.dart';
+
 /// يمثل منتج داخل مستودع معيّن.
 /// GET /api/customers/warehouses/{warehouse}/products
 class ProductModel {
@@ -23,7 +25,7 @@ class ProductModel {
       name: json['name'] ?? '',
       brand: json['brand'],
       type: json['type'],
-      mainImage: json['main_image'],
+      mainImage: ApiConstants.resolveImageUrl(json['main_image']),
       sellingPrice: double.tryParse('${json['selling_price']}') ?? 0.0,
     );
   }

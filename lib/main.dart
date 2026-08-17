@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:customer_app/core/storage/token_storage.dart';
+import 'package:customer_app/features/auth/views/create_password_view.dart';
 import 'package:customer_app/features/auth/views/login_view.dart';
 import 'package:customer_app/features/home/views/home_view.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -8,7 +9,7 @@ import 'package:flutter/material.dart';
 
 /// مفتاح عام للـ Navigator عشان نقدر نتنقل من خارج الـ widget tree
 /// (مثلاً لما نستقبل deep link بـ main.dart)
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+import 'core/utils/nav_utils.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,6 +59,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   /// بيعالج أي deep link يجي من نوع: customerapp://auth?token=XXX
+  /// أو customerapp://password-reset/XXX?email=YYY (نسيان كلمة السر)
   void _handleDeepLink(Uri? uri) {
     if (uri == null) return;
 
@@ -76,6 +78,28 @@ class _MyAppState extends State<MyApp> {
         });
       } else {
         debugPrint('❌ [DeepLink] No token in URI');
+      }
+      return;
+    }
+
+    if (uri.scheme == 'customerapp' && uri.host == 'password-reset') {
+      final token = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : null;
+      final email = uri.queryParameters['email'];
+      if (token != null &&
+          token.isNotEmpty &&
+          email != null &&
+          email.isNotEmpty) {
+        debugPrint(
+          '✅ [DeepLink] Password reset token received, navigating to CreateNewPasswordView',
+        );
+        navigatorKey.currentState?.pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (_) => CreateNewPasswordView(email: email, token: token),
+          ),
+          (route) => false,
+        );
+      } else {
+        debugPrint('❌ [DeepLink] Missing token or email in password-reset URI');
       }
     }
   }

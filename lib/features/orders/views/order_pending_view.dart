@@ -322,8 +322,8 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                           .map(
                             (item) => OrderItemCard(
                               name: item.productName,
-                              imagePath:
-                                  'assets/images/med1.png', // لسا مافي صورة منتج بالـ API
+                              imagePath: 'assets/images/med1.png',
+                              networkImage: item.mainImage,
                               quantity: isEditMode
                                   ? (_draftQuantities[item.productId] ??
                                         item.quantity)

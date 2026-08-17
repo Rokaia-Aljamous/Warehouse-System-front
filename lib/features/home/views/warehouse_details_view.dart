@@ -4,6 +4,7 @@ import 'package:customer_app/features/home/views/my_cart_view.dart';
 import 'package:customer_app/features/home/views/notifications_view.dart';
 import 'package:customer_app/features/home/widgets/app_header_out.dart';
 import 'package:customer_app/features/home/widgets/product_card.dart';
+import 'package:customer_app/features/home/views/product_details_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../controllers/warehouse_details_controller.dart';
@@ -153,6 +154,15 @@ class _WarehouseDetailsViewState extends State<WarehouseDetailsView> {
                     networkImage: p.mainImage,
                     isAdding: _addingProductId == p.id,
                     onAddToCart: () => _onAddToCart(p.id),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ProductDetailsView(
+                          warehouseId: widget.warehouseId,
+                          productId: p.id,
+                        ),
+                      ),
+                    ),
                   );
                 }, childCount: _controller.products.length),
               ),
