@@ -4,6 +4,11 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
     <uses-permission android:name="android.permission.INTERNET"/>
 
+    <!-- صلاحيات الموقع (لازمة لمكتبة geolocator عشان نحدد موقع الزبون -->
+    <!-- ونبعته مع الطلبية لتطبيق السائق) -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
     <application
         android:label="customer_app"
         android:name="${applicationName}"

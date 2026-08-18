@@ -4,6 +4,9 @@ import 'package:customer_app/features/orders/widgets/order_barcode_widget.dart';
 import 'package:customer_app/features/auth/widgets/app_button.dart';
 import 'package:customer_app/controllers/orders_controller.dart';
 import 'package:customer_app/features/auth/models/order_model.dart';
+import 'package:customer_app/features/auth/models/product_model.dart';
+import 'package:customer_app/features/auth/repositories/product_repository.dart';
+import 'package:customer_app/core/storage/token_storage.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
@@ -32,6 +35,7 @@ class OrderDetailView extends StatefulWidget {
 
 class _OrderDetailViewState extends State<OrderDetailView> {
   final _controller = OrdersController();
+  final _productRepository = ProductRepository();
   bool isEditMode = false;
   bool _isLoading = true;
   bool _isSaving = false;
@@ -43,6 +47,16 @@ class _OrderDetailViewState extends State<OrderDetailView> {
   final Map<int, int> _draftQuantities = {};
   // المنتجات يلي انحذفت بوضع التعديل (product_id) لكن لسا ما انحفظت
   final Set<int> _draftRemovedIds = {};
+
+  // ── منتجات جديدة مضافة بوضع التعديل (مش أصلاً بالطلبية) ──────────
+  // product_id → quantity
+  final Map<int, int> _draftNewItems = {};
+  // بيانات المنتج (اسم/سعر/صورة) للمنتجات الجديدة، لعرضها قبل الحفظ
+  final Map<int, ProductModel> _draftNewProducts = {};
+
+  /// هل مسموح تعديل هاد الطلب أصلاً؟ (الباك اند برضو بيرفض لو مش pending،
+  /// بس منمنع الزر من الأساس بالفرونت لتجربة استخدام أوضح).
+  bool get _canEditOrder => widget.status == OrderStatus.pending;
 
   @override
   void initState() {
@@ -88,6 +102,8 @@ class _OrderDetailViewState extends State<OrderDetailView> {
       isEditMode = false;
       _draftQuantities.clear();
       _draftRemovedIds.clear();
+      _draftNewItems.clear();
+      _draftNewProducts.clear();
     });
   }
 
@@ -108,11 +124,205 @@ class _OrderDetailViewState extends State<OrderDetailView> {
     setState(() => _draftRemovedIds.add(productId));
   }
 
+  // ── منتجات جديدة (Add product) ──────────────────────────────────
+
+  void _incrementNewDraft(int productId) {
+    setState(() {
+      _draftNewItems[productId] = (_draftNewItems[productId] ?? 1) + 1;
+    });
+  }
+
+  void _decrementNewDraft(int productId) {
+    setState(() {
+      final current = _draftNewItems[productId] ?? 1;
+      if (current > 1) {
+        _draftNewItems[productId] = current - 1;
+      }
+    });
+  }
+
+  void _removeNewDraft(int productId) {
+    setState(() {
+      _draftNewItems.remove(productId);
+      _draftNewProducts.remove(productId);
+    });
+  }
+
+  /// يفتح شاشة سفلية (bottom sheet) فيها منتجات مستودع الطلبية، ما عدا
+  /// اللي أصلاً موجودة بالطلبية (وما انحذفت) أو انضافت مسبقاً بهاد
+  /// الجلسة، وبيضيف أي منتج يتم اختياره لقائمة "_draftNewItems".
+  Future<void> _openAddProductSheet() async {
+    if (_order == null) return;
+
+    final token = await TokenStorage.getToken();
+    if (token == null) return;
+
+    List<ProductModel> allProducts = [];
+    bool isLoadingProducts = true;
+    String? loadError;
+
+    try {
+      allProducts = await _productRepository.getProducts(
+        token: token,
+        warehouseId: _order!.warehouseId,
+      );
+      isLoadingProducts = false;
+    } catch (_) {
+      isLoadingProducts = false;
+      loadError = 'orders.details_load_failed'.tr();
+    }
+
+    if (!mounted) return;
+
+    final existingIds = _order!.items
+        .where((item) => !_draftRemovedIds.contains(item.productId))
+        .map((item) => item.productId)
+        .toSet();
+
+    final selectable = allProducts
+        .where(
+          (p) =>
+              !existingIds.contains(p.id) && !_draftNewItems.containsKey(p.id),
+        )
+        .toList();
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSizes.pagePaddingH,
+              20,
+              AppSizes.pagePaddingH,
+              20,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: AppColors.border,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                Text(
+                  'orders.add_product_title'.tr(),
+                  style: AppTextStyles.sectionLabel.copyWith(fontSize: 16),
+                ),
+                const SizedBox(height: 12),
+                if (isLoadingProducts)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 40),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                else if (loadError != null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Text(loadError, style: AppTextStyles.fieldLabel),
+                  )
+                else if (selectable.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Text(
+                      'orders.no_more_products_to_add'.tr(),
+                      style: AppTextStyles.fieldLabel,
+                    ),
+                  )
+                else
+                  Flexible(
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: selectable.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final product = selectable[index];
+                        return ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child:
+                                (product.mainImage != null &&
+                                    product.mainImage!.isNotEmpty)
+                                ? Image.network(
+                                    product.mainImage!,
+                                    width: 48,
+                                    height: 48,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => Container(
+                                      width: 48,
+                                      height: 48,
+                                      color: AppColors.border,
+                                      child: const Icon(
+                                        Icons.image_outlined,
+                                        color: AppColors.textHint,
+                                      ),
+                                    ),
+                                  )
+                                : Container(
+                                    width: 48,
+                                    height: 48,
+                                    color: AppColors.border,
+                                    child: const Icon(
+                                      Icons.image_outlined,
+                                      color: AppColors.textHint,
+                                    ),
+                                  ),
+                          ),
+                          title: Text(
+                            product.name,
+                            style: AppTextStyles.fieldLabel.copyWith(
+                              fontSize: 14,
+                            ),
+                          ),
+                          subtitle: Text(
+                            '\$${product.sellingPrice.toStringAsFixed(2)}',
+                            style: AppTextStyles.bodySmall,
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(
+                              Icons.add_circle_outline,
+                              color: AppColors.primary,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _draftNewItems[product.id] = 1;
+                                _draftNewProducts[product.id] = product;
+                              });
+                              Navigator.pop(sheetContext);
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   /// يرسل التعديلات الفعلية للباك اند: PATCH /api/customers/orders/{id}
   Future<void> _saveEdit() async {
     if (_order == null) return;
 
-    final items = _order!.items
+    final existingItems = _order!.items
         .where((item) => !_draftRemovedIds.contains(item.productId))
         .map(
           (item) => {
@@ -121,6 +331,12 @@ class _OrderDetailViewState extends State<OrderDetailView> {
           },
         )
         .toList();
+
+    final newItems = _draftNewItems.entries
+        .map((entry) => {'product_id': entry.key, 'quantity': entry.value})
+        .toList();
+
+    final items = [...existingItems, ...newItems];
 
     if (items.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -144,6 +360,8 @@ class _OrderDetailViewState extends State<OrderDetailView> {
         isEditMode = false;
         _draftQuantities.clear();
         _draftRemovedIds.clear();
+        _draftNewItems.clear();
+        _draftNewProducts.clear();
       });
       if (mounted) {
         ScaffoldMessenger.of(
@@ -282,23 +500,28 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                           'ITEMS IN ORDER',
                           style: AppTextStyles.sectionLabel,
                         ),
-                        IconButton(
-                          onPressed: _isSaving
-                              ? null
-                              : () {
-                                  if (isEditMode) {
-                                    _cancelEdit();
-                                  } else {
-                                    _enterEditMode();
-                                  }
-                                },
-                          icon: Icon(
-                            isEditMode ? Icons.close : Icons.edit_outlined,
-                            color: isEditMode
-                                ? Colors.red
-                                : AppColors.textSecondary,
+                        // زر التعديل بيظهر فقط لو الطلب لسا "قيد الانتظار".
+                        // بعد ما توافق الإدارة عليه (أو أي حالة تانية) ما
+                        // في داعي نظهره أصلاً — الباك اند برضو بيرفض
+                        // التعديل بهاي الحالة، بس هيك التجربة أوضح للمستخدم.
+                        if (_canEditOrder)
+                          IconButton(
+                            onPressed: _isSaving
+                                ? null
+                                : () {
+                                    if (isEditMode) {
+                                      _cancelEdit();
+                                    } else {
+                                      _enterEditMode();
+                                    }
+                                  },
+                            icon: Icon(
+                              isEditMode ? Icons.close : Icons.edit_outlined,
+                              color: isEditMode
+                                  ? Colors.red
+                                  : AppColors.textSecondary,
+                            ),
                           ),
-                        ),
                       ],
                     ),
                     const SizedBox(height: AppSizes.xs),
@@ -342,6 +565,43 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                             ),
                           ),
 
+                    // ── المنتجات الجديدة المضافة بوضع التعديل (لسا ما انحفظت) ──
+                    if (isEditMode && _draftNewItems.isNotEmpty)
+                      ..._draftNewItems.entries.map((entry) {
+                        final product = _draftNewProducts[entry.key];
+                        if (product == null) return const SizedBox.shrink();
+                        return OrderItemCard(
+                          name: product.name,
+                          imagePath: 'assets/images/med1.png',
+                          networkImage: product.mainImage,
+                          quantity: entry.value,
+                          price: product.sellingPrice,
+                          isEditMode: true,
+                          onIncrement: () => _incrementNewDraft(product.id),
+                          onDecrement: () => _decrementNewDraft(product.id),
+                          onDelete: () => _removeNewDraft(product.id),
+                        );
+                      }),
+
+                    // ── زر إضافة منتج جديد (يظهر فقط بوضع التعديل) ──
+                    if (isEditMode)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4, bottom: 4),
+                        child: OutlinedButton.icon(
+                          onPressed: _isSaving ? null : _openAddProductSheet,
+                          icon: const Icon(Icons.add, color: AppColors.primary),
+                          label: Text('orders.add_product'.tr()),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.primary,
+                            side: const BorderSide(color: AppColors.primary),
+                            minimumSize: const Size(double.infinity, 44),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+
                     const SizedBox(height: AppSizes.lg),
                     OrderSummary(
                       subtotal: _order!.totalPrice,
@@ -349,7 +609,12 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                     ),
 
                     // ── الباركود الخاص بالطلبية ──────────────────
-                    OrderBarcodeWidget(orderQrCode: _order!.orderQrCode),
+                    // ── الباركود ─────────────────────────────────
+                    // ما بيظهر إلا بعد ما يتوافق على الطلب (approved
+                    // أو أي حالة بعدها زي shipping/Received). طالما
+                    // الطلب لسا "قيد الانتظار" ما في داعي للباركود.
+                    if (widget.status != OrderStatus.pending)
+                      OrderBarcodeWidget(orderQrCode: _order!.orderQrCode),
 
                     // ── أزرار التعديل (تظهر فقط في وضع التعديل) ──
                     if (isEditMode) ...[

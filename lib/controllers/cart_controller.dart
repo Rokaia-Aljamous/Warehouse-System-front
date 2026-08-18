@@ -90,7 +90,12 @@ class CartController extends ChangeNotifier {
   }
 
   /// بينشئ الطلب النهائي من السلة الحالية. بيرجع true لو نجح.
-  Future<bool> placeOrder(String customerLocation) async {
+  Future<bool> placeOrder(
+    String customerLocation, {
+    required String deliveryRegion,
+    required double latitude,
+    required double longitude,
+  }) async {
     isPlacingOrder = true;
     orderError = null;
     notifyListeners();
@@ -105,6 +110,9 @@ class CartController extends ChangeNotifier {
         token: token,
         warehouseId: warehouseId,
         customerLocation: customerLocation,
+        deliveryRegion: deliveryRegion,
+        latitude: latitude,
+        longitude: longitude,
       );
       // السلة بتنمسح تلقائيًا بالباكيند بعد إنشاء الطلب، فنفرّغها محليًا كمان.
       cart = CartModel.empty(warehouseId);

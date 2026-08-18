@@ -10,6 +10,7 @@ import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/network/dio_client.dart';
 import '../../../core/storage/token_storage.dart';
+import '../../../core/utils/phone_utils.dart';
 import '../repositories/auth_repository.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_text_field.dart';
@@ -157,7 +158,8 @@ class _EditProfileViewState extends State<EditProfileView> {
         birthday: _birthdayCtrl.text.trim().isEmpty
             ? null
             : _birthdayCtrl.text.trim(),
-        phoneNumber: _phoneCtrl.text.trim(),
+        // نفس تطبيع الرجستر — الباك اند صار يشترط صيغة دولية كاملة.
+        phoneNumber: PhoneUtils.normalizeSyrianPhone(_phoneCtrl.text.trim()),
         profileImagePath: _pickedImage?.path,
       );
 

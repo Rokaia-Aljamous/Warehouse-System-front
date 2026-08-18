@@ -5,6 +5,7 @@ import '../../../controllers/cart_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_text_styles.dart';
+import '../../../core/utils/location_helper.dart';
 import 'notifications_view.dart';
 
 /// "My Cart" screen — matches Figma design "سلتي الحالية" (My Basket).
@@ -227,18 +228,24 @@ class _MyCartViewState extends State<MyCartView> {
         subtotal: _subtotal,
         shippingFee: _shippingFee,
         total: _total,
-        onConfirm: (customerLocation) async {
-          final ok = await _controller.placeOrder(customerLocation);
-          if (!mounted) return;
-          Navigator.pop(context); // close sheet
-          if (ok) {
-            _showSuccessSnackBar();
-          } else {
-            _showErrorSnackBar(
-              _controller.orderError ?? 'errors.order_failed'.tr(),
-            );
-          }
-        },
+        onConfirm:
+            (customerLocation, deliveryRegion, latitude, longitude) async {
+              final ok = await _controller.placeOrder(
+                customerLocation,
+                deliveryRegion: deliveryRegion,
+                latitude: latitude,
+                longitude: longitude,
+              );
+              if (!mounted) return;
+              Navigator.pop(context); // close sheet
+              if (ok) {
+                _showSuccessSnackBar();
+              } else {
+                _showErrorSnackBar(
+                  _controller.orderError ?? 'errors.order_failed'.tr(),
+                );
+              }
+            },
       ),
     );
   }
@@ -493,7 +500,14 @@ class _ConfirmOrderSheet extends StatefulWidget {
   final double subtotal;
   final double shippingFee;
   final double total;
-  final ValueChanged<String> onConfirm; // بيرجع عنوان التوصيل
+  // بيرجع عنوان التوصيل + المنطقة/المحافظة + إحداثيات الموقع (lat/lng) معاً.
+  final void Function(
+    String customerLocation,
+    String deliveryRegion,
+    double latitude,
+    double longitude,
+  )
+  onConfirm;
 
   const _ConfirmOrderSheet({
     required this.items,
@@ -511,19 +525,78 @@ class _ConfirmOrderSheetState extends State<_ConfirmOrderSheet> {
   final _locationController = TextEditingController();
   String? _locationError;
 
+  // منطقة/محافظة التوصيل — صارت مطلوبة من الباك اند (delivery_region)،
+  // وعليها بيتحدد إذا في رسم شحن إضافي (عابر للمنطقة) أو لأ.
+  String? _selectedRegion;
+  String? _regionError;
+  static const List<String> _regions = [
+    'Damascus',
+    'Aleppo',
+    'Homs',
+    'Latakia',
+  ];
+
+  // إحداثيات موقع الزبون — صارت إجبارية بالباك اند (customer_latitude/
+  // customer_longitude)، وبتتحدد عبر زر "استخدام موقعي الحالي" تحت.
+  double? _latitude;
+  double? _longitude;
+  bool _isLocating = false;
+  String? _coordinatesError;
+
   @override
   void dispose() {
     _locationController.dispose();
     super.dispose();
   }
 
-  void _handleConfirm() {
-    final location = _locationController.text.trim();
-    if (location.isEmpty) {
-      setState(() => _locationError = 'cart.delivery_address_required'.tr());
+  Future<void> _handleUseCurrentLocation() async {
+    setState(() {
+      _isLocating = true;
+      _coordinatesError = null;
+    });
+
+    final result = await LocationHelper.getCurrentLocation();
+
+    if (!mounted) return;
+    setState(() => _isLocating = false);
+
+    if (!result.isSuccess) {
+      setState(
+        () => _coordinatesError =
+            (result.errorMessage ?? 'location.fetch_failed').tr(),
+      );
       return;
     }
-    widget.onConfirm(location);
+
+    setState(() {
+      _latitude = result.latitude;
+      _longitude = result.longitude;
+      _coordinatesError = null;
+    });
+  }
+
+  void _handleConfirm() {
+    final location = _locationController.text.trim();
+    final region = _selectedRegion;
+
+    var hasError = false;
+    if (location.isEmpty) {
+      setState(() => _locationError = 'cart.delivery_address_required'.tr());
+      hasError = true;
+    }
+    if (region == null || region.isEmpty) {
+      setState(() => _regionError = 'cart.delivery_region_required'.tr());
+      hasError = true;
+    }
+    if (_latitude == null || _longitude == null) {
+      setState(
+        () => _coordinatesError = 'location.required_before_confirm'.tr(),
+      );
+      hasError = true;
+    }
+    if (hasError) return;
+
+    widget.onConfirm(location, region!, _latitude!, _longitude!);
   }
 
   @override
@@ -697,6 +770,50 @@ class _ConfirmOrderSheetState extends State<_ConfirmOrderSheet> {
 
             const SizedBox(height: AppSizes.lg),
 
+            // زر تحديد الموقع الحالي (GPS) — إجباري قبل تأكيد الطلب
+            OutlinedButton.icon(
+              onPressed: _isLocating ? null : _handleUseCurrentLocation,
+              icon: _isLocating
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Icon(
+                      _latitude != null
+                          ? Icons.check_circle
+                          : Icons.my_location,
+                      color: _latitude != null
+                          ? Colors.green
+                          : AppColors.primary,
+                    ),
+              label: Text(
+                _latitude != null
+                    ? 'location.captured'.tr()
+                    : 'location.use_current'.tr(),
+              ),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                side: BorderSide(
+                  color: _coordinatesError != null
+                      ? Colors.red
+                      : AppColors.primary,
+                ),
+              ),
+            ),
+            if (_coordinatesError != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                _coordinatesError!,
+                style: const TextStyle(color: Colors.red, fontSize: 12),
+              ),
+            ],
+
+            const SizedBox(height: AppSizes.md),
+
             // حقل عنوان التوصيل — مطلوب من الباكيند (customer_location)
             TextField(
               controller: _locationController,
@@ -713,6 +830,31 @@ class _ConfirmOrderSheetState extends State<_ConfirmOrderSheet> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
+            ),
+
+            const SizedBox(height: AppSizes.md),
+
+            // منطقة/محافظة التوصيل — مطلوبة من الباكيند (delivery_region)
+            DropdownButtonFormField<String>(
+              initialValue: _selectedRegion,
+              onChanged: (v) => setState(() {
+                _selectedRegion = v;
+                _regionError = null;
+              }),
+              decoration: InputDecoration(
+                labelText: 'cart.delivery_region_label'.tr(),
+                hintText: 'cart.delivery_region_hint'.tr(),
+                errorText: _regionError,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              items: _regions
+                  .map(
+                    (region) =>
+                        DropdownMenuItem(value: region, child: Text(region)),
+                  )
+                  .toList(),
             ),
 
             const SizedBox(height: AppSizes.lg),

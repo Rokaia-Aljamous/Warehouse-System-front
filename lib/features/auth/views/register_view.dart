@@ -166,6 +166,21 @@ class _RegisterViewState extends State<RegisterView> {
                           icon: Icons.lock_outline,
                           controller: _controller.passwordCtrl,
                           obscureText: !_showPassword,
+                          // الباك اند صار يشترط: 8 أحرف عالأقل + حرف
+                          // كبير + حرف صغير + رقم + رمز خاص.
+                          validator: (v) {
+                            final value = v ?? '';
+                            if (value.length < 8 ||
+                                !RegExp(r'[A-Z]').hasMatch(value) ||
+                                !RegExp(r'[a-z]').hasMatch(value) ||
+                                !RegExp(r'[0-9]').hasMatch(value) ||
+                                !RegExp(
+                                  r'[^A-Za-z0-9]',
+                                ).hasMatch(value)) {
+                              return 'auth.password_too_weak'.tr();
+                            }
+                            return null;
+                          },
                           suffixIcon: IconButton(
                             icon: Icon(
                               _showPassword

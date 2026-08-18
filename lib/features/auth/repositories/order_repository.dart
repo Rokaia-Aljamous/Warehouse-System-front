@@ -9,10 +9,22 @@ class OrderRepository {
     required String token,
     required int warehouseId,
     required String customerLocation,
+    // الباك اند صار يشترط هالحقل عند إنشاء الطلبية — على أساسه بيتحدد
+    // إذا الرسم عابر للمنطقة (cross-region) أو لأ.
+    required String deliveryRegion,
+    // إحداثيات موقع الزبون (GPS) — صارت إجبارية بالباك اند (customer_latitude/
+    // customer_longitude)، وبيوصلوا لتطبيق السائق عشان يمشي عالخريطة.
+    required double latitude,
+    required double longitude,
   }) async {
     final response = await _dio.post(
       '/api/customers/warehouses/$warehouseId/orders',
-      data: {'customer_location': customerLocation},
+      data: {
+        'customer_location': customerLocation,
+        'delivery_region': deliveryRegion,
+        'customer_latitude': latitude,
+        'customer_longitude': longitude,
+      },
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
     return OrderModel.fromJson(response.data['order']);

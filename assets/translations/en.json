@@ -227,9 +227,21 @@
   "cart": {
     "delivery_address_required": "Please enter a delivery address",
     "delivery_address_hint": "e.g. Al-Thawra St, Damascus",
+    "delivery_region_label": "DELIVERY REGION",
+    "delivery_region_hint": "Select your region/governorate",
+    "delivery_region_required": "Please select a delivery region",
     "calculate_total": "Calculate Total price",
     "empty_cart": "Your cart is empty",
     "order_sent_success": "Your order has been sent successfully!"
+  },
+  "location": {
+    "use_current": "Use my current location",
+    "captured": "Location captured \u2713",
+    "required_before_confirm": "Please set your location first",
+    "service_disabled": "Location service is off, enable it in device settings",
+    "permission_denied": "Location permission is required",
+    "permission_denied_forever": "Permission permanently denied, enable it from app settings",
+    "fetch_failed": "Couldn't get your location, try again"
   },
   "status": {
     "pending": "Pending",

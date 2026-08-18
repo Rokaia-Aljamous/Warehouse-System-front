@@ -227,9 +227,21 @@
   "cart": {
     "delivery_address_required": "الرجاء إدخال عنوان التوصيل",
     "delivery_address_hint": "مثال: شارع الثورة، دمشق",
+    "delivery_region_label": "منطقة التوصيل",
+    "delivery_region_hint": "اختر منطقتك/محافظتك",
+    "delivery_region_required": "الرجاء اختيار منطقة التوصيل",
     "calculate_total": "احسب السعر الإجمالي",
     "empty_cart": "سلتك فارغة",
     "order_sent_success": "تم إرسال طلبك بنجاح!"
+  },
+  "location": {
+    "use_current": "استخدام موقعي الحالي",
+    "captured": "تم تحديد الموقع \u2713",
+    "required_before_confirm": "لازم تحددي موقعك أول",
+    "service_disabled": "خدمة الموقع مطفية، فعّليها من إعدادات الجهاز",
+    "permission_denied": "لازم توافقي على صلاحية الموقع",
+    "permission_denied_forever": "الصلاحية مرفوضة نهائياً، فعّليها من إعدادات التطبيق",
+    "fetch_failed": "تعذر تحديد الموقع، حاولي مرة تانية"
   },
   "status": {
     "pending": "قيد الانتظار",

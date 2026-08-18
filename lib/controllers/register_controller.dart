@@ -1,4 +1,5 @@
 import 'package:customer_app/core/network/dio_client.dart';
+import 'package:customer_app/core/utils/phone_utils.dart';
 import 'package:customer_app/features/auth/repositories/auth_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -35,7 +36,9 @@ class RegisterController {
       await _repository.register(
         fullName: fullNameCtrl.text.trim(),
         birthday: birthdayCtrl.text.trim(),
-        phoneNumber: phoneCtrl.text.trim(),
+        // الباك اند صار يشترط صيغة دولية كاملة (+963...) بدل الصيغة
+        // المحلية القديمة (9xxxxxxxx)، فمنطبّعها هون قبل الإرسال.
+        phoneNumber: PhoneUtils.normalizeSyrianPhone(phoneCtrl.text.trim()),
         email: emailCtrl.text.trim(),
         password: passwordCtrl.text,
         passwordConfirmation: confirmPasswordCtrl.text,
