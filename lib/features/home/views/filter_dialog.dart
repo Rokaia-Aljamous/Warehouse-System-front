@@ -112,7 +112,7 @@ Future<Map<String, String?>?> showFilterDialog(
                         });
                       },
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.primary),
+                        side: BorderSide(color: AppColors.primary),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),

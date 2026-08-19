@@ -102,7 +102,7 @@ class _ForgotPasswordWaitViewState extends State<ForgotPasswordWaitView> {
                   constraints: BoxConstraints(
                     minHeight: MediaQuery.of(context).size.height - 150,
                   ),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: AppColors.cardBg,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(AppSizes.cardBorderRadius),
@@ -135,7 +135,7 @@ class _ForgotPasswordWaitViewState extends State<ForgotPasswordWaitView> {
                       ),
                       const SizedBox(height: AppSizes.xl),
 
-                      const Icon(
+                      Icon(
                         Icons.mark_email_unread_outlined,
                         size: 60,
                         color: AppColors.primary,
@@ -232,7 +232,7 @@ class _ForgotPasswordWaitViewState extends State<ForgotPasswordWaitView> {
   }
 
   Widget _buildIcon() {
-    return const SizedBox(
+    return SizedBox(
       width: 60,
       height: 60,
       child: Stack(

@@ -86,7 +86,7 @@ class _RegisterViewState extends State<RegisterView> {
       lastDate: DateTime.now(),
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
-          colorScheme: const ColorScheme.light(primary: AppColors.primary),
+          colorScheme: ColorScheme.light(primary: AppColors.primary),
         ),
         child: child!,
       ),
@@ -112,7 +112,7 @@ class _RegisterViewState extends State<RegisterView> {
                 const SizedBox(height: 150),
                 Container(
                   width: double.infinity,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: AppColors.cardBg,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(AppSizes.cardBorderRadius),
@@ -397,13 +397,13 @@ class _RegisterViewState extends State<RegisterView> {
                     borderRadius: BorderRadius.circular(16),
                     child: Image.file(_profileImage!, fit: BoxFit.cover),
                   )
-                : const Icon(
+                : Icon(
                     Icons.image_outlined,
                     color: AppColors.primary,
                     size: 36,
                   ),
           ),
-          const Positioned(
+          Positioned(
             bottom: -6,
             right: -6,
             child: CircleAvatar(

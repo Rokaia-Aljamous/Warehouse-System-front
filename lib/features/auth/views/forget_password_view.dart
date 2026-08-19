@@ -42,7 +42,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                   constraints: BoxConstraints(
                     minHeight: MediaQuery.of(context).size.height - 150,
                   ),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: AppColors.cardBg,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(AppSizes.cardBorderRadius),

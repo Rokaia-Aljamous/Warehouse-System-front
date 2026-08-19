@@ -68,7 +68,7 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: AppColors.cardBg,
         body: Center(child: CircularProgressIndicator()),
       );
@@ -316,7 +316,7 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.primary,
                 minimumSize: const Size(double.infinity, 52),
-                side: const BorderSide(color: AppColors.primary, width: 1.5),
+                side: BorderSide(color: AppColors.primary, width: 1.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(
                     AppSizes.buttonBorderRadius,
@@ -325,7 +325,7 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
               ),
               child: Text(
                 'common.close'.tr(),
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
                 ),
@@ -436,7 +436,7 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
               onPressed: () => Navigator.pop(context),
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 52),
-                side: const BorderSide(color: AppColors.primary, width: 1.5),
+                side: BorderSide(color: AppColors.primary, width: 1.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(
                     AppSizes.buttonBorderRadius,
@@ -445,7 +445,7 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
               ),
               child: Text(
                 'returns.go_back'.tr(),
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
                 ),

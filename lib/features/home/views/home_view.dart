@@ -1,4 +1,5 @@
 import 'package:customer_app/features/auth/views/change_password_view.dart';
+import 'package:customer_app/core/theme/theme_controller.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:customer_app/features/auth/views/profile_view.dart';
 import 'package:customer_app/features/home/views/filter_dialog.dart';
@@ -41,10 +42,21 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    // ListenableBuilder يجعل هذه الصفحة (وهي الصفحة التي يفتح منها الـDrawer)
+    // تعيد بناء نفسها فوراً عند تغيير الـTheme، وقراءة context.locale هنا
+    // تربط نفس إعادة البناء بتغيير اللغة أيضاً — دون الحاجة للتنقل والعودة.
+    return ListenableBuilder(
+      listenable: ThemeController.instance,
+      builder: (context, _) {
+        context.locale;
+        return Scaffold(
       backgroundColor: AppColors.cardBg,
       // ── Drawer (new) ────────────────────────────────────────────────
-      drawer: const _HomeDrawer(),
+      // (كانت const سابقاً) — إزالة const ضرورية حتى يُعاد بناء الـDrawer
+      // فعلياً (بألوانه ونصوصه المترجمة) عند كل إعادة بناء للصفحة الناتجة عن
+      // تبديل الـTheme أو اللغة، بدل أن يبقى Flutter يعيد استخدام نفس الكائن
+      // الثابت (const) دون تحديث محتواه.
+      drawer: _HomeDrawer(),
       // لا يوجد زر سلة عام هون — السلة أصبحت خاصة بكل مستودع، وبتوصلها
       // من جوا شاشة "Warehouse Details" لكل مستودع لحاله.
       // دمج الشريط هنا
@@ -117,7 +129,7 @@ class _HomeViewState extends State<HomeView> {
           const SizedBox(height: 20),
           Expanded(
             child: _homeController.isLoading
-                ? const Center(
+                ? Center(
                     child: CircularProgressIndicator(color: AppColors.primary),
                   )
                 : _homeController.errorMessage != null
@@ -165,6 +177,8 @@ class _HomeViewState extends State<HomeView> {
           ),
         ],
       ),
+    );
+      },
     );
   }
 }
@@ -270,10 +284,29 @@ class _HomeDrawer extends StatelessWidget {
               label: 'drawer.wallet'.tr(),
               onTap: () => Navigator.pop(context),
             ),
-            _DrawerItem(
-              icon: Icons.light_mode_outlined,
-              label: 'drawer.theme'.tr(),
-              onTap: () => Navigator.pop(context),
+            Builder(
+              builder: (drawerContext) => ListenableBuilder(
+                listenable: ThemeController.instance,
+                builder: (context, _) {
+                  final isDark = ThemeController.instance.isDark;
+                  return _DrawerItem(
+                    icon: isDark
+                        ? Icons.dark_mode_outlined
+                        : Icons.light_mode_outlined,
+                    // بند 4 من الطلب: التسمية نفسها يجب أن تعكس الوضع الحالي
+                    // (فاتح/Light في Light Mode، غامق/Dark في Dark Mode) وليس
+                    // فقط الأيقونة. تعتمد على مفتاحي الترجمة 'theme.light' و
+                    // 'theme.dark' — تأكد من إضافتهما في
+                    // assets/translations/en.json و ar.json إن لم يكونا
+                    // موجودين مسبقاً (بالقيم: Light/Dark وفاتح/غامق).
+                    label: isDark ? 'theme.dark'.tr() : 'theme.light'.tr(),
+                    onTap: () {
+                      Navigator.pop(drawerContext);
+                      ThemeController.instance.toggle();
+                    },
+                  );
+                },
+              ),
             ),
             _DrawerItem(
               icon: Icons.language_outlined,

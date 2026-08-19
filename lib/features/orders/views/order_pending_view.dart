@@ -294,7 +294,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                             style: AppTextStyles.bodySmall,
                           ),
                           trailing: IconButton(
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.add_circle_outline,
                               color: AppColors.primary,
                             ),
@@ -589,11 +589,11 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                         padding: const EdgeInsets.only(top: 4, bottom: 4),
                         child: OutlinedButton.icon(
                           onPressed: _isSaving ? null : _openAddProductSheet,
-                          icon: const Icon(Icons.add, color: AppColors.primary),
+                          icon: Icon(Icons.add, color: AppColors.primary),
                           label: Text('orders.add_product'.tr()),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppColors.primary,
-                            side: const BorderSide(color: AppColors.primary),
+                            side: BorderSide(color: AppColors.primary),
                             minimumSize: const Size(double.infinity, 44),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -636,7 +636,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                               label: _isSaving ? "..." : "Save",
                               onPressed: _isSaving ? null : _saveEdit,
                               color: AppColors.primary,
-                              textColor: Colors.white,
+                              textColor: AppColors.textOnPrimary,
                             ),
                           ),
                         ],

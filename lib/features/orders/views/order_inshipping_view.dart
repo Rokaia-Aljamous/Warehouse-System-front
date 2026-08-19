@@ -152,14 +152,14 @@ class _InShippingViewState extends State<InShippingView> {
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.primary,
                 minimumSize: const Size(double.infinity, 52),
-                side: const BorderSide(color: AppColors.primary, width: 1.5),
+                side: BorderSide(color: AppColors.primary, width: 1.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(
                     AppSizes.buttonBorderRadius,
                   ),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Go Back',
                 style: TextStyle(
                   color: AppColors.primary,
@@ -242,7 +242,7 @@ class _InShippingViewState extends State<InShippingView> {
                 ],
               ),
               child: qrData.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Icon(
                         Icons.qr_code_2,
                         size: 160,
@@ -273,7 +273,7 @@ class _InShippingViewState extends State<InShippingView> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.textOnPrimary,
                 minimumSize: const Size(double.infinity, 52),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(
@@ -298,14 +298,14 @@ class _InShippingViewState extends State<InShippingView> {
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.primary,
                 minimumSize: const Size(double.infinity, 52),
-                side: const BorderSide(color: AppColors.primary, width: 1.5),
+                side: BorderSide(color: AppColors.primary, width: 1.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(
                     AppSizes.buttonBorderRadius,
                   ),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Back to order',
                 style: TextStyle(
                   color: AppColors.primary,
@@ -434,7 +434,7 @@ class _InShippingViewState extends State<InShippingView> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.textOnPrimary,
                 minimumSize: const Size(double.infinity, 52),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(

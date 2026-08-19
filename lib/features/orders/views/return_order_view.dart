@@ -157,7 +157,7 @@ class _ReturnOrderViewState extends State<ReturnOrderView> {
                 color: AppColors.primary.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.account_balance_wallet_outlined,
                 color: AppColors.primary,
                 size: 40,

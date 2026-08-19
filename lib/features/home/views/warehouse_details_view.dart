@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import '../../../controllers/warehouse_details_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
+import '../../../core/theme/theme_controller.dart';
 
 /// "Warehouse Details" screen — products grid for a specific warehouse.
 ///
@@ -72,9 +73,20 @@ class _WarehouseDetailsViewState extends State<WarehouseDetailsView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    // ListenableBuilder يجعل هذه الصفحة (وهي الصفحة التي يفتح منها الـDrawer)
+    // تعيد بناء نفسها فوراً عند تغيير الـTheme، وقراءة context.locale هنا
+    // تربط نفس إعادة البناء بتغيير اللغة أيضاً — دون الحاجة للتنقل والعودة.
+    return ListenableBuilder(
+      listenable: ThemeController.instance,
+      builder: (context, _) {
+        context.locale;
+        return Scaffold(
       backgroundColor: const Color(0xFFFDFBF8),
-      drawer: const _AppDrawer(),
+      // (كانت const سابقاً) — إزالة const ضرورية حتى يُعاد بناء الـDrawer
+      // فعلياً (بألوانه ونصوصه المترجمة) عند كل إعادة بناء للصفحة الناتجة عن
+      // تبديل الـTheme أو اللغة، بدل أن يبقى Flutter يعيد استخدام نفس الكائن
+      // الثابت (const) دون تحديث محتواه.
+      drawer: _AppDrawer(),
       // Floating cart button — bottom-right (matches project's navy/orange palette)
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.push(
@@ -103,7 +115,7 @@ class _WarehouseDetailsViewState extends State<WarehouseDetailsView> {
 
           // حالة التحميل
           if (_controller.isLoadingProducts)
-            const SliverFillRemaining(
+            SliverFillRemaining(
               child: Center(
                 child: CircularProgressIndicator(color: AppColors.primary),
               ),
@@ -169,6 +181,8 @@ class _WarehouseDetailsViewState extends State<WarehouseDetailsView> {
             ),
         ],
       ),
+    );
+      },
     );
   }
 }
@@ -288,15 +302,41 @@ class _AppDrawer extends StatelessWidget {
               label: 'drawer.wallet'.tr(),
               onTap: () => Navigator.pop(context),
             ),
-            _DrawerItem(
-              icon: Icons.light_mode_outlined,
-              label: 'drawer.theme'.tr(),
-              onTap: () => Navigator.pop(context),
+            // ملاحظة إصلاح: كان هذا البند لا يستدعي ThemeController إطلاقاً
+            // (فقط يغلق الـDrawer) — تم ربطه فعلياً بالتبديل + جعل الأيقونة
+            // والتسمية تعكسان الوضع الحالي (فاتح/غامق) فوراً، بنفس أسلوب
+            // الـDrawer في HomeView.
+            Builder(
+              builder: (drawerContext) => ListenableBuilder(
+                listenable: ThemeController.instance,
+                builder: (context, _) {
+                  final isDark = ThemeController.instance.isDark;
+                  return _DrawerItem(
+                    icon: isDark
+                        ? Icons.dark_mode_outlined
+                        : Icons.light_mode_outlined,
+                    label: isDark ? 'theme.dark'.tr() : 'theme.light'.tr(),
+                    onTap: () {
+                      Navigator.pop(drawerContext);
+                      ThemeController.instance.toggle();
+                    },
+                  );
+                },
+              ),
             ),
+            // ملاحظة إصلاح: كان هذا البند أيضاً لا يستدعي context.setLocale
+            // إطلاقاً — تم ربطه فعلياً بتبديل اللغة، بنفس أسلوب الـDrawer في
+            // HomeView.
             _DrawerItem(
               icon: Icons.language_outlined,
               label: 'drawer.language'.tr(),
-              onTap: () => Navigator.pop(context),
+              onTap: () async {
+                final newLocale = context.locale.languageCode == 'en'
+                    ? const Locale('ar')
+                    : const Locale('en');
+                await context.setLocale(newLocale);
+                if (context.mounted) Navigator.pop(context);
+              },
             ),
             const Divider(height: 32, indent: 24, endIndent: 24),
             _DrawerItem(

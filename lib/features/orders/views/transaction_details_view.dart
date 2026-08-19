@@ -220,7 +220,7 @@ class _TransactionDetailsViewState extends State<TransactionDetailsView> {
                         ? null
                         : _startPayment,
                     color: AppColors.primary,
-                    textColor: Colors.white,
+                    textColor: AppColors.textOnPrimary,
                   ),
                   const SizedBox(height: AppSizes.xl),
                 ],

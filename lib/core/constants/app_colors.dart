@@ -1,17 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:customer_app/core/theme/theme_controller.dart';
 
 class AppColors {
   AppColors._();
 
-  static const Color primary        = Color(0xff1D2D44); // الكحلي — خلفية الـ Scaffold
-  static const Color cardBg         = Color(0xFFFFF8F4); // البيج — خلفية الـ Card
-  static const Color iconColor      = Color(0xFFF3A523); // البرتقالي — أيقونات الـ TextField
-  static const Color textPrimary    = Color(0xFF1E3A5F); // نص داكن
+  // ── اللونان الأساسيان القابلان للعكس بين الوضعين ──────────────────────────
+  // Light Mode: Navy هو الأساسي (خلفية الـ Scaffold/الـ Navigation) و Beige هو
+  // خلفية الـ Card. في Dark Mode ينعكس الاثنان مع بعض فقط، ولا يتأثر أي لون آخر.
+  static const Color _navy  = Color(0xff1D2D44); // الكحلي الأصلي
+  static const Color _beige = Color(0xFFFFF8F4); // البيج الأصلي
+
+  /// اللون الأساسي (Navy في Light ↔ Beige في Dark).
+  /// يُستخدم لخلفية الـ Scaffold والـ Navigation Bar وعناصر أخرى مرتبطة به مباشرة.
+  static Color get primary =>
+      ThemeController.instance.isDark ? _beige : _navy;
+
+  /// خلفية الـ Card (Beige في Light ↔ Navy في Dark) — تتبع نفس زوج
+  /// الانعكاس لأن قيمتها الحالية هي نفسها اللون الأساسي (Beige)، وبالتالي
+  /// تتغيّر معه بشكل مقصود ومركزي، وليس عبر فلتر عشوائي يشمل كل الشاشة.
+  static Color get cardBg =>
+      ThemeController.instance.isDark ? _navy : _beige;
+
+  // ── ألوان ثابتة لا تتغير أبداً بين الـ Light/Dark (حسب الطلب) ─────────────
+  static const Color iconColor      = Color(0xFFF3A523); // البرتقالي — ثابت دائماً
+  static const Color textLink       = Color(0xFF5A7BF0); // روابط — ثابت
+  static const Color border         = Color(0xFFB8B8B8); // حدود TextField — ثابت
+  static const Color borderFocused  = Color(0xFF1E3A5F); // ثابت (خاص بالـ Input Fields)
+
+  // ── نصوص: تتغيّر حسب الخلفية لضمان التباين والوضوح ────────────────────────
+  // القيم الأصلية (المستخدمة غالباً فوق عناصر فاتحة/الـ Cards والـ Inputs
+  // الثابتة) تبقى كما هي بدون تغيير — لأن الـ Cards والـ Input Fields أنفسها
+  // لا تنعكس ألوانها (باستثناء cardBg كما هو موضّح أعلاه).
+  static const Color textPrimary    = Color(0xFF1E3A5F); // نص داكن (فوق الأسطح الفاتحة الثابتة)
   static const Color textSecondary  = Color(0xFF8B6B5E); // label
   static const Color textHint       = Color(0xFFB0A89E); // hint
-  static const Color textLink       = Color(0xFF5A7BF0); // روابط
-  static const Color border         = Color(0xFFB8B8B8); // حدود TextField
-  static const Color borderFocused  = Color(0xFF1E3A5F);
+
+  /// نص واضح فوق اللون الأساسي (primary) تحديداً — يُستخدم في العناصر التي
+  /// خلفيتها AppColors.primary (Scaffold/Navigation)، حتى يبقى مقروءًا سواء
+  /// كانت الخلفية Navy (Light) أو Beige (Dark).
+  static Color get textOnPrimary =>
+      ThemeController.instance.isDark ? _navy : Colors.white;
+
+  /// نص واضح فوق الـ Card (cardBg) تحديداً — يبقى مقروءًا سواء كانت خلفية
+  /// الكارد Beige (Light) أو Navy (Dark).
+  static Color get textOnCard =>
+      ThemeController.instance.isDark ? Colors.white : _navy;
   static const Color purple     = Color(0xFF7B61FF); // لون الأيقونات الجديد بالريجستر
 static const Color uploadBox  = Color(0xFFEDE8F5);  // حدود TextField focused
 

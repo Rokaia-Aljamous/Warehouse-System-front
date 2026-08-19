@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:customer_app/core/storage/token_storage.dart';
+import 'package:customer_app/core/theme/app_theme.dart';
+import 'package:customer_app/core/theme/theme_controller.dart';
 import 'package:customer_app/features/auth/views/create_password_view.dart';
 import 'package:customer_app/features/auth/views/login_view.dart';
 import 'package:customer_app/features/home/views/home_view.dart';
@@ -41,6 +43,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _appLinks = AppLinks();
+    ThemeController.instance.init();
 
     // 1) نستنى روابط جديدة (lifecycle: التطبيق بالخلفية وفتح عبر deep link)
     _linkSub = _appLinks.uriLinkStream.listen(_handleDeepLink);
@@ -112,21 +115,30 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Warehouse Hub',
-      debugShowCheckedModeBanner: false,
-      navigatorKey: navigatorKey,
+    // بيلتف تغيير الوضع الفاتح/الداكن (ThemeController)، تُعاد بناء
+    // MaterialApp بالثيم المناسب مباشرة (بدون أي فلتر لوني عام فوق الشاشة).
+    // كل الألوان الأساسية (Beige↔Navy) تنعكس تلقائياً عبر AppColors، بينما
+    // بقية الألوان (Orange/Green/Cards/Inputs) تبقى ثابتة كما هي.
+    return ListenableBuilder(
+      listenable: ThemeController.instance,
+      builder: (context, _) {
+        final isDark = ThemeController.instance.isDark;
+        return MaterialApp(
+          title: 'Warehouse Hub',
+          debugShowCheckedModeBanner: false,
+          navigatorKey: navigatorKey,
 
-      // ── إعدادات الترجمة (easy_localization) ────────────────────────
-      localizationsDelegates: context.localizationDelegates,
-      supportedLocales: context.supportedLocales,
-      locale: context.locale,
+          // ── إعدادات الترجمة (easy_localization) ────────────────────────
+          localizationsDelegates: context.localizationDelegates,
+          supportedLocales: context.supportedLocales,
+          locale: context.locale,
 
-      theme: ThemeData(
-        fontFamily: 'Inter',
-        scaffoldBackgroundColor: const Color(0xFF1E3A5F),
-      ),
-      home: const LoginView(),
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+          home: const LoginView(),
+        );
+      },
     );
   }
 }

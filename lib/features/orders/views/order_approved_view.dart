@@ -246,7 +246,7 @@ class _OrderApprovedViewState extends State<OrderApprovedView> {
                           if (mounted) _loadOrder();
                         },
                         color: AppColors.primary,
-                        textColor: Colors.white,
+                        textColor: AppColors.textOnPrimary,
                       ),
                     ] else if (!isEditMode && _order!.isPaid) ...[
                       const SizedBox(height: 20),
@@ -291,7 +291,7 @@ class _OrderApprovedViewState extends State<OrderApprovedView> {
                                 isSendingMode = false;
                               }),
                               color: AppColors.primary,
-                              textColor: Colors.white,
+                              textColor: AppColors.textOnPrimary,
                             )
                           : Row(
                               children: [
@@ -312,7 +312,7 @@ class _OrderApprovedViewState extends State<OrderApprovedView> {
                                     onPressed: () =>
                                         setState(() => isSendingMode = true),
                                     color: AppColors.primary,
-                                    textColor: Colors.white,
+                                    textColor: AppColors.textOnPrimary,
                                   ),
                                 ),
                               ],

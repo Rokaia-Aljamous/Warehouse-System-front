@@ -4,7 +4,10 @@ import 'app_colors.dart';
 class AppTextStyles {
   AppTextStyles._();
 
-  static const TextStyle screenTitle = TextStyle(
+  // ملاحظة: AppColors.primary لم يعد قيمة ثابتة (const) لأنه أصبح يتغيّر
+  // حسب الـ Theme (Navy↔Beige)، لذلك حوّلنا هذا الـ Style من "const" إلى
+  // getter عادي حتى يقرأ اللون الصحيح في كل مرة.
+  static TextStyle get screenTitle => TextStyle(
     fontSize: 32,
     fontWeight: FontWeight.bold,
     color: AppColors.primary,
@@ -54,7 +57,9 @@ class AppTextStyles {
     letterSpacing: 0.8,
   );
   // لا حاجة لذكر fontFamily هنا لأنه سيأخذ من الـ Theme تلقائياً
-static const TextStyle screenhomeTitle = TextStyle(
+// نفس الملاحظة أعلاه: getter بدل const لأن AppColors.primary أصبح يتغيّر
+// حسب الوضع الفاتح/الداكن.
+static TextStyle get screenhomeTitle => TextStyle(
   fontSize: 32,
   fontWeight: FontWeight.bold,
   color: AppColors.primary,

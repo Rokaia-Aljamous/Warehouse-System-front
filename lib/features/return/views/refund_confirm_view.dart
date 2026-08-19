@@ -106,7 +106,7 @@ class RefundConfirmView extends StatelessWidget {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.textOnPrimary,
               minimumSize: const Size(double.infinity, 52),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(
@@ -131,7 +131,7 @@ class RefundConfirmView extends StatelessWidget {
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.primary,
               minimumSize: const Size(double.infinity, 52),
-              side: const BorderSide(color: AppColors.primary, width: 1.5),
+              side: BorderSide(color: AppColors.primary, width: 1.5),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(
                   AppSizes.buttonBorderRadius,
@@ -140,7 +140,7 @@ class RefundConfirmView extends StatelessWidget {
             ),
             child: Text(
               'common.not_now'.tr(),
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w600,
               ),

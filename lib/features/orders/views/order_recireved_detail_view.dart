@@ -215,12 +215,12 @@ class _ReceivedOrderDetailViewState extends State<ReceivedOrderDetailView> {
                           ),
                         ),
                       ),
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.replay_outlined,
                         color: AppColors.primary,
                         size: 18,
                       ),
-                      label: const Text(
+                      label: Text(
                         'Return Order',
                         style: TextStyle(
                           color: AppColors.primary,
@@ -229,7 +229,7 @@ class _ReceivedOrderDetailViewState extends State<ReceivedOrderDetailView> {
                       ),
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 52),
-                        side: const BorderSide(
+                        side: BorderSide(
                           color: AppColors.primary,
                           width: 1.5,
                         ),

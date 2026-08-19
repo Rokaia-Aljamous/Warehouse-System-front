@@ -134,7 +134,7 @@ class _PendingReturnCard extends StatelessWidget {
                             color: AppColors.primary,
                           ),
                         ),
-                        const Icon(
+                        Icon(
                           Icons.chevron_right,
                           size: 16,
                           color: AppColors.primary,

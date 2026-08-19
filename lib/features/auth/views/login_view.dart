@@ -110,7 +110,7 @@ class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
           Expanded(
             child: Container(
               width: double.infinity,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.cardBg,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(AppSizes.cardBorderRadius),

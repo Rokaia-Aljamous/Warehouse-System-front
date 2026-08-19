@@ -1,6 +1,7 @@
 class ApiConstants {
   ApiConstants._();
-  static const String baseUrl = 'http://10.0.2.2:8000';
+  static const String baseUrl =
+      'https://immobile-abiding-facial.ngrok-free.dev';
   // static const String baseUrl = 'http://warehouse-system.test';
 
   /// الباك اند بيبني روابط الصور (main_image) اعتماداً على APP_URL بالـ

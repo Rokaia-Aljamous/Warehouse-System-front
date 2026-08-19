@@ -140,7 +140,7 @@ class _ProfileViewState extends State<ProfileView> {
                 // Cream card with rounded top corners (Auth style)
                 Container(
                   width: double.infinity,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: AppColors.cardBg,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(AppSizes.cardBorderRadius),
@@ -299,7 +299,7 @@ class _ProfileViewState extends State<ProfileView> {
             label: 'common.try_again'.tr(),
             onPressed: _loadProfile,
             color: AppColors.primary,
-            textColor: Colors.white,
+            textColor: AppColors.textOnPrimary,
             borderColor: AppColors.primary,
             fullWidth: true,
           ),

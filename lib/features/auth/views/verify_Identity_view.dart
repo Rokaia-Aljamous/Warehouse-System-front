@@ -90,7 +90,7 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
                   constraints: BoxConstraints(
                     minHeight: MediaQuery.of(context).size.height - 150,
                   ),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: AppColors.cardBg,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(AppSizes.cardBorderRadius),
@@ -125,11 +125,11 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
 
                       // ── مؤشر الانتظار ──────────────────
                       if (_isChecking)
-                        const CircularProgressIndicator(
+                        CircularProgressIndicator(
                           color: AppColors.primary,
                         )
                       else
-                        const CircularProgressIndicator(
+                        CircularProgressIndicator(
                           color: AppColors.primary,
                           value: null,
                         ),
@@ -229,7 +229,7 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
   }
 
   Widget _buildIcon() {
-    return const SizedBox(
+    return SizedBox(
       width: 60,
       height: 60,
       child: Stack(

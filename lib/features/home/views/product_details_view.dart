@@ -58,7 +58,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
   Widget build(BuildContext context) {
     // حالة التحميل
     if (_controller.isLoading) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(
           child: CircularProgressIndicator(color: AppColors.primary),
         ),
@@ -103,7 +103,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
               children: [
                 Container(
                   height: 275,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: AppColors.primary,
                     borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(40),
@@ -230,7 +230,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
             ),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 25),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.primary,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(40),
@@ -261,7 +261,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                     ),
                     onPressed: _controller.isAddingToCart ? null : _onAddToCart,
                     child: _controller.isAddingToCart
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 16,
                             height: 16,
                             child: CircularProgressIndicator(
@@ -271,7 +271,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                           )
                         : Text(
                             'orders.order_now'.tr(),
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.primary,
                               fontWeight: FontWeight.bold,
                             ),

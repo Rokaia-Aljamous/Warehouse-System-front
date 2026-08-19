@@ -8,6 +8,7 @@ import '../../../core/constants/app_text_styles.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_text_field.dart';
 import 'package:customer_app/features/orders/widgets/app_header_in.dart';
+import '../../../core/theme/theme_controller.dart';
 
 /// "Change Password" screen — accessible from the Drawer.
 ///
@@ -61,7 +62,14 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    // ListenableBuilder يجعل هذه الصفحة (المفتوحة من الـDrawer) تعيد بناء
+    // نفسها فوراً عند تغيير الـTheme، وقراءة context.locale هنا تربط نفس
+    // إعادة البناء بتغيير اللغة أيضاً — دون الحاجة للتنقل والعودة.
+    return ListenableBuilder(
+      listenable: ThemeController.instance,
+      builder: (context, _) {
+        context.locale;
+        return Scaffold(
       backgroundColor: AppColors.cardBg,
       body: Column(
         children: [
@@ -152,7 +160,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
                     label: 'auth.confirm_btn'.tr(),
                     onPressed: _confirm,
                     color: AppColors.primary,
-                    textColor: Colors.white,
+                    textColor: AppColors.textOnPrimary,
                     borderColor: AppColors.primary,
                     fullWidth: true,
                   ),
@@ -163,6 +171,8 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
           ),
         ],
       ),
+    );
+      },
     );
   }
 }

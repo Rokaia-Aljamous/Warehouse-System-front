@@ -52,7 +52,7 @@ class _ArchivedDetailViewState extends State<ArchivedDetailView> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: AppColors.cardBg,
         body: Center(child: CircularProgressIndicator()),
       );

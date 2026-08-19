@@ -97,7 +97,7 @@ class _MyCartViewState extends State<MyCartView> {
           ),
           Expanded(
             child: _controller.isLoading
-                ? const Center(
+                ? Center(
                     child: CircularProgressIndicator(color: AppColors.primary),
                   )
                 : _controller.errorMessage != null
@@ -167,7 +167,7 @@ class _MyCartViewState extends State<MyCartView> {
                   onPressed: _showConfirmOrderSheet,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: AppColors.textOnPrimary,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
@@ -479,7 +479,7 @@ class _QtyStepper extends StatelessWidget {
           ),
           GestureDetector(
             onTap: onIncrement,
-            child: const Padding(
+            child: Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: AppSizes.sm,
                 vertical: AppSizes.xs,
@@ -867,7 +867,7 @@ class _ConfirmOrderSheetState extends State<_ConfirmOrderSheet> {
                 onPressed: _handleConfirm,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.textOnPrimary,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(

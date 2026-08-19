@@ -72,9 +72,13 @@ class AppBottomNav extends StatelessWidget {
                         onTap: () => onTap(index),
                         child: Icon(
                           _icons[index],
+                          // الأيقونة النشطة تبقى بالبرتقالي الثابت دايماً.
+                          // غير النشطة تتبع لون واضح فوق خلفية الـ Nav
+                          // (AppColors.primary) بحيث تضل مقروءة سواء كانت
+                          // الخلفية Navy (Light) أو Beige (Dark) بعد الانعكاس.
                           color: currentIndex == index
                               ? AppColors.iconColor
-                              : Colors.white,
+                              : AppColors.textOnPrimary,
                           size: 28,
                         ),
                       ),

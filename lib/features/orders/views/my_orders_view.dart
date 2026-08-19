@@ -123,7 +123,7 @@ class _MyOrdersViewState extends State<MyOrdersView>
 
         // ── محتوى التابات ──────────────────────────────────
         body: _ordersController.isLoading
-            ? const Center(
+            ? Center(
                 child: CircularProgressIndicator(color: AppColors.primary),
               )
             : _ordersController.errorMessage != null
@@ -187,7 +187,7 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
     bool overlapsContent,
   ) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.primary,
         borderRadius: BorderRadius.only(bottomRight: Radius.circular(30)),
       ),

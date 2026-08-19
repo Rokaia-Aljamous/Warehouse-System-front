@@ -69,7 +69,7 @@ class ConfirmDeliveryView extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Icon(
                         Icons.qr_code_2,
                         size: 160,
@@ -93,7 +93,7 @@ class ConfirmDeliveryView extends StatelessWidget {
                     fullWidth: true,
                     onPressed: () => Navigator.pop(context),
                     color: AppColors.primary,
-                    textColor: Colors.white,
+                    textColor: AppColors.textOnPrimary,
                   ),
                   const SizedBox(height: AppSizes.md),
 

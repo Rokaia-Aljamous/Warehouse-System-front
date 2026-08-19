@@ -14,6 +14,7 @@ import '../../../core/utils/phone_utils.dart';
 import '../repositories/auth_repository.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_text_field.dart';
+import '../../../core/theme/theme_controller.dart';
 
 /// "Edit Profile" screen — matches Figma design "تعديل بروفايل".
 ///
@@ -124,7 +125,7 @@ class _EditProfileViewState extends State<EditProfileView> {
       lastDate: DateTime.now(),
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
-          colorScheme: const ColorScheme.light(primary: AppColors.primary),
+          colorScheme: ColorScheme.light(primary: AppColors.primary),
         ),
         child: child!,
       ),
@@ -176,7 +177,14 @@ class _EditProfileViewState extends State<EditProfileView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    // ListenableBuilder يجعل هذه الصفحة (تحتوي على الـDrawer) تعيد بناء نفسها
+    // فوراً عند تغيير الـTheme، وقراءة context.locale هنا تربط نفس إعادة
+    // البناء بتغيير اللغة أيضاً — دون الحاجة للتنقل والعودة.
+    return ListenableBuilder(
+      listenable: ThemeController.instance,
+      builder: (context, _) {
+        context.locale;
+        return Scaffold(
       backgroundColor: AppColors.primary,
       body: Stack(
         children: [
@@ -187,7 +195,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                 // Cream rounded card — same style as RegisterView.
                 Container(
                   width: double.infinity,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: AppColors.cardBg,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(AppSizes.cardBorderRadius),
@@ -285,7 +293,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                                   : 'profile.save_changes'.tr(),
                               onPressed: _isSaving ? () {} : _saveChanges,
                               color: AppColors.primary,
-                              textColor: Colors.white,
+                              textColor: AppColors.textOnPrimary,
                               borderColor: AppColors.primary,
                               fullWidth: true,
                             ),
@@ -317,6 +325,8 @@ class _EditProfileViewState extends State<EditProfileView> {
         ],
       ),
     );
+      },
+    );
   }
 
   /// Image upload widget — shows the picked local image, otherwise the
@@ -347,14 +357,14 @@ class _EditProfileViewState extends State<EditProfileView> {
                         : null),
             ),
             child: (_pickedImage == null && _currentImageUrl == null)
-                ? const Icon(
+                ? Icon(
                     Icons.image_outlined,
                     color: AppColors.primary,
                     size: 36,
                   )
                 : null,
           ),
-          const Positioned(
+          Positioned(
             bottom: -6,
             right: -6,
             child: CircleAvatar(
