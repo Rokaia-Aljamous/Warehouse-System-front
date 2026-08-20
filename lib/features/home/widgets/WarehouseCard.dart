@@ -70,7 +70,10 @@ class WarehouseCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: AppTextStyles.screenTitle.copyWith(fontSize: 20),
+                  style: AppTextStyles.screenTitle.copyWith(
+                    fontSize: 20,
+                    color: AppColors.cardFixedAccent,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -106,8 +109,10 @@ class WarehouseCard extends StatelessWidget {
                         color: AppColors.iconColor,
                       ),
                       const SizedBox(width: 4),
-                      Text('${area!.toStringAsFixed(0)} m²',
-                          style: AppTextStyles.bodySmall),
+                      Text(
+                        '${area!.toStringAsFixed(0)} m²',
+                        style: AppTextStyles.bodySmall,
+                      ),
                     ],
                   ),
                 ],
@@ -121,8 +126,10 @@ class WarehouseCard extends StatelessWidget {
                         color: AppColors.iconColor,
                       ),
                       const SizedBox(width: 4),
-                      Text(financialBudgets!.toStringAsFixed(0),
-                          style: AppTextStyles.bodySmall),
+                      Text(
+                        financialBudgets!.toStringAsFixed(0),
+                        style: AppTextStyles.bodySmall,
+                      ),
                     ],
                   ),
                 ],

@@ -99,10 +99,10 @@ class _MyOrdersViewState extends State<MyOrdersView>
             delegate: _TabBarDelegate(
               TabBar(
                 controller: _tabController,
-                indicatorColor: Colors.white,
+                indicatorColor: AppColors.textOnPrimary,
                 indicatorWeight: 2,
-                labelColor: Colors.white,
-                unselectedLabelColor: Colors.white54,
+                labelColor: AppColors.textOnPrimary,
+                unselectedLabelColor: AppColors.textOnPrimary.withOpacity(0.6),
                 dividerColor: Colors.transparent,
                 labelStyle: AppTextStyles.fieldLabel.copyWith(
                   fontWeight: FontWeight.w600,
@@ -123,9 +123,7 @@ class _MyOrdersViewState extends State<MyOrdersView>
 
         // ── محتوى التابات ──────────────────────────────────
         body: _ordersController.isLoading
-            ? Center(
-                child: CircularProgressIndicator(color: AppColors.primary),
-              )
+            ? Center(child: CircularProgressIndicator(color: AppColors.primary))
             : _ordersController.errorMessage != null
             ? Center(
                 child: Column(

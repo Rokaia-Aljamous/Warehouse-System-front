@@ -38,7 +38,7 @@ class OrderCard extends StatelessWidget {
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: AppSizes.md),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: AppColors.cardFixedBg,
         borderRadius: _radius,
         border: Border.all(color: AppColors.borderFocused, width: 1),
         boxShadow: [
@@ -65,7 +65,10 @@ class OrderCard extends StatelessWidget {
                   children: [
                     Text(
                       orderNumber,
-                      style: AppTextStyles.screenTitle.copyWith(fontSize: 18),
+                      style: AppTextStyles.screenTitle.copyWith(
+                        fontSize: 18,
+                        color: AppColors.cardFixedAccent,
+                      ),
                     ),
                     OrderStatusBadge(status: status),
                   ],
@@ -110,13 +113,13 @@ class OrderCard extends StatelessWidget {
                         Text(
                           'common.view_details'.tr(),
                           style: AppTextStyles.fieldLabel.copyWith(
-                            color: AppColors.primary,
+                            color: AppColors.cardFixedAccent,
                           ),
                         ),
                         Icon(
                           Icons.chevron_right,
                           size: 16,
-                          color: AppColors.primary,
+                          color: AppColors.cardFixedAccent,
                         ),
                       ],
                     ),

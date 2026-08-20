@@ -11,6 +11,7 @@ import '../../../core/constants/app_text_styles.dart';
 import '../widgets/order_item_card.dart';
 import '../widgets/order_summary.dart';
 import 'package:customer_app/features/home/views/notifications_view.dart';
+import '../../home/widgets/app_bottom_nav.dart';
 
 /// تفاصيل طلبية مستلمة (delivered) — يجيب بيانات حقيقية عبر [orderId]
 /// (بنفس نمط OrderDetailView المستخدم لبقية حالات الطلبية).
@@ -67,6 +68,7 @@ class _ReceivedOrderDetailViewState extends State<ReceivedOrderDetailView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.cardBg,
+      bottomNavigationBar: buildAppBottomNav(context, 1),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -229,10 +231,7 @@ class _ReceivedOrderDetailViewState extends State<ReceivedOrderDetailView> {
                       ),
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 52),
-                        side: BorderSide(
-                          color: AppColors.primary,
-                          width: 1.5,
-                        ),
+                        side: BorderSide(color: AppColors.primary, width: 1.5),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
                             AppSizes.buttonBorderRadius,

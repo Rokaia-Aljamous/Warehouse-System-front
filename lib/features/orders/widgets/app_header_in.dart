@@ -9,7 +9,7 @@ class AppHeader extends StatelessWidget {
   final bool showNotification;
   final VoidCallback? onNotificationTap;
   final BorderRadius? borderRadius;
-    final double extraBottomPadding;  
+  final double extraBottomPadding;
 
   const AppHeader({
     super.key,
@@ -18,7 +18,7 @@ class AppHeader extends StatelessWidget {
     this.showNotification = false,
     this.onNotificationTap,
     this.borderRadius,
-       this.extraBottomPadding = 0
+    this.extraBottomPadding = 0,
   });
 
   @override
@@ -31,7 +31,7 @@ class AppHeader extends StatelessWidget {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding:  EdgeInsets.fromLTRB(20, 12, 20, 20 + extraBottomPadding),
+          padding: EdgeInsets.fromLTRB(20, 12, 20, 20 + extraBottomPadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -42,18 +42,18 @@ class AppHeader extends StatelessWidget {
                   showBack
                       ? GestureDetector(
                           onTap: () => NavUtils.safePop(context),
-                          child: const Icon(
+                          child: Icon(
                             Icons.arrow_back,
-                            color: Colors.white,
+                            color: AppColors.textOnPrimary,
                           ),
                         )
                       : const SizedBox(width: 24),
                   showNotification
                       ? GestureDetector(
                           onTap: onNotificationTap,
-                          child: const Icon(
+                          child: Icon(
                             Icons.notifications_none,
-                            color: Colors.white,
+                            color: AppColors.textOnPrimary,
                           ),
                         )
                       : const SizedBox(width: 24),
@@ -65,11 +65,11 @@ class AppHeader extends StatelessWidget {
               Align(
                 alignment: Alignment.bottomLeft,
                 child: Padding(
-                 padding: const EdgeInsets.only(left: 10),
+                  padding: const EdgeInsets.only(left: 10),
                   child: Text(
                     title,
                     style: AppTextStyles.screenhomeTitle.copyWith(
-                      color: Colors.white,
+                      color: AppColors.textOnPrimary,
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                     ),

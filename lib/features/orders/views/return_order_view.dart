@@ -7,6 +7,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_text_styles.dart';
 import 'package:customer_app/features/home/views/notifications_view.dart';
+import '../../home/widgets/app_bottom_nav.dart';
 
 /// شاشة تقديم طلب إرجاع فعلي لطلبية حقيقية مستلمة (delivered).
 /// POST /api/customers/orders/{order}/returns
@@ -197,6 +198,7 @@ class _ReturnOrderViewState extends State<ReturnOrderView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.cardBg,
+      bottomNavigationBar: buildAppBottomNav(context, 1),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -255,9 +257,9 @@ class _ReturnOrderViewState extends State<ReturnOrderView> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(AppSizes.md),
                     decoration: BoxDecoration(
-                      color: AppColors.cardBg,
+                      color: AppColors.cardFixedBg,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.primary),
+                      border: Border.all(color: AppColors.borderFocused),
                     ),
                     child: Row(
                       children: [

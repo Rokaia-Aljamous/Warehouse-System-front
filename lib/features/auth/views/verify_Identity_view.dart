@@ -125,9 +125,7 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
 
                       // ── مؤشر الانتظار ──────────────────
                       if (_isChecking)
-                        CircularProgressIndicator(
-                          color: AppColors.primary,
-                        )
+                        CircularProgressIndicator(color: AppColors.primary)
                       else
                         CircularProgressIndicator(
                           color: AppColors.primary,
@@ -220,7 +218,11 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
             left: 20,
             child: IconButton(
               onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
+              icon: Icon(
+                Icons.arrow_back,
+                color: AppColors.textOnPrimary,
+                size: 28,
+              ),
             ),
           ),
         ],

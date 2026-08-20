@@ -12,6 +12,7 @@ import '../widgets/order_item_card.dart';
 import '../widgets/order_summary.dart';
 import 'package:customer_app/features/home/views/notifications_view.dart';
 import 'package:customer_app/features/orders/views/transaction_details_view.dart';
+import '../../home/widgets/app_bottom_nav.dart';
 
 class OrderApprovedView extends StatefulWidget {
   final int orderId;
@@ -65,6 +66,7 @@ class _OrderApprovedViewState extends State<OrderApprovedView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.cardBg,
+      bottomNavigationBar: buildAppBottomNav(context, 1),
       body: SingleChildScrollView(
         child: Column(
           children: [

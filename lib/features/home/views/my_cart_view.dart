@@ -7,6 +7,7 @@ import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/utils/location_helper.dart';
 import 'notifications_view.dart';
+import '../widgets/app_bottom_nav.dart';
 
 /// "My Cart" screen — matches Figma design "سلتي الحالية" (My Basket).
 ///
@@ -80,6 +81,7 @@ class _MyCartViewState extends State<MyCartView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.cardBg,
+      bottomNavigationBar: buildAppBottomNav(context, 0),
       body: Column(
         children: [
           AppHeader(
@@ -177,17 +179,21 @@ class _MyCartViewState extends State<MyCartView> {
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
+                    children: [
                       Text(
                         'Calculate Total price',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: AppColors.textOnPrimary,
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
                         ),
                       ),
-                      SizedBox(width: AppSizes.sm),
-                      Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                      const SizedBox(width: AppSizes.sm),
+                      Icon(
+                        Icons.arrow_forward,
+                        color: AppColors.textOnPrimary,
+                        size: 20,
+                      ),
                     ],
                   ),
                 ),

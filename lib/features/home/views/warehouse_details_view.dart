@@ -1,5 +1,3 @@
-import 'package:customer_app/features/auth/views/change_password_view.dart';
-import 'package:customer_app/features/auth/views/profile_view.dart';
 import 'package:customer_app/features/home/views/my_cart_view.dart';
 import 'package:customer_app/features/home/views/notifications_view.dart';
 import 'package:customer_app/features/home/widgets/app_header_out.dart';
@@ -11,6 +9,8 @@ import '../../../controllers/warehouse_details_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/theme/theme_controller.dart';
+import '../widgets/app_bottom_nav.dart';
+import '../widgets/app_drawer.dart';
 
 /// "Warehouse Details" screen — products grid for a specific warehouse.
 ///
@@ -81,107 +81,114 @@ class _WarehouseDetailsViewState extends State<WarehouseDetailsView> {
       builder: (context, _) {
         context.locale;
         return Scaffold(
-      backgroundColor: const Color(0xFFFDFBF8),
-      // (كانت const سابقاً) — إزالة const ضرورية حتى يُعاد بناء الـDrawer
-      // فعلياً (بألوانه ونصوصه المترجمة) عند كل إعادة بناء للصفحة الناتجة عن
-      // تبديل الـTheme أو اللغة، بدل أن يبقى Flutter يعيد استخدام نفس الكائن
-      // الثابت (const) دون تحديث محتواه.
-      drawer: _AppDrawer(),
-      // Floating cart button — bottom-right (matches project's navy/orange palette)
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => MyCartView(warehouseId: widget.warehouseId),
-          ),
-        ),
-        backgroundColor: AppColors.iconColor,
-        child: const Icon(Icons.shopping_cart_outlined, color: Colors.white),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      body: CustomScrollView(
-        slivers: [
-          // Header — the menu icon (left) opens the drawer, the bell (right)
-          // navigates to notifications. We wrap the shared CustomAppHeader
-          // and overlay invisible tap targets to intercept the icon taps
-          // without modifying the shared widget's API.
-          SliverToBoxAdapter(
-            child: _WarehouseHeader(
-              title: widget.title,
-              location: widget.location,
-              showFilter: false,
+          backgroundColor: AppColors.cardBg,
+          // (كانت const سابقاً) — إزالة const ضرورية حتى يُعاد بناء الـDrawer
+          // فعلياً (بألوانه ونصوصه المترجمة) عند كل إعادة بناء للصفحة الناتجة عن
+          // تبديل الـTheme أو اللغة، بدل أن يبقى Flutter يعيد استخدام نفس الكائن
+          // الثابت (const) دون تحديث محتواه.
+          drawer: const AppDrawer(),
+          // Floating cart button — bottom-right (matches project's navy/orange palette)
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => MyCartView(warehouseId: widget.warehouseId),
+              ),
+            ),
+            backgroundColor: AppColors.iconColor,
+            child: const Icon(
+              Icons.shopping_cart_outlined,
+              color: Colors.white,
             ),
           ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+          bottomNavigationBar: buildAppBottomNav(context, 0),
+          body: CustomScrollView(
+            slivers: [
+              // Header — the menu icon (left) opens the drawer, the bell (right)
+              // navigates to notifications. We wrap the shared CustomAppHeader
+              // and overlay invisible tap targets to intercept the icon taps
+              // without modifying the shared widget's API.
+              SliverToBoxAdapter(
+                child: _WarehouseHeader(
+                  title: widget.title,
+                  location: widget.location,
+                  showFilter: false,
+                ),
+              ),
 
-          // حالة التحميل
-          if (_controller.isLoadingProducts)
-            SliverFillRemaining(
-              child: Center(
-                child: CircularProgressIndicator(color: AppColors.primary),
-              ),
-            )
-          // حالة الخطأ
-          else if (_controller.productsError != null)
-            SliverFillRemaining(
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      _controller.productsError!,
-                      style: AppTextStyles.bodySmall,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 12),
-                    OutlinedButton(
-                      onPressed: _controller.loadProducts,
-                      child: Text('common.try_again'.tr()),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          // حالة القائمة فاضية
-          else if (_controller.products.isEmpty)
-            SliverFillRemaining(
-              child: Center(child: Text('home.no_products_in_warehouse'.tr())),
-            )
-          // القائمة الحقيقية
-          else
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 96),
-              sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.75,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                ),
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final p = _controller.products[index];
-                  return ProductCard(
-                    name: p.name,
-                    price: '\$ ${p.sellingPrice.toStringAsFixed(2)}',
-                    image: "assets/image/Glazed Donuts.png",
-                    networkImage: p.mainImage,
-                    isAdding: _addingProductId == p.id,
-                    onAddToCart: () => _onAddToCart(p.id),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ProductDetailsView(
-                          warehouseId: widget.warehouseId,
-                          productId: p.id,
+              // حالة التحميل
+              if (_controller.isLoadingProducts)
+                SliverFillRemaining(
+                  child: Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  ),
+                )
+              // حالة الخطأ
+              else if (_controller.productsError != null)
+                SliverFillRemaining(
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _controller.productsError!,
+                          style: AppTextStyles.bodySmall,
+                          textAlign: TextAlign.center,
                         ),
-                      ),
+                        const SizedBox(height: 12),
+                        OutlinedButton(
+                          onPressed: _controller.loadProducts,
+                          child: Text('common.try_again'.tr()),
+                        ),
+                      ],
                     ),
-                  );
-                }, childCount: _controller.products.length),
-              ),
-            ),
-        ],
-      ),
-    );
+                  ),
+                )
+              // حالة القائمة فاضية
+              else if (_controller.products.isEmpty)
+                SliverFillRemaining(
+                  child: Center(
+                    child: Text('home.no_products_in_warehouse'.tr()),
+                  ),
+                )
+              // القائمة الحقيقية
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 96),
+                  sliver: SliverGrid(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.75,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                        ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final p = _controller.products[index];
+                      return ProductCard(
+                        name: p.name,
+                        price: '\$ ${p.sellingPrice.toStringAsFixed(2)}',
+                        image: "assets/image/Glazed Donuts.png",
+                        networkImage: p.mainImage,
+                        isAdding: _addingProductId == p.id,
+                        onAddToCart: () => _onAddToCart(p.id),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ProductDetailsView(
+                              warehouseId: widget.warehouseId,
+                              productId: p.id,
+                            ),
+                          ),
+                        ),
+                      );
+                    }, childCount: _controller.products.length),
+                  ),
+                ),
+            ],
+          ),
+        );
       },
     );
   }
@@ -240,157 +247,6 @@ class _WarehouseHeader extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-/// Application Drawer — flat list matching Figma "Aside - Navigation Drawer".
-///
-/// Layout (top → bottom):
-///   Profile
-///   Change Password
-///   Wallet
-///   Light
-///   English
-///   ─────── (divider)
-///   Logout  (red)
-///
-/// Background: cream `AppColors.cardBg`. Items use the project's
-/// `AppColors.textPrimary` for label color and `AppColors.iconColor`
-/// for icons — matching the rest of the app's palette.
-class _AppDrawer extends StatelessWidget {
-  const _AppDrawer();
-
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      backgroundColor: AppColors.cardBg,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topRight: Radius.circular(0),
-          bottomRight: Radius.circular(0),
-        ),
-      ),
-      child: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          children: [
-            _DrawerItem(
-              icon: Icons.person_outline,
-              label: 'drawer.profile'.tr(),
-              onTap: () {
-                Navigator.pop(context); // close drawer
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ProfileView()),
-                );
-              },
-            ),
-            _DrawerItem(
-              icon: Icons.lock_outline,
-              label: 'drawer.change_password'.tr(),
-              onTap: () {
-                Navigator.pop(context); // close drawer
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ChangePasswordView()),
-                );
-              },
-            ),
-            _DrawerItem(
-              icon: Icons.account_balance_wallet_outlined,
-              label: 'drawer.wallet'.tr(),
-              onTap: () => Navigator.pop(context),
-            ),
-            // ملاحظة إصلاح: كان هذا البند لا يستدعي ThemeController إطلاقاً
-            // (فقط يغلق الـDrawer) — تم ربطه فعلياً بالتبديل + جعل الأيقونة
-            // والتسمية تعكسان الوضع الحالي (فاتح/غامق) فوراً، بنفس أسلوب
-            // الـDrawer في HomeView.
-            Builder(
-              builder: (drawerContext) => ListenableBuilder(
-                listenable: ThemeController.instance,
-                builder: (context, _) {
-                  final isDark = ThemeController.instance.isDark;
-                  return _DrawerItem(
-                    icon: isDark
-                        ? Icons.dark_mode_outlined
-                        : Icons.light_mode_outlined,
-                    label: isDark ? 'theme.dark'.tr() : 'theme.light'.tr(),
-                    onTap: () {
-                      Navigator.pop(drawerContext);
-                      ThemeController.instance.toggle();
-                    },
-                  );
-                },
-              ),
-            ),
-            // ملاحظة إصلاح: كان هذا البند أيضاً لا يستدعي context.setLocale
-            // إطلاقاً — تم ربطه فعلياً بتبديل اللغة، بنفس أسلوب الـDrawer في
-            // HomeView.
-            _DrawerItem(
-              icon: Icons.language_outlined,
-              label: 'drawer.language'.tr(),
-              onTap: () async {
-                final newLocale = context.locale.languageCode == 'en'
-                    ? const Locale('ar')
-                    : const Locale('en');
-                await context.setLocale(newLocale);
-                if (context.mounted) Navigator.pop(context);
-              },
-            ),
-            const Divider(height: 32, indent: 24, endIndent: 24),
-            _DrawerItem(
-              icon: Icons.logout,
-              label: 'drawer.logout'.tr(),
-              isDestructive: true,
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('drawer.logout_demo'.tr()),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Single drawer menu item — icon + label, with optional destructive style.
-class _DrawerItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  final bool isDestructive;
-
-  const _DrawerItem({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.isDestructive = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final Color color = isDestructive
-        ? const Color(0xFFDC2626)
-        : AppColors.textPrimary;
-    return ListTile(
-      leading: Icon(icon, color: color, size: 24),
-      title: Text(
-        label,
-        style: AppTextStyles.fieldLabel.copyWith(
-          fontSize: 16,
-          color: color,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
     );
   }
 }

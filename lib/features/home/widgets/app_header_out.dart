@@ -40,9 +40,9 @@ class CustomAppHeader extends StatelessWidget {
             textDirection: TextDirection.ltr,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Icon(Icons.menu, color: Colors.white),
-                Icon(Icons.notifications_none, color: Colors.white),
+              children: [
+                Icon(Icons.menu, color: AppColors.textOnPrimary),
+                Icon(Icons.notifications_none, color: AppColors.textOnPrimary),
               ],
             ),
           ),
@@ -51,8 +51,8 @@ class CustomAppHeader extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Text(
               title,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: AppColors.textOnPrimary,
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
               ),
@@ -62,13 +62,18 @@ class CustomAppHeader extends StatelessWidget {
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.location_on_outlined,
-                  color: Colors.white,
+                  color: AppColors.textOnPrimary,
                   size: 16,
                 ),
                 const SizedBox(width: 5),
-                Text(location!, style: const TextStyle(color: Colors.white70)),
+                Text(
+                  location!,
+                  style: TextStyle(
+                    color: AppColors.textOnPrimary.withOpacity(0.7),
+                  ),
+                ),
               ],
             ),
           ],

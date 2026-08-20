@@ -206,7 +206,7 @@ class _ProfileViewState extends State<ProfileView> {
                               label: 'profile.delete_account'.tr(),
                               onPressed: () =>
                                   _showDeleteConfirmDialog(context),
-                              color: Colors.transparent,
+                              color: Colors.white,
                               textColor: const Color(0xFFDC2626),
                               borderColor: const Color(0xFFDC2626),
                               fullWidth: true,
@@ -225,7 +225,11 @@ class _ProfileViewState extends State<ProfileView> {
             left: 20,
             child: IconButton(
               onPressed: () => _safePop(context),
-              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
+              icon: Icon(
+                Icons.arrow_back,
+                color: AppColors.textOnPrimary,
+                size: 28,
+              ),
             ),
           ),
           Positioned(
@@ -242,7 +246,7 @@ class _ProfileViewState extends State<ProfileView> {
                   _loadProfile();
                 }
               },
-              icon: const Icon(Icons.edit, color: Colors.white, size: 24),
+              icon: Icon(Icons.edit, color: AppColors.textOnPrimary, size: 24),
             ),
           ),
         ],

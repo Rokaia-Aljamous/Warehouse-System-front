@@ -8,6 +8,7 @@ import '../../../core/constants/app_text_styles.dart';
 import '../../home/views/home_view.dart';
 import '../models/return_model.dart';
 import 'package:customer_app/features/home/views/notifications_view.dart';
+import '../../home/widgets/app_bottom_nav.dart';
 
 /// Return order detail screen — يجيب المرتجع الحقيقي حسب [returnId] من الباك اند.
 ///
@@ -70,6 +71,7 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
     if (_isLoading) {
       return Scaffold(
         backgroundColor: AppColors.cardBg,
+        bottomNavigationBar: buildAppBottomNav(context, 2),
         body: Center(child: CircularProgressIndicator()),
       );
     }
@@ -77,6 +79,7 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
     if (_returnData == null) {
       return Scaffold(
         backgroundColor: AppColors.cardBg,
+        bottomNavigationBar: buildAppBottomNav(context, 2),
         body: Center(
           child: Text(
             _errorMessage ?? 'errors.unexpected'.tr(),
@@ -91,6 +94,7 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
 
     return Scaffold(
       backgroundColor: AppColors.cardBg,
+      bottomNavigationBar: buildAppBottomNav(context, 2),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -337,6 +341,75 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
     );
   }
 
+  /// نافذة صغيرة (Dialog) تأكّد للمستخدم إنو طلب الإرجاع تم إلغاؤه، بدل ما
+  /// نرجعه لصفحة تفاصيل المرتجع بحالة CANCELLED.
+  void _showCancelSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) => Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSizes.pagePaddingH,
+            AppSizes.xl,
+            AppSizes.pagePaddingH,
+            AppSizes.lg,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: Colors.green.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.check_circle_outline,
+                  color: Colors.green,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: AppSizes.md),
+              Text(
+                'returns.cancel_success'.tr(),
+                textAlign: TextAlign.center,
+                style: AppTextStyles.screenTitle.copyWith(fontSize: 18),
+              ),
+              const SizedBox(height: AppSizes.xl),
+              SizedBox(
+                width: double.infinity,
+                height: AppSizes.buttonHeight,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        AppSizes.buttonBorderRadius,
+                      ),
+                    ),
+                  ),
+                  child: Text(
+                    'common.close'.tr(),
+                    style: TextStyle(
+                      color: AppColors.textOnPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   void _showCancelDialog(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -401,11 +474,16 @@ class _ReturnDetailViewState extends State<ReturnDetailView> {
                 if (!mounted) return;
                 setState(() => _isCancelling = false);
                 if (ok) {
-                  await _load();
-                  if (!mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('returns.cancel_success'.tr())),
-                  );
+                  // نرجع لصفحة القائمة (Pending) بدل ما نعيد تحميل هاي
+                  // الصفحة ونعرضها بحالة CANCELLED، ونظهر بدالها نافذة
+                  // صغيرة تأكيدية بس. بنبعت (true) مع الـ pop حتى تعرف
+                  // صفحة "My Returns" إنو لازم تعيد تحميل القائمة من
+                  // الباك اند (لأن ReturnDetailView عنده نسخة منفصلة من
+                  // ReturnsController، فتحديثها ما بينعكس تلقائياً على
+                  // قائمة My Returns بدون هاي الإشارة).
+                  final navigator = Navigator.of(context);
+                  navigator.pop(true);
+                  _showCancelSuccessDialog(navigator.context);
                 } else {
                   setState(() {
                     _errorMessage =
@@ -516,9 +594,9 @@ class _WarehouseCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(AppSizes.md),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: AppColors.cardFixedBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primary),
+        border: Border.all(color: AppColors.borderFocused),
       ),
       child: Row(
         children: [

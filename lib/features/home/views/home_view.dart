@@ -1,4 +1,3 @@
-import 'package:customer_app/features/auth/views/change_password_view.dart';
 import 'package:customer_app/core/theme/theme_controller.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:customer_app/features/auth/views/profile_view.dart';
@@ -15,6 +14,7 @@ import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../widgets/WarehouseCard.dart';
 import '../widgets/app_bottom_nav.dart'; // تأكدي من استيراد ملف الشريط
+import '../widgets/app_drawer.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -50,134 +50,136 @@ class _HomeViewState extends State<HomeView> {
       builder: (context, _) {
         context.locale;
         return Scaffold(
-      backgroundColor: AppColors.cardBg,
-      // ── Drawer (new) ────────────────────────────────────────────────
-      // (كانت const سابقاً) — إزالة const ضرورية حتى يُعاد بناء الـDrawer
-      // فعلياً (بألوانه ونصوصه المترجمة) عند كل إعادة بناء للصفحة الناتجة عن
-      // تبديل الـTheme أو اللغة، بدل أن يبقى Flutter يعيد استخدام نفس الكائن
-      // الثابت (const) دون تحديث محتواه.
-      drawer: _HomeDrawer(),
-      // لا يوجد زر سلة عام هون — السلة أصبحت خاصة بكل مستودع، وبتوصلها
-      // من جوا شاشة "Warehouse Details" لكل مستودع لحاله.
-      // دمج الشريط هنا
-      bottomNavigationBar: AppBottomNav(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          if (index == _currentIndex)
-            return; // لا تفعل شيئاً إذا كان المستخدم في نفس الصفحة
+          backgroundColor: AppColors.cardBg,
+          // ── Drawer (new) ────────────────────────────────────────────────
+          // (كانت const سابقاً) — إزالة const ضرورية حتى يُعاد بناء الـDrawer
+          // فعلياً (بألوانه ونصوصه المترجمة) عند كل إعادة بناء للصفحة الناتجة عن
+          // تبديل الـTheme أو اللغة، بدل أن يبقى Flutter يعيد استخدام نفس الكائن
+          // الثابت (const) دون تحديث محتواه.
+          drawer: const AppDrawer(),
+          // لا يوجد زر سلة عام هون — السلة أصبحت خاصة بكل مستودع، وبتوصلها
+          // من جوا شاشة "Warehouse Details" لكل مستودع لحاله.
+          // دمج الشريط هنا
+          bottomNavigationBar: AppBottomNav(
+            currentIndex: _currentIndex,
+            onTap: (index) {
+              if (index == _currentIndex)
+                return; // لا تفعل شيئاً إذا كان المستخدم في نفس الصفحة
 
-          setState(() => _currentIndex = index);
+              setState(() => _currentIndex = index);
 
-          // ربط التنقل:
-          switch (index) {
-            case 0:
-              // انتقل للـ Home
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => const HomeView()),
-              );
-              break;
-            case 1:
-              // انتقل للطلبات
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => const MyOrdersView()),
-              );
-              break;
-            case 2:
-              // انتقل للمرتجعات
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => const MyReturnsView()),
-              );
-              break;
-            case 3:
-              // انتقل للبروفايل
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => const ProfileView()),
-              );
-              break;
-          }
-        },
-      ),
-      body: Column(
-        children: [
-          // ── Header wrapper — intercepts the menu (left) and bell (right)
-          // icon taps so the menu opens the Drawer and the bell navigates
-          // to NotificationsView. The shared CustomAppHeader widget itself
-          // is left untouched.
-          _HomeHeader(
-            title: 'app_name'.tr(),
-            showFilter: true,
-            onFilterTap: () async {
-              final result = await showFilterDialog(
-                context,
-                governorates: _homeController.availableGovernorates,
-                currentGovernorate: _homeController.governorateFilter,
-                currentType: _homeController.typeFilter,
-              );
-              if (result != null) {
-                _homeController.applyFilters(
-                  governorate: result['governorate'],
-                  type: result['type'],
-                );
+              // ربط التنقل:
+              switch (index) {
+                case 0:
+                  // انتقل للـ Home
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const HomeView()),
+                  );
+                  break;
+                case 1:
+                  // انتقل للطلبات
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MyOrdersView()),
+                  );
+                  break;
+                case 2:
+                  // انتقل للمرتجعات
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MyReturnsView()),
+                  );
+                  break;
+                case 3:
+                  // انتقل للبروفايل
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ProfileView()),
+                  );
+                  break;
               }
             },
-            onSearchChanged: _homeController.search,
           ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: _homeController.isLoading
-                ? Center(
-                    child: CircularProgressIndicator(color: AppColors.primary),
-                  )
-                : _homeController.errorMessage != null
-                ? Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          _homeController.errorMessage!,
+          body: Column(
+            children: [
+              // ── Header wrapper — intercepts the menu (left) and bell (right)
+              // icon taps so the menu opens the Drawer and the bell navigates
+              // to NotificationsView. The shared CustomAppHeader widget itself
+              // is left untouched.
+              _HomeHeader(
+                title: 'app_name'.tr(),
+                showFilter: true,
+                onFilterTap: () async {
+                  final result = await showFilterDialog(
+                    context,
+                    governorates: _homeController.availableGovernorates,
+                    currentGovernorate: _homeController.governorateFilter,
+                    currentType: _homeController.typeFilter,
+                  );
+                  if (result != null) {
+                    _homeController.applyFilters(
+                      governorate: result['governorate'],
+                      type: result['type'],
+                    );
+                  }
+                },
+                onSearchChanged: _homeController.search,
+              ),
+              const SizedBox(height: 20),
+              Expanded(
+                child: _homeController.isLoading
+                    ? Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
+                        ),
+                      )
+                    : _homeController.errorMessage != null
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              _homeController.errorMessage!,
+                              style: AppTextStyles.bodySmall,
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: AppSizes.md),
+                            OutlinedButton(
+                              onPressed: _homeController.loadWarehouses,
+                              child: Text('common.try_again'.tr()),
+                            ),
+                          ],
+                        ),
+                      )
+                    : _homeController.warehouses.isEmpty
+                    ? Center(
+                        child: Text(
+                          'common.no_results'.tr(),
                           style: AppTextStyles.bodySmall,
-                          textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: AppSizes.md),
-                        OutlinedButton(
-                          onPressed: _homeController.loadWarehouses,
-                          child: Text('common.try_again'.tr()),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.only(
+                          left: 24,
+                          right: 24,
+                          bottom: 24,
                         ),
-                      ],
-                    ),
-                  )
-                : _homeController.warehouses.isEmpty
-                ? Center(
-                    child: Text(
-                      'common.no_results'.tr(),
-                      style: AppTextStyles.bodySmall,
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.only(
-                      left: 24,
-                      right: 24,
-                      bottom: 24,
-                    ),
-                    itemCount: _homeController.warehouses.length,
-                    itemBuilder: (_, index) {
-                      final w = _homeController.warehouses[index];
-                      return WarehouseCard(
-                        warehouseId: w.id,
-                        title: w.warehouseName,
-                        location: '${w.governorate}, ${w.location}',
-                        warehouseType: w.type,
-                      );
-                    },
-                  ),
+                        itemCount: _homeController.warehouses.length,
+                        itemBuilder: (_, index) {
+                          final w = _homeController.warehouses[index];
+                          return WarehouseCard(
+                            warehouseId: w.id,
+                            title: w.warehouseName,
+                            location: '${w.governorate}, ${w.location}',
+                            warehouseType: w.type,
+                          );
+                        },
+                      ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        );
       },
     );
   }
@@ -234,144 +236,6 @@ class _HomeHeader extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-/// Home Drawer — same flat list style as WarehouseDetailsView's drawer.
-/// Items: Profile, Change Password, Wallet, Light, English, divider, Logout.
-class _HomeDrawer extends StatelessWidget {
-  const _HomeDrawer();
-
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      backgroundColor: AppColors.cardBg,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topRight: Radius.circular(0),
-          bottomRight: Radius.circular(0),
-        ),
-      ),
-      child: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          children: [
-            _DrawerItem(
-              icon: Icons.person_outline,
-              label: 'drawer.profile'.tr(),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ProfileView()),
-                );
-              },
-            ),
-            _DrawerItem(
-              icon: Icons.lock_outline,
-              label: 'drawer.change_password'.tr(),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ChangePasswordView()),
-                );
-              },
-            ),
-            _DrawerItem(
-              icon: Icons.account_balance_wallet_outlined,
-              label: 'drawer.wallet'.tr(),
-              onTap: () => Navigator.pop(context),
-            ),
-            Builder(
-              builder: (drawerContext) => ListenableBuilder(
-                listenable: ThemeController.instance,
-                builder: (context, _) {
-                  final isDark = ThemeController.instance.isDark;
-                  return _DrawerItem(
-                    icon: isDark
-                        ? Icons.dark_mode_outlined
-                        : Icons.light_mode_outlined,
-                    // بند 4 من الطلب: التسمية نفسها يجب أن تعكس الوضع الحالي
-                    // (فاتح/Light في Light Mode، غامق/Dark في Dark Mode) وليس
-                    // فقط الأيقونة. تعتمد على مفتاحي الترجمة 'theme.light' و
-                    // 'theme.dark' — تأكد من إضافتهما في
-                    // assets/translations/en.json و ar.json إن لم يكونا
-                    // موجودين مسبقاً (بالقيم: Light/Dark وفاتح/غامق).
-                    label: isDark ? 'theme.dark'.tr() : 'theme.light'.tr(),
-                    onTap: () {
-                      Navigator.pop(drawerContext);
-                      ThemeController.instance.toggle();
-                    },
-                  );
-                },
-              ),
-            ),
-            _DrawerItem(
-              icon: Icons.language_outlined,
-              label: 'drawer.language'.tr(),
-              onTap: () async {
-                final newLocale = context.locale.languageCode == 'en'
-                    ? const Locale('ar')
-                    : const Locale('en');
-                await context.setLocale(newLocale);
-                if (context.mounted) Navigator.pop(context);
-              },
-            ),
-            const Divider(height: 32, indent: 24, endIndent: 24),
-            _DrawerItem(
-              icon: Icons.logout,
-              label: 'drawer.logout'.tr(),
-              isDestructive: true,
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('drawer.logout_demo'.tr()),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Single drawer menu item — icon + label, with optional destructive style.
-class _DrawerItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  final bool isDestructive;
-
-  const _DrawerItem({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.isDestructive = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final Color color = isDestructive
-        ? const Color(0xFFDC2626)
-        : AppColors.textPrimary;
-    return ListTile(
-      leading: Icon(icon, color: color, size: 24),
-      title: Text(
-        label,
-        style: AppTextStyles.fieldLabel.copyWith(
-          fontSize: 16,
-          color: color,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
     );
   }
 }

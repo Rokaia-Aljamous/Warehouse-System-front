@@ -7,6 +7,7 @@ import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../models/return_model.dart';
 import 'package:customer_app/features/home/views/notifications_view.dart';
+import '../../home/widgets/app_bottom_nav.dart';
 
 /// Archived return order detail screen — يجيب المرتجع الحقيقي حسب [returnId].
 /// بيستخدم لحالات: return_to_stock / damaged (تمت الموافقة والاسترجاع فعلياً)
@@ -54,6 +55,7 @@ class _ArchivedDetailViewState extends State<ArchivedDetailView> {
     if (_isLoading) {
       return Scaffold(
         backgroundColor: AppColors.cardBg,
+        bottomNavigationBar: buildAppBottomNav(context, 2),
         body: Center(child: CircularProgressIndicator()),
       );
     }
@@ -61,6 +63,7 @@ class _ArchivedDetailViewState extends State<ArchivedDetailView> {
     if (_returnData == null) {
       return Scaffold(
         backgroundColor: AppColors.cardBg,
+        bottomNavigationBar: buildAppBottomNav(context, 2),
         body: Center(
           child: Text(
             _errorMessage ?? 'errors.unexpected'.tr(),
@@ -77,6 +80,7 @@ class _ArchivedDetailViewState extends State<ArchivedDetailView> {
 
     return Scaffold(
       backgroundColor: AppColors.cardBg,
+      bottomNavigationBar: buildAppBottomNav(context, 2),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,9 +218,9 @@ class _ArchivedWarehouseCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(AppSizes.md),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: AppColors.cardFixedBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primary),
+        border: Border.all(color: AppColors.borderFocused),
       ),
       child: Row(
         children: [

@@ -11,6 +11,7 @@ import '../../../core/constants/app_text_styles.dart';
 import '../widgets/order_item_card.dart';
 import '../widgets/order_summary.dart';
 import 'package:customer_app/features/home/views/notifications_view.dart';
+import '../../home/widgets/app_bottom_nav.dart';
 
 class InShippingView extends StatefulWidget {
   final int orderId;
@@ -488,6 +489,7 @@ class _InShippingViewState extends State<InShippingView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.cardBg,
+      bottomNavigationBar: buildAppBottomNav(context, 1),
       body: SingleChildScrollView(
         child: Column(
           children: [

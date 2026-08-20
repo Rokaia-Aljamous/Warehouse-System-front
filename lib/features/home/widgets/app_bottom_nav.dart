@@ -1,5 +1,52 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../home/views/home_view.dart';
+import '../../orders/views/my_orders_view.dart';
+import '../../return/views/myReturnsView.dart';
+import '../../auth/views/profile_view.dart';
+
+/// شريط التنقل السفلي الموحّد — يُستخدم بكل الشاشات يلي بعد تسجيل الدخول
+/// (مو بس الشاشات الأربعة الرئيسية)، حتى يضل المستخدم قادر يتنقل بين
+/// التابات وهو داخل أي شاشة فرعية (تفاصيل مستودع، تفاصيل منتج، سلة،
+/// تفاصيل طلبية، تفاصيل مرتجع...الخ).
+///
+/// [currentIndex] هو التاب يلي الشاشة الحالية تابعة له منطقياً:
+/// 0 = الهوم، 1 = الطلبات، 2 = المرتجعات، 3 = البروفايل.
+/// الضغط على أي تاب تانِ غير الحالي بيعمل pushReplacement لجذر ذلك التاب.
+Widget buildAppBottomNav(BuildContext context, int currentIndex) {
+  return AppBottomNav(
+    currentIndex: currentIndex,
+    onTap: (index) {
+      if (index == currentIndex) return;
+      switch (index) {
+        case 0:
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const HomeView()),
+          );
+          break;
+        case 1:
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const MyOrdersView()),
+          );
+          break;
+        case 2:
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const MyReturnsView()),
+          );
+          break;
+        case 3:
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const ProfileView()),
+          );
+          break;
+      }
+    },
+  );
+}
 
 class AppBottomNav extends StatelessWidget {
   final int currentIndex;

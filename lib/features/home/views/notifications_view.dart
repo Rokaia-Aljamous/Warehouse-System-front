@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_text_styles.dart';
+import '../widgets/app_bottom_nav.dart';
 
 /// "Notifications" screen — matches Figma design "اشعاراتي".
 ///
@@ -58,6 +59,7 @@ class NotificationsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.cardBg,
+      bottomNavigationBar: buildAppBottomNav(context, 0),
       body: Column(
         children: [
           AppHeader(

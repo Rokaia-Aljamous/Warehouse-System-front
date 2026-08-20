@@ -11,7 +11,16 @@ import 'return_detail_view.dart';
 class PendingReturnsScreen extends StatelessWidget {
   final List<ReturnModel> returns;
 
-  const PendingReturnsScreen({super.key, required this.returns});
+  /// بينادى لما نرجع من صفحة تفاصيل مرتجع بعد ما صار فيها تغيير فعلي
+  /// (متل إلغاء الطلب)، حتى تعيد صفحة "My Returns" تحميل القائمة من
+  /// الباك اند وينتقل الطلب تلقائياً لتبويب Archived.
+  final VoidCallback? onReturnUpdated;
+
+  const PendingReturnsScreen({
+    super.key,
+    required this.returns,
+    this.onReturnUpdated,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,12 +39,15 @@ class PendingReturnsScreen extends StatelessWidget {
         final item = returns[index];
         return _PendingReturnCard(
           data: item,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ReturnDetailView(returnId: item.id),
-            ),
-          ),
+          onTap: () async {
+            final updated = await Navigator.push<bool>(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ReturnDetailView(returnId: item.id),
+              ),
+            );
+            if (updated == true) onReturnUpdated?.call();
+          },
         );
       },
     );
@@ -67,7 +79,7 @@ class _PendingReturnCard extends StatelessWidget {
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: AppSizes.md),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: AppColors.cardFixedBg,
         borderRadius: _radius,
         border: Border.all(color: AppColors.borderFocused, width: 1),
         boxShadow: [
@@ -95,7 +107,10 @@ class _PendingReturnCard extends StatelessWidget {
                   children: [
                     Text(
                       'returns.return_number'.tr(args: [data.id.toString()]),
-                      style: AppTextStyles.screenTitle.copyWith(fontSize: 18),
+                      style: AppTextStyles.screenTitle.copyWith(
+                        fontSize: 18,
+                        color: AppColors.cardFixedAccent,
+                      ),
                     ),
                     const _UnderReviewBadge(),
                   ],
@@ -131,13 +146,13 @@ class _PendingReturnCard extends StatelessWidget {
                         Text(
                           'common.view_details'.tr(),
                           style: AppTextStyles.fieldLabel.copyWith(
-                            color: AppColors.primary,
+                            color: AppColors.cardFixedAccent,
                           ),
                         ),
                         Icon(
                           Icons.chevron_right,
                           size: 16,
-                          color: AppColors.primary,
+                          color: AppColors.cardFixedAccent,
                         ),
                       ],
                     ),

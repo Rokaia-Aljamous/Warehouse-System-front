@@ -15,6 +15,7 @@ import '../repositories/auth_repository.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_text_field.dart';
 import '../../../core/theme/theme_controller.dart';
+import '../../home/widgets/app_bottom_nav.dart';
 
 /// "Edit Profile" screen — matches Figma design "تعديل بروفايل".
 ///
@@ -124,9 +125,9 @@ class _EditProfileViewState extends State<EditProfileView> {
       firstDate: DateTime(1950),
       lastDate: DateTime.now(),
       builder: (context, child) => Theme(
-        data: Theme.of(context).copyWith(
-          colorScheme: ColorScheme.light(primary: AppColors.primary),
-        ),
+        data: Theme.of(
+          context,
+        ).copyWith(colorScheme: ColorScheme.light(primary: AppColors.primary)),
         child: child!,
       ),
     );
@@ -185,146 +186,155 @@ class _EditProfileViewState extends State<EditProfileView> {
       builder: (context, _) {
         context.locale;
         return Scaffold(
-      backgroundColor: AppColors.primary,
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                const SizedBox(height: 120),
-                // Cream rounded card — same style as RegisterView.
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: AppColors.cardBg,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(AppSizes.cardBorderRadius),
-                      topRight: Radius.circular(AppSizes.cardBorderRadius),
-                    ),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSizes.pagePaddingH,
-                    vertical: AppSizes.xl,
-                  ),
-                  child: _isLoading
-                      ? const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 60),
-                          child: Center(child: CircularProgressIndicator()),
-                        )
-                      : Column(
-                          children: [
-                            Text(
-                              'profile.edit_title'.tr(),
-                              style: AppTextStyles.screenTitle,
-                            ),
-                            const SizedBox(height: AppSizes.lg),
-                            // ── Image upload (Register-style) ─────────
-                            _buildImageUpload(),
-                            const SizedBox(height: AppSizes.sm),
-                            Text(
-                              _fullNameCtrl.text.isEmpty
-                                  ? ' '
-                                  : _fullNameCtrl.text,
-                              style: AppTextStyles.screenTitle.copyWith(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: AppSizes.xl),
-
-                            if (_errorMessage != null) ...[
-                              Text(
-                                _errorMessage!,
-                                textAlign: TextAlign.center,
-                                style: AppTextStyles.bodySmall.copyWith(
-                                  color: const Color(0xFFDC2626),
-                                ),
-                              ),
-                              const SizedBox(height: AppSizes.md),
-                            ],
-
-                            // ── Editable fields ────────────────────────
-                            AppTextField(
-                              label: 'profile.full_name_label'.tr(),
-                              hint: 'auth.full_name_hint'.tr(),
-                              icon: Icons.person_outline,
-                              controller: _fullNameCtrl,
-                            ),
-                            const SizedBox(height: 16),
-                            AppTextField(
-                              label: 'auth.email_label'.tr(),
-                              hint: 'auth.email_hint'.tr(),
-                              icon: Icons.email_outlined,
-                              controller: _emailCtrl,
-                              keyboardType: TextInputType.emailAddress,
-                              // Backend rejects changes to email, so keep
-                              // it read-only here.
-                              validator: null,
-                            ),
-                            const SizedBox(height: 16),
-                            AppTextField(
-                              label: 'auth.phone_number'.tr(),
-                              hint: 'auth.phone_hint'.tr(),
-                              icon: Icons.phone_outlined,
-                              controller: _phoneCtrl,
-                              keyboardType: TextInputType.phone,
-                            ),
-                            const SizedBox(height: 16),
-                            AppTextField(
-                              label: 'auth.birthday'.tr(),
-                              hint: 'auth.birthday_hint'.tr(),
-                              icon: Icons.cake_outlined,
-                              controller: _birthdayCtrl,
-                              suffixIcon: IconButton(
-                                icon: const Icon(
-                                  Icons.calendar_today_outlined,
-                                  color: AppColors.textHint,
-                                  size: 18,
-                                ),
-                                onPressed: _pickBirthday,
-                              ),
-                            ),
-
-                            const SizedBox(height: AppSizes.lg),
-                            // ── Save Changes button ────────────────────
-                            AppButton(
-                              label: _isSaving
-                                  ? 'profile.saving'.tr()
-                                  : 'profile.save_changes'.tr(),
-                              onPressed: _isSaving ? () {} : _saveChanges,
-                              color: AppColors.primary,
-                              textColor: AppColors.textOnPrimary,
-                              borderColor: AppColors.primary,
-                              fullWidth: true,
-                            ),
-                            const SizedBox(height: AppSizes.xl),
-                          ],
+          backgroundColor: AppColors.primary,
+          bottomNavigationBar: buildAppBottomNav(context, 3),
+          body: Stack(
+            children: [
+              SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 120),
+                    // Cream rounded card — same style as RegisterView.
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: AppColors.cardBg,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(AppSizes.cardBorderRadius),
+                          topRight: Radius.circular(AppSizes.cardBorderRadius),
                         ),
-                ),
-              ],
-            ),
-          ),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSizes.pagePaddingH,
+                        vertical: AppSizes.xl,
+                      ),
+                      child: _isLoading
+                          ? const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 60),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                          : Column(
+                              children: [
+                                Text(
+                                  'profile.edit_title'.tr(),
+                                  style: AppTextStyles.screenTitle,
+                                ),
+                                const SizedBox(height: AppSizes.lg),
+                                // ── Image upload (Register-style) ─────────
+                                _buildImageUpload(),
+                                const SizedBox(height: AppSizes.sm),
+                                Text(
+                                  _fullNameCtrl.text.isEmpty
+                                      ? ' '
+                                      : _fullNameCtrl.text,
+                                  style: AppTextStyles.screenTitle.copyWith(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: AppSizes.xl),
 
-          // ── Top: back arrow (left) + close X (right) ──────────────
-          Positioned(
-            top: 50,
-            left: 20,
-            child: IconButton(
-              onPressed: () => Navigator.pop(context, false),
-              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
-            ),
+                                if (_errorMessage != null) ...[
+                                  Text(
+                                    _errorMessage!,
+                                    textAlign: TextAlign.center,
+                                    style: AppTextStyles.bodySmall.copyWith(
+                                      color: const Color(0xFFDC2626),
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppSizes.md),
+                                ],
+
+                                // ── Editable fields ────────────────────────
+                                AppTextField(
+                                  label: 'profile.full_name_label'.tr(),
+                                  hint: 'auth.full_name_hint'.tr(),
+                                  icon: Icons.person_outline,
+                                  controller: _fullNameCtrl,
+                                ),
+                                const SizedBox(height: 16),
+                                AppTextField(
+                                  label: 'auth.email_label'.tr(),
+                                  hint: 'auth.email_hint'.tr(),
+                                  icon: Icons.email_outlined,
+                                  controller: _emailCtrl,
+                                  keyboardType: TextInputType.emailAddress,
+                                  // Backend rejects changes to email, so keep
+                                  // it read-only here.
+                                  validator: null,
+                                ),
+                                const SizedBox(height: 16),
+                                AppTextField(
+                                  label: 'auth.phone_number'.tr(),
+                                  hint: 'auth.phone_hint'.tr(),
+                                  icon: Icons.phone_outlined,
+                                  controller: _phoneCtrl,
+                                  keyboardType: TextInputType.phone,
+                                ),
+                                const SizedBox(height: 16),
+                                AppTextField(
+                                  label: 'auth.birthday'.tr(),
+                                  hint: 'auth.birthday_hint'.tr(),
+                                  icon: Icons.cake_outlined,
+                                  controller: _birthdayCtrl,
+                                  suffixIcon: IconButton(
+                                    icon: const Icon(
+                                      Icons.calendar_today_outlined,
+                                      color: AppColors.textHint,
+                                      size: 18,
+                                    ),
+                                    onPressed: _pickBirthday,
+                                  ),
+                                ),
+
+                                const SizedBox(height: AppSizes.lg),
+                                // ── Save Changes button ────────────────────
+                                AppButton(
+                                  label: _isSaving
+                                      ? 'profile.saving'.tr()
+                                      : 'profile.save_changes'.tr(),
+                                  onPressed: _isSaving ? () {} : _saveChanges,
+                                  color: AppColors.primary,
+                                  textColor: AppColors.textOnPrimary,
+                                  borderColor: AppColors.primary,
+                                  fullWidth: true,
+                                ),
+                                const SizedBox(height: AppSizes.xl),
+                              ],
+                            ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // ── Top: back arrow (left) + close X (right) ──────────────
+              Positioned(
+                top: 50,
+                left: 20,
+                child: IconButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: AppColors.textOnPrimary,
+                    size: 28,
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 50,
+                right: 20,
+                child: IconButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  icon: Icon(
+                    Icons.close,
+                    color: AppColors.textOnPrimary,
+                    size: 28,
+                  ),
+                ),
+              ),
+            ],
           ),
-          Positioned(
-            top: 50,
-            right: 20,
-            child: IconButton(
-              onPressed: () => Navigator.pop(context, false),
-              icon: const Icon(Icons.close, color: Colors.white, size: 28),
-            ),
-          ),
-        ],
-      ),
-    );
+        );
       },
     );
   }
@@ -357,11 +367,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                         : null),
             ),
             child: (_pickedImage == null && _currentImageUrl == null)
-                ? Icon(
-                    Icons.image_outlined,
-                    color: AppColors.primary,
-                    size: 36,
-                  )
+                ? Icon(Icons.image_outlined, color: AppColors.primary, size: 36)
                 : null,
           ),
           Positioned(

@@ -223,7 +223,11 @@ class _ForgotPasswordWaitViewState extends State<ForgotPasswordWaitView> {
             left: 20,
             child: IconButton(
               onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
+              icon: Icon(
+                Icons.arrow_back,
+                color: AppColors.textOnPrimary,
+                size: 28,
+              ),
             ),
           ),
         ],

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../controllers/product_details_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
+import '../widgets/app_bottom_nav.dart';
 
 class ProductDetailsView extends StatefulWidget {
   final int warehouseId;
@@ -62,6 +63,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
         body: Center(
           child: CircularProgressIndicator(color: AppColors.primary),
         ),
+        bottomNavigationBar: buildAppBottomNav(context, 0),
       );
     }
 
@@ -69,6 +71,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
     if (_controller.errorMessage != null) {
       return Scaffold(
         appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
+        bottomNavigationBar: buildAppBottomNav(context, 0),
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -93,6 +96,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
 
     return Scaffold(
       backgroundColor: AppColors.cardBg,
+      bottomNavigationBar: buildAppBottomNav(context, 0),
       body: Column(
         children: [
           // 1. القسم العلوي
@@ -115,7 +119,10 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                   top: 50,
                   left: 20,
                   child: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    icon: Icon(
+                      Icons.arrow_back,
+                      color: AppColors.textOnPrimary,
+                    ),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ),
@@ -167,10 +174,10 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                     Expanded(
                       child: Text(
                         product.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
+                          color: AppColors.textOnCard,
                         ),
                       ),
                     ),
@@ -186,20 +193,29 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                       child: Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.remove, size: 18),
+                            icon: Icon(
+                              Icons.remove,
+                              size: 18,
+                              color: AppColors.cardFixedAccent,
+                            ),
                             onPressed: () => setState(
                               () => quantity > 1 ? quantity-- : null,
                             ),
                           ),
                           Text(
                             "$quantity",
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
+                              color: AppColors.cardFixedAccent,
                             ),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.add, size: 18),
+                            icon: Icon(
+                              Icons.add,
+                              size: 18,
+                              color: AppColors.cardFixedAccent,
+                            ),
                             onPressed: () => setState(() => quantity++),
                           ),
                         ],
@@ -208,13 +224,44 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                if (product.brand != null || product.type != null)
-                  Text(
-                    [
-                      if (product.brand != null) product.brand!,
-                      if (product.type != null) product.type!,
-                    ].join(' • '),
-                    style: AppTextStyles.productDescription,
+                // البراند والنوع صاروا كل وحدة بسطر لحالها مع أيقونة تعبّر
+                // عنها (طلب منفصل عن موضوع الألوان).
+                if (product.brand != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.storefront_outlined,
+                          size: 18,
+                          color: AppColors.textOnCard,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          product.brand!,
+                          style: AppTextStyles.productDescription.copyWith(
+                            color: AppColors.textOnCard,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                if (product.type != null)
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.medication_outlined,
+                        size: 18,
+                        color: AppColors.textOnCard,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        product.type!,
+                        style: AppTextStyles.productDescription.copyWith(
+                          color: AppColors.textOnCard,
+                        ),
+                      ),
+                    ],
                   ),
               ],
             ),
@@ -242,15 +289,15 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                 children: [
                   Text(
                     '\$ ${product.sellingPrice.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: AppColors.textOnPrimary,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
+                      backgroundColor: AppColors.cardFixedAccent,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 40,
                         vertical: 15,
@@ -266,13 +313,13 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                             height: 16,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: AppColors.primary,
+                              color: AppColors.textOnFixedAccent,
                             ),
                           )
                         : Text(
                             'orders.order_now'.tr(),
                             style: TextStyle(
-                              color: AppColors.primary,
+                              color: AppColors.textOnFixedAccent,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

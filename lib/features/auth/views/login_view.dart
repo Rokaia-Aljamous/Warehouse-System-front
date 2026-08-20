@@ -210,6 +210,7 @@ class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
                         onPressed: _onLogin,
                         isLoading: _isLoading,
                         borderColor: AppColors.borderFocused,
+                        color: AppColors.cardFixedBg,
                       ),
                       const SizedBox(height: AppSizes.md),
 
@@ -239,6 +240,7 @@ class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
                         onPressed: _onGoogleLogin,
                         fullWidth: true,
                         borderColor: AppColors.borderFocused,
+                        color: AppColors.cardFixedBg,
                       ),
                       const SizedBox(height: AppSizes.xl),
 

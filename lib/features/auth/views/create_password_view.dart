@@ -194,7 +194,11 @@ class _CreateNewPasswordViewState extends State<CreateNewPasswordView> {
                 MaterialPageRoute(builder: (_) => const LoginView()),
                 (route) => false,
               ),
-              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
+              icon: Icon(
+                Icons.arrow_back,
+                color: AppColors.textOnPrimary,
+                size: 28,
+              ),
             ),
           ),
         ],

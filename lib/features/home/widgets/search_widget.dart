@@ -30,9 +30,12 @@ class SearchAndFilterWidget extends StatelessWidget {
         onChanged: onChanged,
         decoration: InputDecoration(
           hintText: 'common.search'.tr(),
-          prefixIcon: const Icon(Icons.search),
+          prefixIcon: Icon(Icons.search, color: AppColors.cardFixedAccent),
           suffixIcon: showFilter
-              ? IconButton(icon: const Icon(Icons.tune), onPressed: onFilterTap)
+              ? IconButton(
+                  icon: Icon(Icons.tune, color: AppColors.cardFixedAccent),
+                  onPressed: onFilterTap,
+                )
               : null,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 12),

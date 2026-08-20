@@ -85,9 +85,9 @@ class _RegisterViewState extends State<RegisterView> {
       firstDate: DateTime(1950),
       lastDate: DateTime.now(),
       builder: (context, child) => Theme(
-        data: Theme.of(context).copyWith(
-          colorScheme: ColorScheme.light(primary: AppColors.primary),
-        ),
+        data: Theme.of(
+          context,
+        ).copyWith(colorScheme: ColorScheme.light(primary: AppColors.primary)),
         child: child!,
       ),
     );
@@ -174,9 +174,7 @@ class _RegisterViewState extends State<RegisterView> {
                                 !RegExp(r'[A-Z]').hasMatch(value) ||
                                 !RegExp(r'[a-z]').hasMatch(value) ||
                                 !RegExp(r'[0-9]').hasMatch(value) ||
-                                !RegExp(
-                                  r'[^A-Za-z0-9]',
-                                ).hasMatch(value)) {
+                                !RegExp(r'[^A-Za-z0-9]').hasMatch(value)) {
                               return 'auth.password_too_weak'.tr();
                             }
                             return null;
@@ -280,6 +278,7 @@ class _RegisterViewState extends State<RegisterView> {
                           onPressed: _onRegister,
                           isLoading: _isLoading,
                           borderColor: AppColors.borderFocused,
+                          color: AppColors.cardFixedBg,
                         ),
                         const SizedBox(height: AppSizes.lg),
                         Row(
@@ -310,7 +309,11 @@ class _RegisterViewState extends State<RegisterView> {
             left: 20,
             child: IconButton(
               onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
+              icon: Icon(
+                Icons.arrow_back,
+                color: AppColors.textOnPrimary,
+                size: 28,
+              ),
             ),
           ),
         ],

@@ -105,12 +105,14 @@ class _MyReturnsViewState extends State<MyReturnsView>
                 TabBar(
                   controller: _tabController,
 
-                  indicatorColor: Colors.white,
+                  indicatorColor: AppColors.textOnPrimary,
                   indicatorWeight: 2,
                   indicatorSize: TabBarIndicatorSize.label,
 
-                  labelColor: Colors.white,
-                  unselectedLabelColor: const Color(0xFFB8C7E0),
+                  labelColor: AppColors.textOnPrimary,
+                  unselectedLabelColor: AppColors.textOnPrimary.withOpacity(
+                    0.6,
+                  ),
 
                   dividerColor: Colors.transparent,
 
@@ -148,6 +150,7 @@ class _MyReturnsViewState extends State<MyReturnsView>
                   children: [
                     PendingReturnsScreen(
                       returns: _controller.byCategory(ReturnUiCategory.pending),
+                      onReturnUpdated: _controller.loadReturns,
                     ),
                     InProgressReturnsScreen(
                       returns: _controller.byCategory(

@@ -9,6 +9,7 @@ import 'package:customer_app/features/home/views/notifications_view.dart';
 import 'package:customer_app/controllers/payment_controller.dart';
 import 'package:customer_app/features/auth/models/order_payment_model.dart';
 import 'package:customer_app/features/orders/views/paypal_webview_view.dart';
+import '../../home/widgets/app_bottom_nav.dart';
 
 /// شاشة تأكيد ودفع طلبية معتمدة (Approved) عبر PayPal.
 ///
@@ -141,6 +142,7 @@ class _TransactionDetailsViewState extends State<TransactionDetailsView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.cardBg,
+      bottomNavigationBar: buildAppBottomNav(context, 1),
       body: Column(
         children: [
           AppHeader(
