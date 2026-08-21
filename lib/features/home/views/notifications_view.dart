@@ -1,3 +1,5 @@
+import 'package:customer_app/controllers/notification_controller.dart';
+import 'package:customer_app/features/notifications/models/notification_model.dart';
 import 'package:customer_app/features/orders/widgets/app_header_in.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -6,57 +8,50 @@ import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../widgets/app_bottom_nav.dart';
 
-/// "Notifications" screen — matches Figma design "اشعاراتي".
-///
-/// Layout:
-///   AppHeader(title: 'Notification', showBack, showNotification)
-///   "New" section label
-///     - Destruction task assigned: Order #1234 ... 2m ago (unread, green dot)
-///     - New receiving task: Shipment from Supplier X ... 15m ago (unread)
-///   "Earlier" section label
-///     - Storage task: Move 50 units of Product A to Zone B. 2h ago (read, gray dot)
-///     - Inventory check required for Section 4. 5h ago (read)
-///     - System alert: Inventory levels low for Item #5521. Yesterday (read)
-///
-/// Items use no card borders — just spacing and an unread-dot on the left.
-class NotificationsView extends StatelessWidget {
+/// شاشة "إشعاراتي" — بعد التعديل صارت مربوطة فعلياً بـ NotificationController
+/// (بدل البيانات الوهمية الثابتة). القسمين "جديد"/"سابقاً" هلق مبنيين على
+/// isRead الحقيقي القادم من /api/customers/notifications.
+class NotificationsView extends StatefulWidget {
   const NotificationsView({super.key});
 
-  // "New" section items (unread — green dot, white background).
-  static List<_NotificationItem> get _newItems => [
-    _NotificationItem(
-      title: 'notifications.demo_destruction_task'.tr(),
-      time: 'notifications.time_2m_ago'.tr(),
-      isUnread: true,
-    ),
-    _NotificationItem(
-      title: 'notifications.demo_receiving_task'.tr(),
-      time: 'notifications.time_15m_ago'.tr(),
-      isUnread: true,
-    ),
-  ];
+  @override
+  State<NotificationsView> createState() => _NotificationsViewState();
+}
 
-  // "Earlier" section items (read — gray dot).
-  static List<_NotificationItem> get _earlierItems => [
-    _NotificationItem(
-      title: 'notifications.demo_storage_task'.tr(),
-      time: 'notifications.time_2h_ago'.tr(),
-      isUnread: false,
-    ),
-    _NotificationItem(
-      title: 'notifications.demo_inventory_check'.tr(),
-      time: 'notifications.time_5h_ago'.tr(),
-      isUnread: false,
-    ),
-    _NotificationItem(
-      title: 'notifications.demo_system_alert'.tr(),
-      time: 'notifications.time_yesterday'.tr(),
-      isUnread: false,
-    ),
-  ];
+class _NotificationsViewState extends State<NotificationsView> {
+  final _controller = NotificationController.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_onControllerChanged);
+    // أول ما تُفتح الشاشة منجدد القائمة (اشتراك التوكن أصلاً صار بـ HomeView).
+    _controller.refresh();
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_onControllerChanged);
+    super.dispose();
+  }
+
+  void _onControllerChanged() {
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _onNotificationTap(CustomerNotification notification) async {
+    await _controller.markAsRead(notification);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final newItems = _controller.unreadNotifications;
+    final earlierItems = _controller.readNotifications;
+    final isLoading =
+        _controller.isLoading && _controller.notifications.isEmpty;
+    final hasError =
+        _controller.error != null && _controller.notifications.isEmpty;
+
     return Scaffold(
       backgroundColor: AppColors.cardBg,
       bottomNavigationBar: buildAppBottomNav(context, 0),
@@ -72,22 +67,79 @@ class NotificationsView extends StatelessWidget {
             extraBottomPadding: 25,
           ),
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(
-                AppSizes.pagePaddingH,
-                AppSizes.lg,
-                AppSizes.pagePaddingH,
-                AppSizes.xl,
-              ),
-              children: [
-                _SectionLabel(text: 'notifications.new_label'.tr()),
-                const SizedBox(height: AppSizes.sm),
-                ..._newItems.map((item) => _NotificationRow(item: item)),
-                const SizedBox(height: AppSizes.lg),
-                _SectionLabel(text: 'notifications.earlier_label'.tr()),
-                const SizedBox(height: AppSizes.sm),
-                ..._earlierItems.map((item) => _NotificationRow(item: item)),
-              ],
+            child: RefreshIndicator(
+              onRefresh: _controller.refresh,
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : hasError
+                  ? ListView(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSizes.pagePaddingH,
+                        AppSizes.lg,
+                        AppSizes.pagePaddingH,
+                        AppSizes.xl,
+                      ),
+                      children: [
+                        const SizedBox(height: 80),
+                        Center(
+                          child: Text(
+                            'errors.unexpected'.tr(),
+                            style: AppTextStyles.fieldLabel,
+                          ),
+                        ),
+                      ],
+                    )
+                  : newItems.isEmpty && earlierItems.isEmpty
+                  ? ListView(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSizes.pagePaddingH,
+                        AppSizes.lg,
+                        AppSizes.pagePaddingH,
+                        AppSizes.xl,
+                      ),
+                      children: [
+                        const SizedBox(height: 80),
+                        Center(
+                          child: Text(
+                            'notifications.empty'.tr(),
+                            style: AppTextStyles.fieldLabel,
+                          ),
+                        ),
+                      ],
+                    )
+                  : ListView(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSizes.pagePaddingH,
+                        AppSizes.lg,
+                        AppSizes.pagePaddingH,
+                        AppSizes.xl,
+                      ),
+                      children: [
+                        if (newItems.isNotEmpty) ...[
+                          _SectionLabel(text: 'notifications.new_label'.tr()),
+                          const SizedBox(height: AppSizes.sm),
+                          ...newItems.map(
+                            (item) => _NotificationRow(
+                              item: item,
+                              onTap: () => _onNotificationTap(item),
+                            ),
+                          ),
+                          const SizedBox(height: AppSizes.lg),
+                        ],
+                        if (earlierItems.isNotEmpty) ...[
+                          _SectionLabel(
+                            text: 'notifications.earlier_label'.tr(),
+                          ),
+                          const SizedBox(height: AppSizes.sm),
+                          ...earlierItems.map(
+                            (item) => _NotificationRow(
+                              item: item,
+                              onTap: () => _onNotificationTap(item),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
             ),
           ),
         ],
@@ -117,75 +169,66 @@ class _SectionLabel extends StatelessWidget {
 
 /// A single notification row: unread/read dot + title + timestamp.
 class _NotificationRow extends StatelessWidget {
-  final _NotificationItem item;
-  const _NotificationRow({required this.item});
+  final CustomerNotification item;
+  final VoidCallback onTap;
+  const _NotificationRow({required this.item, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSizes.sm),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Unread (green) / Read (gray) indicator dot
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: item.isUnread
-                    ? const Color(0xFF10B981)
-                    : const Color(0xFF9CA3AF),
-                shape: BoxShape.circle,
+    final isUnread = !item.isRead;
+
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSizes.sm),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Unread (green) / Read (gray) indicator dot
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: isUnread
+                      ? const Color(0xFF10B981)
+                      : const Color(0xFF9CA3AF),
+                  shape: BoxShape.circle,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          // Title + timestamp
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.title,
-                  style: AppTextStyles.fieldLabel.copyWith(
-                    fontSize: 15,
-                    fontWeight: item.isUnread
-                        ? FontWeight.w600
-                        : FontWeight.w400,
-                    color: item.isUnread
-                        ? AppColors.textPrimary
-                        : const Color(0xFF6B7280),
-                    height: 1.4,
+            const SizedBox(width: 12),
+            // Title + timestamp
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.displayText,
+                    style: AppTextStyles.fieldLabel.copyWith(
+                      fontSize: 15,
+                      fontWeight: isUnread ? FontWeight.w600 : FontWeight.w400,
+                      color: isUnread
+                          ? AppColors.textPrimary
+                          : const Color(0xFF6B7280),
+                      height: 1.4,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  item.time,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    fontSize: 12,
-                    color: const Color(0xFF9CA3AF),
+                  const SizedBox(height: 4),
+                  Text(
+                    item.relativeTime,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      fontSize: 12,
+                      color: const Color(0xFF9CA3AF),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
-}
-
-/// Simple notification item value holder.
-class _NotificationItem {
-  final String title;
-  final String time;
-  final bool isUnread;
-
-  const _NotificationItem({
-    required this.title,
-    required this.time,
-    required this.isUnread,
-  });
 }

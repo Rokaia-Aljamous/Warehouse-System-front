@@ -9,6 +9,10 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
+    <!-- ✅ الجديد — لازمة لأندرويد 13+ (API 33+) عشان يقدر التطبيق يعرض -->
+    <!-- إشعارات Push فوق الشاشة. بدونها الإشعارات بتوصل بصمت بدون ما تظهر. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
     <application
         android:label="customer_app"
         android:name="${applicationName}"
@@ -53,6 +57,24 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!-- ============================================================ -->
+        <!-- ✅ الجديد — إعدادات إشعارات Push (نفس أسلوب تطبيق العامل)     -->
+        <!-- ============================================================ -->
+
+        <!-- الأيقونة الافتراضية لإشعارات FCM لما يكون التطبيق بالخلفية -->
+        <!-- (لازم نضيف ملف ic_notification.png بمجلدات drawable) -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification" />
+
+        <!-- الـ channel الافتراضي لإشعارات الزبون (نفسه اللي بـ -->
+        <!-- firebase_messaging_manager.dart) -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="warehouse_customer_notifications" />
+        <!-- ============================================================ -->
+
     </application>
 
     <queries>

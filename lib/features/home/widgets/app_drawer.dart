@@ -1,9 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../controllers/notification_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
+import '../../../core/storage/token_storage.dart';
 import '../../../core/theme/theme_controller.dart';
+import '../../auth/repositories/auth_repository.dart';
 import '../../auth/views/change_password_view.dart';
+import '../../auth/views/login_view.dart';
 import '../../auth/views/profile_view.dart';
 
 /// دروار واحد مشترك يُستخدم بكل شاشات التطبيق يلي بدها تظهره (بدل ما يكون
@@ -12,8 +16,49 @@ import '../../auth/views/profile_view.dart';
 /// بكل مكان مستخدم فيه.
 ///
 /// البنود: Profile, Change Password, Light/Dark, Language, ثم Logout.
-class AppDrawer extends StatelessWidget {
+class AppDrawer extends StatefulWidget {
   const AppDrawer({super.key});
+
+  @override
+  State<AppDrawer> createState() => _AppDrawerState();
+}
+
+class _AppDrawerState extends State<AppDrawer> {
+  final _authRepository = AuthRepository();
+  bool _isLoggingOut = false;
+
+  /// تسجيل خروج حقيقي (كان قبل هيك مجرد SnackBar وهمي):
+  /// 1) إلغاء تسجيل الـ FCM device token تبع هاد الجهاز بالباك اند
+  ///    + مسح التوكن محلياً من Firebase (NotificationController.unregisterDevice)
+  /// 2) نداء /api/customers/logout بالتوكن الحالي
+  /// 3) مسح التوكن المحلي (TokenStorage)
+  /// 4) التنقل لـ LoginView ومسح كل الشاشات السابقة
+  Future<void> _logout(BuildContext context) async {
+    if (_isLoggingOut) return;
+    setState(() => _isLoggingOut = true);
+
+    try {
+      await NotificationController.instance.unregisterDevice();
+
+      final authToken = await TokenStorage.getToken();
+      if (authToken != null) {
+        try {
+          await _authRepository.logout(token: authToken);
+        } catch (_) {
+          // حتى لو فشل نداء /logout بالباك (مثلاً انقطع النت)، منكمل
+          // تسجيل الخروج محلياً بدل ما نحبس المستخدم جوا حسابه.
+        }
+      }
+    } finally {
+      await TokenStorage.clearToken();
+    }
+
+    if (!context.mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginView()),
+      (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,15 +132,12 @@ class AppDrawer extends StatelessWidget {
               icon: Icons.logout,
               label: 'drawer.logout'.tr(),
               isDestructive: true,
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('drawer.logout_demo'.tr()),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-              },
+              onTap: _isLoggingOut
+                  ? null
+                  : () {
+                      Navigator.pop(context);
+                      _logout(context);
+                    },
             ),
           ],
         ),
@@ -108,7 +150,7 @@ class AppDrawer extends StatelessWidget {
 class _DrawerItem extends StatelessWidget {
   final IconData icon;
   final String label;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final bool isDestructive;
 
   const _DrawerItem({

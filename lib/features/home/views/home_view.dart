@@ -9,6 +9,7 @@ import 'package:customer_app/features/orders/views/my_orders_view.dart';
 import 'package:customer_app/features/return/views/myReturnsView.dart';
 import 'package:flutter/material.dart';
 import '../../../controllers/home_controller.dart';
+import '../../../controllers/notification_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_text_styles.dart';
@@ -32,6 +33,11 @@ class _HomeViewState extends State<HomeView> {
     super.initState();
     _homeController.loadWarehouses();
     _homeController.addListener(() => setState(() {}));
+
+    // HomeView هي نقطة الوصول الوحيدة بعد أي نوع تسجيل دخول ناجح
+    // (عادي / Google / deep link) — فهي أنسب مكان لتسجيل الـ FCM
+    // device token تبع الزبون (نفس دور driver_home_screen بتطبيق العامل).
+    NotificationController.instance.initialize();
   }
 
   @override

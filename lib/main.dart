@@ -6,6 +6,7 @@ import 'package:customer_app/core/theme/theme_controller.dart';
 import 'package:customer_app/features/auth/views/create_password_view.dart';
 import 'package:customer_app/features/auth/views/login_view.dart';
 import 'package:customer_app/features/home/views/home_view.dart';
+import 'package:customer_app/services/firebase_messaging_manager.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
@@ -15,6 +16,8 @@ import 'core/utils/nav_utils.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // 👈 تهيئة Firebase Messaging قبل أي شي (نفس ترتيب تطبيق العامل)
+  await FirebaseMessagingManager.instance.initialize();
   await EasyLocalization.ensureInitialized();
 
   runApp(

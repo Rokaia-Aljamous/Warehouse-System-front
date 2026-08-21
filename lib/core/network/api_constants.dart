@@ -40,4 +40,16 @@ class ApiConstants {
 
   // ── Profile endpoints ─────────────────────────────────────
   static const String profile = '$baseUrl/api/customers/profile';
+
+  // ── Notifications endpoints ───────────────────────────────
+  static const String notifications = '$baseUrl/api/customers/notifications';
+  static const String notificationUnreadCount =
+      '$baseUrl/api/customers/notifications/unread-count';
+  static const String notificationReadAll =
+      '$baseUrl/api/customers/notifications/read-all';
+  static String notificationRead(int notificationId) =>
+      '$baseUrl/api/customers/notifications/$notificationId/read';
+  // ← الجديد يلي بيحتاج تعديل الباك (CustomerFirebaseTokenController)
+  static const String notificationDeviceToken =
+      '$baseUrl/api/customers/notifications/device-token';
 }
